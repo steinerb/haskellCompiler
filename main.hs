@@ -4,16 +4,22 @@ import Lexer
 main :: IO ()
 main = do 
 	message
-	print (handleTOKEN T_RParen)
+	print (makeTOKEN ")")
 
+	--TEST CODE FOR STORING VARIABLES&INPUT
 	--userInput <- getLine
 	--handle userInput
 
---OUTPUT MESSAGES
+
 message :: IO ()
 message = do putStrLn "Handling Token..."
 
---HANDLERS
-handleTOKEN :: TOKEN -> [Char]
-handleTOKEN x@(T_RParen) = "}"
-handleTOKEN x = "other..."
+
+--tokenize :: [Char] -> [TOKEN]
+
+
+
+makeTOKEN :: [Char] -> TOKEN
+makeTOKEN "(" = T_LParen
+makeTOKEN ")" = T_RParen
+makeTOKEN x = Invalid

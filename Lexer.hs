@@ -5,4 +5,11 @@ data TOKEN = T_name [Char]
 		   | T_RParen
 		   | Invalid
 		   		deriving (Show)
-       
+
+tokens :: [[Char]]
+tokens =
+	[
+		"(",
+		")"
+	]
+

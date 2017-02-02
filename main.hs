@@ -4,7 +4,7 @@ import Lexer
 main :: IO ()
 main = do 
 	message
-	print (makeTOKEN ")")
+	print (tokenize "(")
 
 	--TEST CODE FOR STORING VARIABLES&INPUT
 	--userInput <- getLine
@@ -12,10 +12,19 @@ main = do
 
 
 message :: IO ()
-message = do putStrLn "Handling Token..."
+message = do putStrLn "Lexing..."
 
 
---tokenize :: [Char] -> [TOKEN]
+tokenize :: [Char] -> [TOKEN]
+tokenize "" = []
+tokenize x = tokenizeHelper x "" []
+
+tokenizeHelper :: [Char] -> [Char] -> [TOKEN] -> [TOKEN]
+tokenizeHelper "" _ tokens = tokens
+tokenizeHelper (fst:inpt) buff tkns = 
+	if (elem [fst] tokens) then tokenizeHelper inpt buff tkns++[(makeTOKEN [fst])]
+	else error "ERROR"
+
 
 
 

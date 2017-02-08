@@ -4,7 +4,8 @@ import Lexer
 main :: IO ()
 main = do 
 	message
-	print (tokenize "(")
+	userInput <- getLine
+	putStrLn (tokenizeHelp (makeState userInput))
 
 	--TEST CODE FOR STORING VARIABLES&INPUT
 	--userInput <- getLine
@@ -12,4 +13,4 @@ main = do
 
 
 message :: IO ()
-message = do putStrLn "Lexing..."
+message = do putStrLn "Enter a String to be tokenized:"

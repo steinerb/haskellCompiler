@@ -65,7 +65,7 @@ processState s@(State i b t n) =
     if((makeToken s) /= Invalid)
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s))
     --buffer is a space or tab
-    else if ((b == " ")||(b == "\t"))
+    else if ((b == " ")||(b == "\t")||(b == "\n"))
         then (State i "" t n)
     --nothing to be processed
     else s

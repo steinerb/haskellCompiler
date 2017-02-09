@@ -81,8 +81,8 @@ makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last ((makeTerminal tk
 
 makeToken :: State -> Token
 makeToken s@(State _ b _ n) =
-	if      (b==")")  then T_LParen 
-	else if (b=="(")  then T_RParen
+	if      (b=="(")  then T_LParen 
+	else if (b==")")  then T_RParen
 	else if (b=="if") then T_if
 	else if (b=="in") then T_in
 	else Invalid

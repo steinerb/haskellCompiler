@@ -7,7 +7,6 @@ data Token = T_name String
            | T_RParen
            | T_if
            | T_in
-           | T_end
            | Invalid
                 deriving (Eq, Show)
 
@@ -15,7 +14,7 @@ data Token = T_name String
 data State = State String String [Token] Int deriving (Show)
 
 
-
+--CONDITION: cannot have multiple characters per number
 symbolTable :: [(Int, String)]
 symbolTable =
     [
@@ -29,8 +28,10 @@ getKey :: (Int, String) -> Int
 getKey (k, p) = k
 getPair :: (Int, String) -> String
 getPair (k, p) = p
---getSymbol :: Int -> String
---getSymbol k = getPair (head (filter ((==k).getKey) symbolTable))
+
+getSymbols :: Int -> [String]
+getSymbols k = map (getPair) (filter ((==k).getKey) symbolTable)
+
 getNum :: String -> Int
 getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 
@@ -41,9 +42,9 @@ getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 newState :: String -> State
 newState i = State i [] [] 0
 
---tokenize :: String -> [Token]
---tokenize "" = []
---tokenize i = tokenizeHelp (newState i)
+tokenize :: String -> [Token]
+tokenize "" = []
+tokenize i = tokenizeHelp (newState i)
 
 --INPUT: NON-EMPTY STRING
 --needs more conditions!!!
@@ -98,7 +99,7 @@ makeTerminal T_LParen = "("
 makeTerminal T_RParen = ")"
 makeTerminal T_if = "if"
 makeTerminal T_in = "in"
-makeTerminal Invalid = error "Invalid" 
+makeTerminal Invalid = error "Cannot tokenize buffer!" 
 
 --will be used soon!!
 --takes a state, looks at the number, returns list of possible state paths

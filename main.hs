@@ -5,7 +5,7 @@ main :: IO ()
 main = do 
     message
     userInput <- getLine
-    print (tokenizeHelp (newState userInput))
+    print (tokenize userInput)
     --print (tokenizeHelp (newState "("))
 
     --TEST CODE FOR STORING VARIABLES&INPUT

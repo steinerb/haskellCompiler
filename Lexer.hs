@@ -29,8 +29,8 @@ getKey :: (Int, String) -> Int
 getKey (k, p) = k
 getPair :: (Int, String) -> String
 getPair (k, p) = p
-getSymbol :: Int -> String
-getSymbol k = getPair (head (filter ((==k).getKey) symbolTable))
+--getSymbol :: Int -> String
+--getSymbol k = getPair (head (filter ((==k).getKey) symbolTable))
 getNum :: String -> Int
 getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 
@@ -60,8 +60,13 @@ tokenizeHelp s@(State (fst:i) b t n) = tokenizeHelp (processState (State i (b++[
 --needs more conditions!!!
 processState :: State -> State
 processState s@(State i b t n) =
+    --token can be made
     if((makeToken s) /= Invalid)
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s))
+    --buffer is a space
+    else if (b == " ")
+        then (State i "" t n)
+    --nothing to be processed
     else s
 --kill condition?
 

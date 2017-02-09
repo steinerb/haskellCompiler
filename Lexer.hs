@@ -3,10 +3,10 @@ module Lexer where
 
 
 data Token = T_name String
-           | T_LParen
-           | T_RParen
-           | T_if
-           | T_in
+           | T_LBrace
+           | T_RBrace
+           | T_type
+           | T_end
            | Invalid
                 deriving (Eq, Show)
 
@@ -18,11 +18,12 @@ data State = State String String [Token] Int deriving (Show)
 symbolTable :: [(Int, String)]
 symbolTable =
     [
-        (1, "("),
-        (2, ")"),
+        (1, "{"),
+        (2, "}"),
         (3, "i"),
-        (5, "n"),
-        (4, "f")
+        (4, "n"),
+        (5, "t"),
+        (6, "$")
     ]
 getKey :: (Int, String) -> Int
 getKey (k, p) = k
@@ -86,19 +87,18 @@ makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last ((makeTerminal tk
 
 makeToken :: State -> Token
 makeToken s@(State _ b _ n) =
-    if      (b=="(")  then T_LParen 
-    else if (b==")")  then T_RParen
-    else if (b=="if") then T_if
-    else if (b=="in") then T_in
+    if      (b=="{")  then T_LBrace 
+    else if (b=="}")  then T_RBrace
+    else if (b=="int") then T_type
+    else if (b=="$") then T_end
     else Invalid
 
 --makeToken "k" = T_kill
-
 makeTerminal :: Token -> String
-makeTerminal T_LParen = "("
-makeTerminal T_RParen = ")"
-makeTerminal T_if = "if"
-makeTerminal T_in = "in"
+makeTerminal T_LBrace = "{"
+makeTerminal T_RBrace = "}"
+makeTerminal T_type = "int"
+makeTerminal T_end = "$"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 
 
 --will be used soon!!
@@ -111,12 +111,13 @@ getAdjacentCons s@(State _ _ _ n) = filter (>0) (stateCons!!n)
 
 stateCons :: [[Int]]
 stateCons =
-    --    (   )   i   n   f
+    --    {   }   i   n   t   $
     [
-        [ 1,  2,  3, -9, -9],
-        [-9, -9, -9, -9, -9], --1: ( found
-        [-9, -9, -9, -9, -9], --2: ) found
-        [-9, -9, -9,  5,  4], --3: proceed to 4 or 5
-        [-9, -9, -9, -9, -9], --4: in found
-        [-9, -9, -9, -9, -9]  --5: if found
+        [ 1,  2,  3, -9, -9, -9],
+        [-9, -9, -9, -9, -9, -9],
+        [-9, -9, -9, -9, -9, -9],
+        [-9, -9, -9,  4, -9, -9],
+        [-9, -9, -9, -9,  5, -9],
+        [-9, -9, -9, -9, -9, -9],
+        [-9, -9, -9, -9, -9, -9]
     ]

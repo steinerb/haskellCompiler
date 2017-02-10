@@ -6,7 +6,7 @@ data Token = T_name String
            | T_LBrace
            | T_RBrace
            | T_type
-           | T_end
+           | T_EOP
            | Invalid
                 deriving (Eq, Show)
 
@@ -38,8 +38,6 @@ getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 
 
 
-
-
 newState :: String -> State
 newState i = State i [] [] 0
 
@@ -53,9 +51,18 @@ tokenizeHelp :: State -> [Token]
 --empty input
 tokenizeHelp s@(State [] b t n) = t
 --one char input
-tokenizeHelp s@(State (fst:[]) b t n) = tokenizeHelp (processState (State [] (b++[fst]) t n))
+--tokenizeHelp s@(State (fst:[]) b t n) = tokenizeHelp (processState (State [] (b++[fst]) t n))
+tokenizeHelp s@(State (fst:[]) b t n) = 
+    if ((getNum (fst:[])) `elem` (map (getKey) symbolTable)) 
+        then tokenizeHelp (processState (State [] (b++[fst]) t n))
+    else
+        error ("Invalid character intered")
 --multiple char input
-tokenizeHelp s@(State (fst:i) b t n) = tokenizeHelp (processState (State i (b++[fst]) t n))
+--tokenizeHelp s@(State (fst:i) b t n) = tokenizeHelp (processState (State i (b++[fst]) t n))
+tokenizeHelp s@(State (fst:i) b t n) =
+    if ((getNum (fst:[])) `elem` (map (getKey) symbolTable)) then tokenizeHelp (processState (State i (b++[fst]) t n))
+    else
+        error ("Invalid character intered")
 
 
 --takes a state, add input to buffer, read buffer
@@ -70,14 +77,20 @@ processState s@(State i b t n) =
         then (State i "" t n)
     --nothing to be processed
     else s
---kill condition?
+
+--IF LENGTH OF BUFFER IS ONE
+--else if ((len b) == 1) then lookAhead b s
+--lookAhead :: State -> State
+--lookAhead bOld s@(State (fst:i) b _ _) = 
+--    if (filter (isInfixOf (makeToken (bOld++[fst]))) (makeToken))
+
 
 --(stateCons (State connections) logic to be implemented)
 --Token -> String -> Last Element -> Int 
 
+--Token is the Token of the TRAVELED PATH
 makePath :: Token -> State -> Int
 makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last ((makeTerminal tkn)):[]))) (getAdjacentCons s))
-
 --makeToken :: State -> Token
 --makeToken s@(State _ b@(")") _ n))  = T_LParen
 --makeToken s@(State _ b@("(") _ n))  = T_RParen
@@ -87,10 +100,10 @@ makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last ((makeTerminal tk
 
 makeToken :: State -> Token
 makeToken s@(State _ b _ n) =
-    if      (b=="{")  then T_LBrace 
+    if      (b=="{")  then T_LBrace
     else if (b=="}")  then T_RBrace
     else if (b=="int") then T_type
-    else if (b=="$") then T_end
+    else if (b=="$") then T_EOP
     else Invalid
 
 --makeToken "k" = T_kill
@@ -98,7 +111,7 @@ makeTerminal :: Token -> String
 makeTerminal T_LBrace = "{"
 makeTerminal T_RBrace = "}"
 makeTerminal T_type = "int"
-makeTerminal T_end = "$"
+makeTerminal T_EOP = "$"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 
 
 --will be used soon!!

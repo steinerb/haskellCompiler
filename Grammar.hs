@@ -1,4 +1,7 @@
 module Grammar where
 
-type BLOCK = Int
-data PGM = PGM 
+--will be:
+--data Program = Program Block ...
+--when attempting parsing
+
+--type Program = [Tokens]

@@ -51,18 +51,10 @@ tokenizeHelp :: State -> [Token]
 --empty input
 tokenizeHelp s@(State [] b t n) = t
 --one char input
---tokenizeHelp s@(State (fst:[]) b t n) = tokenizeHelp (processState (State [] (b++[fst]) t n))
-tokenizeHelp s@(State (fst:[]) b t n) = 
-    if ((getNum (fst:[])) `elem` (map (getKey) symbolTable)) 
-        then tokenizeHelp (processState (State [] (b++[fst]) t n))
-    else
-        error ("Invalid character intered")
+tokenizeHelp s@(State (fst:[]) b t n) = tokenizeHelp (processState (State [] (b++[fst]) t n))
 --multiple char input
---tokenizeHelp s@(State (fst:i) b t n) = tokenizeHelp (processState (State i (b++[fst]) t n))
-tokenizeHelp s@(State (fst:i) b t n) =
-    if ((getNum (fst:[])) `elem` (map (getKey) symbolTable)) then tokenizeHelp (processState (State i (b++[fst]) t n))
-    else
-        error ("Invalid character intered")
+tokenizeHelp s@(State (fst:i) b t n) = tokenizeHelp (processState (State i (b++[fst]) t n))
+
 
 
 --takes a state, add input to buffer, read buffer

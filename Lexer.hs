@@ -37,7 +37,6 @@ getNum :: String -> Int
 getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 
 
-
 newState :: String -> State
 newState i = State i [] [] 0
 

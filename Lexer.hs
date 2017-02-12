@@ -32,9 +32,8 @@ getKey :: (Int, Char) -> Int
 getKey (k, p) = k
 getPair :: (Int, Char) -> Char
 getPair (k, p) = p
-getSymbols :: Int -> [Char]
-getSymbols k = map (getPair) (filter ((==k).getKey) symbolTable)
-
+--getSymbols :: Int -> [Char]
+--getSymbols k = map (getPair) (filter ((==k).getKey) symbolTable)
 getNum :: Char -> Int
 getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 
@@ -100,12 +99,9 @@ makeTerminal T_type = "int"
 makeTerminal T_EOP = "$"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 
 
---will be used soon!!
 --takes a state, looks at the number, returns list of possible state paths
 getAdjacentCons :: State -> [Int]
 getAdjacentCons s@(State _ _ _ n) = filter (>0) (stateCons!!n)
-
-
 
 
 stateCons :: [[Int]]

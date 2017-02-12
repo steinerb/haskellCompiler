@@ -18,7 +18,6 @@ data State = State String String [Token] Int deriving (Show)
 
 
 --CONDITION: cannot have multiple characters per number
-
 symbolTable :: [(Int, Char)]
 symbolTable =
     [
@@ -69,25 +68,11 @@ processState s@(State i b t n) =
     --buffer is a space or tab
     else if ((b == " ")||(b == "\t")||(b == "\n"))
         then (State i "" t n)
-    --token can't be made and length is 1
-    --else if ((length b == 1) && (b `notElem` (map (getPair) symbolTable))) 
-        --then error ("unexpected token: "++b)
     --nothing to be processed
-    --else if ((True) `elem` (map (isInfixOf (last [b])) (map (getPair) symbolTable)))
     else if ((True) `elem` (map (==(last b)) (map (getPair) symbolTable)))
         then s
-    --error
+    --unexpected token error for bad input
     else error ("unexpected token: "++b)
-
---IF LENGTH OF BUFFER IS ONE
---else if ((len b) == 1) then lookAhead b s
---lookAhead :: State -> State
---lookAhead bOld s@(State (fst:i) b _ _) = 
---    if (filter (isInfixOf (makeToken (bOld++[fst]))) (makeToken))
-
-
---(stateCons (State connections) logic to be implemented)
---Token -> String -> Last Element -> Int 
 
 --Token is the Token of the TRAVELED PATH
 makePath :: Token -> State -> Int

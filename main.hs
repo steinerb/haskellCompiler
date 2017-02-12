@@ -7,7 +7,6 @@ main = do
     userInput <- getLine
     programStrings <- return (map (tokenize) (splitByEOP userInput []))
     print programStrings
-    --print (tokenizeHelp (newState "("))
 
 introMessage :: IO ()
 introMessage = do putStrLn "Enter a String to be tokenized (any combination of: {, }, int, $):"
@@ -18,4 +17,8 @@ splitByEOP ((fst@('$')):i) lst = splitByEOP i lst
 splitByEOP [] lst = lst
 splitByEOP i lst = splitByEOP (dropWhile (/='$') i) (lst++[(takeWhile (/='$') i)])
 
---printProgram :: [Token] -> 
+
+test :: IO()
+test = do
+    putStrLn "INPUT: {}${{{{{{}}}}}}${{{{{{}}}}}}}${int @}$"
+    print (map (tokenize) (splitByEOP "{}${{{{{{}}}}}}${{{{{{}}}}}}}${int @}$" []))

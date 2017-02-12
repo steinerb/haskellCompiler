@@ -7,5 +7,11 @@ INTSALL HASKELL: (linux)
 TO COMPILE:
   $ ghc main.hs
   
-TO RUN:
+TO RUN THE MAIN PROGRAM:
   $ ./main
+
+TO RUN THE TEST OR MAIN PROGRAM:
+  $ ghci main
+  		*Main> test
+  		[OR]
+  		*Main> main

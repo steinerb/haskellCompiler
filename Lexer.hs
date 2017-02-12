@@ -18,18 +18,9 @@ data State = State String String [Token] Int deriving (Show)
 
 
 --CONDITION: cannot have multiple characters per number
-symbolTable :: [(Int, String)]
+
+symbolTable :: [(Int, Char)]
 symbolTable =
-    [
-        (1, "{"),
-        (2, "}"),
-        (3, "i"),
-        (4, "n"),
-        (5, "t"),
-        (6, "$")
-    ]
-symbolTableC :: [(Int, Char)]
-symbolTableC =
     [
         (1, '{'),
         (2, '}'),
@@ -38,17 +29,14 @@ symbolTableC =
         (5, 't'),
         (6, '$')
     ]
-getKey :: (Int, String) -> Int
+getKey :: (Int, Char) -> Int
 getKey (k, p) = k
-getPair :: (Int, String) -> String
+getPair :: (Int, Char) -> Char
 getPair (k, p) = p
-getPairC :: (Int, Char) -> Char
-getPairC (k, p) = p
-
-getSymbols :: Int -> [String]
+getSymbols :: Int -> [Char]
 getSymbols k = map (getPair) (filter ((==k).getKey) symbolTable)
 
-getNum :: String -> Int
+getNum :: Char -> Int
 getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 
 
@@ -82,11 +70,11 @@ processState s@(State i b t n) =
     else if ((b == " ")||(b == "\t")||(b == "\n"))
         then (State i "" t n)
     --token can't be made and length is 1
-    else if ((length b == 1) && (b `notElem` (map (getPair) symbolTable))) 
-        then error ("unexpected token: "++b)
+    --else if ((length b == 1) && (b `notElem` (map (getPair) symbolTable))) 
+        --then error ("unexpected token: "++b)
     --nothing to be processed
     --else if ((True) `elem` (map (isInfixOf (last [b])) (map (getPair) symbolTable)))
-    else if ((True) `elem` (map (==(last b)) (map (getPairC) symbolTableC)))
+    else if ((True) `elem` (map (==(last b)) (map (getPair) symbolTable)))
         then s
     --error
     else error ("unexpected token: "++b)
@@ -103,7 +91,7 @@ processState s@(State i b t n) =
 
 --Token is the Token of the TRAVELED PATH
 makePath :: Token -> State -> Int
-makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last ((makeTerminal tkn)):[]))) (getAdjacentCons s))
+makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last (makeTerminal tkn)))) (getAdjacentCons s))
 --makeToken :: State -> Token
 --makeToken s@(State _ b@(")") _ n))  = T_LParen
 --makeToken s@(State _ b@("(") _ n))  = T_RParen

@@ -5,7 +5,8 @@ main :: IO ()
 main = do 
     introMessage
     userInput <- getLine
-    print (map (tokenize) (splitByEOP userInput []))
+    programStrings <- return (map (tokenize) (splitByEOP userInput []))
+    print programStrings
     --print (tokenizeHelp (newState "("))
 
 introMessage :: IO ()
@@ -16,3 +17,5 @@ splitByEOP :: String -> [String] -> [String]
 splitByEOP ((fst@('$')):i) lst = splitByEOP i lst
 splitByEOP [] lst = lst
 splitByEOP i lst = splitByEOP (dropWhile (/='$') i) (lst++[(takeWhile (/='$') i)])
+
+--printProgram :: [Token] -> 

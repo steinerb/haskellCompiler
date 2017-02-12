@@ -14,6 +14,7 @@ data Token = T_name String
 data State = State String String [Token] Int deriving (Show)
 
 
+
 --CONDITION: cannot have multiple characters per number
 symbolTable :: [(Int, String)]
 symbolTable =

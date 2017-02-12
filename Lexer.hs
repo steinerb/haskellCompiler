@@ -1,5 +1,7 @@
 module Lexer where
 
+import Data.List
+
 
 
 data Token = T_name String
@@ -26,10 +28,22 @@ symbolTable =
         (5, "t"),
         (6, "$")
     ]
+symbolTableC :: [(Int, Char)]
+symbolTableC =
+    [
+        (1, '{'),
+        (2, '}'),
+        (3, 'i'),
+        (4, 'n'),
+        (5, 't'),
+        (6, '$')
+    ]
 getKey :: (Int, String) -> Int
 getKey (k, p) = k
 getPair :: (Int, String) -> String
 getPair (k, p) = p
+getPairC :: (Int, Char) -> Char
+getPairC (k, p) = p
 
 getSymbols :: Int -> [String]
 getSymbols k = map (getPair) (filter ((==k).getKey) symbolTable)
@@ -67,8 +81,15 @@ processState s@(State i b t n) =
     --buffer is a space or tab
     else if ((b == " ")||(b == "\t")||(b == "\n"))
         then (State i "" t n)
+    --token can't be made and length is 1
+    else if ((length b == 1) && (b `notElem` (map (getPair) symbolTable))) 
+        then error ("unexpected token: "++b)
     --nothing to be processed
-    else s
+    --else if ((True) `elem` (map (isInfixOf (last [b])) (map (getPair) symbolTable)))
+    else if ((True) `elem` (map (==(last b)) (map (getPairC) symbolTableC)))
+        then s
+    --error
+    else error ("unexpected token: "++b)
 
 --IF LENGTH OF BUFFER IS ONE
 --else if ((len b) == 1) then lookAhead b s

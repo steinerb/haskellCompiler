@@ -3,11 +3,27 @@ module Lexer where
 import Data.List
 
 
+--maybe T_Eq should represent both T_Eq and T_notEq???
+data Type = TypeInt
+          | TypeStr
+          | TypeBool
+            deriving (Eq, Show)
 
+--added extra tokens
+--more tokens to be added
+--
 data Token = T_name String
            | T_LBrace
            | T_RBrace
-           | T_type
+           | T_LParen
+           | T_RParen
+           | T_intOp
+           | T_notEq
+           | T_Eq
+           | T_if
+           | T_while
+           | T_print
+           | T_type Type
            | T_EOP
            | Invalid
                 deriving (Eq, Show)
@@ -83,19 +99,28 @@ makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last (makeTerminal tkn
 --makeToken s@(State _ "in" _ n)) = T_in
 --makeToken x = Invalid
 
+--types string and boolean need to be added!!
+--TO REVERT: change then on 106 to T_type
 makeToken :: State -> Token
 makeToken s@(State _ b _ n) =
     if      (b=="{")  then T_LBrace
     else if (b=="}")  then T_RBrace
-    else if (b=="int") then T_type
+    else if (b=="int") then T_type TypeInt
+    else if (b=="string") then T_type TypeStr
+    else if (b=="boolean") then T_type TypeBool
     else if (b=="$") then T_EOP
     else Invalid
 
+--types string and boolean need to be added!!
 --makeToken "k" = T_kill
 makeTerminal :: Token -> String
 makeTerminal T_LBrace = "{"
 makeTerminal T_RBrace = "}"
-makeTerminal T_type = "int"
+makeTerminal (T_type TypeInt) = "int"
+makeTerminal (T_type TypeStr) = "string"
+makeTerminal (T_type TypeBool) = "boolean"
+
+--makeTerminal T_type = error "Type not known yet!"
 makeTerminal T_EOP = "$"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 
 

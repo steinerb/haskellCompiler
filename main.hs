@@ -9,7 +9,7 @@ main = do
     print programStrings
 
 introMessage :: IO ()
-introMessage = do putStrLn "Enter a String to be tokenized (any combination of: {, }, int, $):"
+introMessage = do putStrLn "Enter a String to be tokenized!\nWorking Tokens Include: {, }, (, ), +, ==, !=, while"
 
 --breaks programs up by $'s
 splitByEOP :: String -> [String] -> [String]

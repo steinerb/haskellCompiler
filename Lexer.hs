@@ -3,6 +3,8 @@ module Lexer where
 import Data.List
 
 
+--type Character =  
+
 --maybe T_Eq should represent both T_Eq and T_notEq???
 data Type = TypeInt
           | TypeStr
@@ -37,12 +39,19 @@ data State = State String String [Token] Int deriving (Show)
 symbolTable :: [(Int, Char)]
 symbolTable =
     [
-        (1, '{'),
-        (2, '}'),
-        (3, 'i'),
-        (4, 'n'),
-        (5, 't'),
-        (6, '$')
+        (1,  '{'),
+        (2,  '}'),
+        (3,  '('),
+        (4,  ')'),
+        (5,  '+'),
+        (6,  '!'),
+        (7,  '='),
+        (8,  '='),
+        (9,  'w'),
+        (10, 'h'),
+        (11, 'i'),
+        (12, 'l'),
+        (13, 'e')
     ]
 getKey :: (Int, Char) -> Int
 getKey (k, p) = k
@@ -105,6 +114,14 @@ makeToken :: State -> Token
 makeToken s@(State _ b _ n) =
     if      (b=="{")  then T_LBrace
     else if (b=="}")  then T_RBrace
+    else if (b=="(")  then T_LParen
+    else if (b==")")  then T_RParen
+    else if (b=="+")  then T_intOp
+    else if (b=="!=")  then T_notEq
+    else if (b=="==")  then T_Eq
+    else if (b=="if")  then T_if
+    else if (b=="while")  then T_while
+    else if (b=="print")  then T_print
     else if (b=="int") then T_type TypeInt
     else if (b=="string") then T_type TypeStr
     else if (b=="boolean") then T_type TypeBool
@@ -116,11 +133,17 @@ makeToken s@(State _ b _ n) =
 makeTerminal :: Token -> String
 makeTerminal T_LBrace = "{"
 makeTerminal T_RBrace = "}"
+makeTerminal T_LParen = "("
+makeTerminal T_RParen = ")"
+makeTerminal T_intOp = "+"
+makeTerminal T_Eq = "=="
+makeTerminal T_notEq = "!="
+makeTerminal T_if = "if"
+makeTerminal T_while = "while"
+makeTerminal T_print = "print"
 makeTerminal (T_type TypeInt) = "int"
 makeTerminal (T_type TypeStr) = "string"
 makeTerminal (T_type TypeBool) = "boolean"
-
---makeTerminal T_type = error "Type not known yet!"
 makeTerminal T_EOP = "$"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 
 
@@ -129,15 +152,24 @@ getAdjacentCons :: State -> [Int]
 getAdjacentCons s@(State _ _ _ n) = filter (>0) (stateCons!!n)
 
 
+--state 8: (!|=) -> =
+--TO COMPLETE FOR NOW: if, while, print, int,
 stateCons :: [[Int]]
 stateCons =
-    --    {   }   i   n   t   $
+    --    {   }   (   )   +   !   =   i   f   w   h   l   e   p   r   n   t
     [
-        [ 1,  2,  3, -9, -9, -9],
-        [-9, -9, -9, -9, -9, -9],
-        [-9, -9, -9, -9, -9, -9],
-        [-9, -9, -9,  4, -9, -9],
-        [-9, -9, -9, -9,  5, -9],
-        [-9, -9, -9, -9, -9, -9],
-        [-9, -9, -9, -9, -9, -9]
+        [ 1,  2,  3,  4,  5,  6,  7,  9, 10, 11, 12, 13, 14, 15, 16, 17, 18 ], -- 0: 
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], -- 1: { found
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], -- 2: } found
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], -- 3: ( found
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], -- 4: ) found
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], -- 5: + found
+        [-1, -1, -1, -1, -1,  8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], -- 6: ! found NOT EQ
+        [-1, -1, -1, -1, -1, -1,  8, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], -- 7: = found EQ
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], -- 8: = found END OF NOT EQ & EQ
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 10, -1, -1, -1, -1, -1, -1 ], -- 9: w found WHILE
+        [-1, -1, -1, -1, -1, -1, -1, 11, -1, -1, -1, -1, -1, -1, -1, -1, -1 ], --10: h found WHILE
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 12, -1, -1, -1, -1, -1 ], --11: i found WHILE
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, 13, -1, -1, -1, -1 ], --12: l found WHILE
+        [-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ]  --13: e found WHILE
     ]

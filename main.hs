@@ -29,7 +29,7 @@ printPrograms (p:ps) = do
 
 printProgram :: [Token] -> Int -> IO ()
 printProgram [] _ = do 
-    putStrLn "\nProgram Complete!\n"
+    putStrLn "\nProgram Completed Successfully!\n"
 printProgram p 0 = do
     putStrLn ("Lexing Program...\n")
     (printProgram p 1)

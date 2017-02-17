@@ -3,7 +3,6 @@ module Lexer where
 import Data.List
 
 
---type Character =  
 
 --maybe T_Eq should represent both T_Eq and T_notEq???
 data Type = TypeInt
@@ -11,9 +10,8 @@ data Type = TypeInt
           | TypeBool
             deriving (Eq, Show)
 
---added extra tokens
+
 --more tokens to be added
---
 data Token = T_name String
            | T_LBrace
            | T_RBrace
@@ -62,10 +60,11 @@ getPair (k, p) = p
 getNum :: Char -> Int
 getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 
-
+--makes a blank state with input [to be tokenized].
 newState :: String -> State
 newState i = State i [] [] 0
 
+--takes a string, returns a list of tokens
 tokenize :: String -> [Token]
 tokenize "" = []
 tokenize i = tokenizeHelp (newState i)
@@ -95,12 +94,17 @@ processState s@(State i b t n) =
     --nothing to be processed
     else if ((True) `elem` (map (==(last b)) (map (getPair) symbolTable)))
         then s
-    --unexpected token error for bad input
+    --unexpected token error for unrecognized input
     else error ("unexpected token: "++b)
 
+
+--returns an int which is the desired path for a
+--      given state and token.
 --Token is the Token of the TRAVELED PATH
 makePath :: Token -> State -> Int
 makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last (makeTerminal tkn)))) (getAdjacentCons s))
+
+--ALTERNATIVE VALID SYNTAX:
 --makeToken :: State -> Token
 --makeToken s@(State _ b@(")") _ n))  = T_LParen
 --makeToken s@(State _ b@("(") _ n))  = T_RParen
@@ -108,8 +112,7 @@ makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last (makeTerminal tkn
 --makeToken s@(State _ "in" _ n)) = T_in
 --makeToken x = Invalid
 
---types string and boolean need to be added!!
---TO REVERT: change then on 106 to T_type
+--Takes a state, reads the buffer, makes a token
 makeToken :: State -> Token
 makeToken s@(State _ b _ n) =
     if      (b=="{")  then T_LBrace
@@ -128,8 +131,7 @@ makeToken s@(State _ b _ n) =
     else if (b=="$") then T_EOP
     else Invalid
 
---types string and boolean need to be added!!
---makeToken "k" = T_kill
+
 makeTerminal :: Token -> String
 makeTerminal T_LBrace = "{"
 makeTerminal T_RBrace = "}"

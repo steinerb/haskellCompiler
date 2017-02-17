@@ -3,6 +3,7 @@ module Lexer where
 import Data.List
 
 
+data BoolOp = BoolOp {isEq :: Bool} deriving (Eq, Show)
 
 --maybe T_Eq should represent both T_Eq and T_notEq???
 data Type = TypeInt
@@ -18,8 +19,7 @@ data Token = T_name String
            | T_LParen
            | T_RParen
            | T_intOp
-           | T_notEq
-           | T_Eq
+           | T_boolOp BoolOp
            | T_if
            | T_while
            | T_print
@@ -120,8 +120,8 @@ makeToken s@(State _ b _ n) =
     else if (b=="(")  then T_LParen
     else if (b==")")  then T_RParen
     else if (b=="+")  then T_intOp
-    else if (b=="!=")  then T_notEq
-    else if (b=="==")  then T_Eq
+    else if (b=="!=")  then T_boolOp (BoolOp False)
+    else if (b=="==")  then T_boolOp (BoolOp True)
     else if (b=="if")  then T_if
     else if (b=="while")  then T_while
     else if (b=="print")  then T_print
@@ -132,19 +132,19 @@ makeToken s@(State _ b _ n) =
     else Invalid
 
 
-makeTerminal :: Token -> String
+makeTerminal :: Token -> [Char]
 makeTerminal T_LBrace = "{"
 makeTerminal T_RBrace = "}"
 makeTerminal T_LParen = "("
 makeTerminal T_RParen = ")"
-makeTerminal T_intOp = "+"
-makeTerminal T_Eq = "=="
-makeTerminal T_notEq = "!="
-makeTerminal T_if = "if"
+makeTerminal T_intOp  = "+"
+makeTerminal (T_boolOp (BoolOp True))  = "=="
+makeTerminal (T_boolOp (BoolOp False)) = "!="
+makeTerminal T_if =    "if"
 makeTerminal T_while = "while"
 makeTerminal T_print = "print"
-makeTerminal (T_type TypeInt) = "int"
-makeTerminal (T_type TypeStr) = "string"
+makeTerminal (T_type TypeInt) =  "int"
+makeTerminal (T_type TypeStr) =  "string"
 makeTerminal (T_type TypeBool) = "boolean"
 makeTerminal T_EOP = "$"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 

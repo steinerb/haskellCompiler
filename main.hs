@@ -6,9 +6,9 @@ main :: IO ()
 main = do 
     introMessage
     userInput <- getLine
-    programStrings <- return (map (tokenize) (splitByEOP userInput []))
-    print programStrings
-
+    programs <- return (map (tokenize) (splitByEOP userInput []))
+    --printPrograms programs
+    printPrograms programs
 --first printed text
 introMessage :: IO ()
 introMessage = do putStrLn "Enter a String to be tokenized!\nWorking Tokens Include: {, }, (, ), +, ==, !=, while"
@@ -18,6 +18,27 @@ splitByEOP :: String -> [String] -> [String]
 splitByEOP ((fst@('$')):i) lst = splitByEOP i lst
 splitByEOP [] lst = lst
 splitByEOP i lst = splitByEOP (dropWhile (/='$') i) (lst++[(takeWhile (/='$') i)])
+
+--INCOMPLETE
+printPrograms :: [[Token]] -> IO ()
+printPrograms [] = putStrLn "LEXER: END"
+printPrograms (p:ps) = do
+    (printProgram p 0)
+    (printPrograms ps)
+
+
+printProgram :: [Token] -> Int -> IO ()
+printProgram [] _ = do 
+    putStrLn "\nProgram Complete!\n"
+printProgram p 0 = do
+    putStrLn ("Lexing Program...\n")
+    (printProgram p 1)
+printProgram (t:ts) n = do
+    putStrLn ("LEXER: token found:\t"++(makeTerminal t))
+    (printProgram ts (n+1))
+
+
+
 
 --alternative test function ran through gchi.
 test :: IO()

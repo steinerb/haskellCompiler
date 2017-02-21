@@ -29,7 +29,7 @@ data Token = T_id String
                 deriving (Eq, Show)
 
 
-data State = State String String [Token] Int deriving (Show)
+data State = State String String [Token] Int Int Int deriving (Show)
 
 --state 8: (!|=) -> =
 --TO COMPLETE FOR NOW: if, while, print, int,
@@ -127,7 +127,7 @@ getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 
 --makes a blank state with input [to be tokenized].
 newState :: String -> State
-newState i = State i [] [] 0
+newState i = State i [] [] 0 0 0
 
 --takes a string, returns a list of tokens
 tokenize :: String -> [Token]
@@ -138,36 +138,39 @@ tokenize i = tokenizeHelp (newState i)
 --needs more conditions!!!
 tokenizeHelp :: State -> [Token]
 --empty input
-tokenizeHelp s@(State [] b t n) = t
+tokenizeHelp s@(State [] b t n l c) = t
 --one char input
-tokenizeHelp s@(State (fst:[]) b t n) = tokenizeHelp (processState (State [] (b++[fst]) t n))
+tokenizeHelp s@(State (fst:[]) b t n l c) = tokenizeHelp (processState (State [] (b++[fst]) t n l c))
 --multiple char input
-tokenizeHelp s@(State (fst:i) b t n) = tokenizeHelp (processState (State i (b++[fst]) t n))
+tokenizeHelp s@(State (fst:i) b t n l c) = tokenizeHelp (processState (State i (b++[fst]) t n l c))
 
 
 
 --takes a state, add input to buffer, read buffer
 --needs more conditions!!!
 processState :: State -> State
-processState s@(State i b t n) =
+processState s@(State i b t n l c) =
     --token can be made
     if((makeToken s) /= Invalid)
-        then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s))
-    --buffer is a space, tab, or new line
-    else if ((b == " ")||(b == "\t")||(b == "\n"))
-        then (State i "" t n)
+        then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
+    --buffer is a space or tab
+    else if ((b == " ")||(b == "\t"))
+        then (State i "" t n l (c+1))
+    --buffer is a new line
+    else if (b == "\n")
+        then (State i "" t n (l+1) 0)
     --nothing to be processed
     else if ((True) `elem` (map (==(last b)) (map (getPair) symbolTable)))
         then s
     --unexpected token error for unrecognized input
-    else error ("\nLEXER:unexpected token: "++b)
+    else error ("\nLEXER: unexpected token: \""++b++"\" at line "++(show l)++" character "++(show c))
 
 
 --returns an int which is the desired path for a
 --      given state and token.
 --Token is the Token of the TRAVELED PATH
 makePath :: Token -> State -> Int
-makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last (makeTerminal tkn)))) (getAdjacentCons s))
+makePath tkn s@(State _ b _ n _ _) = head (filter (==(getNum (last (makeTerminal tkn)))) (getAdjacentCons s))
 
 --ALTERNATIVE VALID SYNTAX:
 --makeToken :: State -> Token
@@ -179,7 +182,7 @@ makePath tkn s@(State _ b _ n) = head (filter (==(getNum (last (makeTerminal tkn
 
 --Takes a state, reads the buffer, makes a token
 makeToken :: State -> Token
-makeToken s@(State _ b _ n) =
+makeToken s@(State _ b _ n l c) =
     if      (b=="{")  then T_LBrace
     else if (b=="}")  then T_RBrace
     else if (b=="(")  then T_LParen
@@ -216,6 +219,6 @@ makeTerminal Invalid = error "Cannot tokenize buffer!"
 
 --takes a state, looks at the number, returns list of possible state paths
 getAdjacentCons :: State -> [Int]
-getAdjacentCons s@(State _ _ _ n) = filter (>0) (stateCons!!n)
+getAdjacentCons s@(State _ _ _ n _ _) = filter (>0) (stateCons!!n)
 
 

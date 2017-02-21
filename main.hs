@@ -11,7 +11,7 @@ main = do
     printPrograms programs
 --first printed text
 introMessage :: IO ()
-introMessage = do putStrLn "Enter a String to be tokenized!\nWorking Tokens Include: {, }, (, ), +, ==, !=, while"
+introMessage = do putStrLn "Enter a String to be tokenized!\nWorking Tokens Include: {, }, (, ), +, ==, !=, while, if, print, int, string, boolean"
 
 --breaks programs up by $'s
 splitByEOP :: String -> [String] -> [String]
@@ -19,7 +19,7 @@ splitByEOP ((fst@('$')):i) lst = splitByEOP i lst
 splitByEOP [] lst = lst
 splitByEOP i lst = splitByEOP (dropWhile (/='$') i) (lst++[(takeWhile (/='$') i)])
 
---INCOMPLETE
+
 printPrograms :: [[Token]] -> IO ()
 printPrograms [] = putStrLn "LEXER: END"
 printPrograms (p:ps) = do
@@ -29,7 +29,7 @@ printPrograms (p:ps) = do
 
 printProgram :: [Token] -> Int -> IO ()
 printProgram [] _ = do 
-    putStrLn "\nProgram Completed Successfully!\n"
+    putStrLn "\nLEXER: Program Completed Successfully!\n"
 printProgram p 0 = do
     putStrLn ("Lexing Program...\n")
     (printProgram p 1)

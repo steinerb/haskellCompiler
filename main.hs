@@ -11,7 +11,10 @@ main = do
     printPrograms programs
 --first printed text
 introMessage :: IO ()
-introMessage = do putStrLn "Enter a String to be tokenized!\nWorking Tokens Include: {, }, (, ), +, ==, !=, while, if, print, int, string, boolean"
+introMessage = do putStrLn ("Enter a String to be tokenized!\nWorking Tokens Include: "++workingTokens)
+
+workingTokens :: String
+workingTokens = "{, }, (, ), +, ==, !=, while, if, print, int, string, boolean"
 
 --breaks programs up by $'s
 splitByEOP :: String -> [String] -> [String]

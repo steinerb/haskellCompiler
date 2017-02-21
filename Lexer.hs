@@ -13,7 +13,7 @@ data Type = TypeInt
 
 
 --more tokens to be added
-data Token = T_name String
+data Token = T_id String
            | T_LBrace
            | T_RBrace
            | T_LParen
@@ -153,7 +153,7 @@ processState s@(State i b t n) =
     --token can be made
     if((makeToken s) /= Invalid)
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s))
-    --buffer is a space or tab
+    --buffer is a space, tab, or new line
     else if ((b == " ")||(b == "\t")||(b == "\n"))
         then (State i "" t n)
     --nothing to be processed

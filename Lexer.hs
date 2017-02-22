@@ -23,6 +23,7 @@ data Token = T_id String
            | T_boolOp BoolOp
            | T_true
            | T_false
+           | T_string String
            | T_if
            | T_while
            | T_print
@@ -79,11 +80,29 @@ processState s@(State i b t n l c) =
     --buffer is a new line
     else if (b == "\n")
         then (State i "" t n (l+1) 0)
+    --will eventually enter a string loop for another "
+    --buffer is a " (starting a string)
+    else if (b == "\"")
+        then (stringLoop (State (tail i) "" t n l (c+1)))
     --nothing to be processed
     else if ((True) `elem` (map (==(last b)) (map (getPair) symbolTable)))
         then s
     --unexpected token error for unrecognized input
     else error ("\nLEXER: unexpected token: \""++b++"\" at line "++(show l)++" character "++(show c))
+
+stringLoop :: State -> State
+--ending " not found
+stringLoop s@(State [] b t n l c) = error ("\nLEXER: end of string not found on line "++(show l))
+--first of input is "
+stringLoop s@(State (fst@('\"'):i) b t n l c) = (State i "" (t++[(makeToken (State i (b++[fst]) t n l c))]) n l (c+1))
+--first of input is VALID character
+stringLoop s@(State (fst:i) b t n l c) = stringLoop (State i (b++[fst]) t n l (c+1))
+
+
+--is the first of input "?
+    --if (fst == '\"') then (State i "" (t++(makeToken (State i (fst:b) t n l c))) n l (c+1))
+    --else
+    --    stringLoop (State i (b++[fst]) t n l (c+1))
 
 
 --returns an int which is the desired path for a
@@ -92,13 +111,6 @@ processState s@(State i b t n l c) =
 makePath :: Token -> State -> Int
 makePath tkn s@(State _ b _ n _ _) = head (filter (==(getNum (last (makeTerminal tkn)))) (getAdjacentCons s))
 
---ALTERNATIVE VALID SYNTAX:
---makeToken :: State -> Token
---makeToken s@(State _ b@(")") _ n))  = T_LParen
---makeToken s@(State _ b@("(") _ n))  = T_RParen
---makeToken s@(State _ "if" _ n)) = T_if
---makeToken s@(State _ "in" _ n)) = T_in
---makeToken x = Invalid
 
 --Takes a state, reads the buffer, makes a token
 makeToken :: State -> Token
@@ -117,6 +129,7 @@ makeToken s@(State _ b _ n l c) =
     else if (b=="int") then     T_type TypeInt
     else if (b=="string") then  T_type TypeStr
     else if (b=="boolean") then T_type TypeBool
+    else if (((head b) == '\"') && ((last b) == '\"')) then (T_string (tail (init b)))
     else if (b=="$") then       T_EOP
     else Invalid
 
@@ -137,6 +150,7 @@ makeTerminal T_print = "print"
 makeTerminal (T_type TypeInt) =  "int"
 makeTerminal (T_type TypeStr) =  "string"
 makeTerminal (T_type TypeBool) = "boolean"
+makeTerminal (T_string s) = s
 makeTerminal T_EOP = "$"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 
 

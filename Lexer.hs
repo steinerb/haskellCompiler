@@ -83,26 +83,23 @@ processState s@(State i b t n l c) =
     --will eventually enter a string loop for another "
     --buffer is a " (starting a string)
     else if (b == "\"")
-        then (stringLoop (State (tail i) "" t n l (c+1)))
+        then (processString s)
     --nothing to be processed
     else if ((True) `elem` (map (==(last b)) (map (getPair) symbolTable)))
         then s
     --unexpected token error for unrecognized input
     else error ("\nLEXER: unexpected token: \""++b++"\" at line "++(show l)++" character "++(show c))
 
-stringLoop :: State -> State
---ending " not found
-stringLoop s@(State [] b t n l c) = error ("\nLEXER: end of string not found on line "++(show l))
---first of input is "
-stringLoop s@(State (fst@('\"'):i) b t n l c) = (State i "" (t++[(makeToken (State i (b++[fst]) t n l c))]) n l (c+1))
---first of input is VALID character
-stringLoop s@(State (fst:i) b t n l c) = stringLoop (State i (b++[fst]) t n l (c+1))
-
-
---is the first of input "?
-    --if (fst == '\"') then (State i "" (t++(makeToken (State i (fst:b) t n l c))) n l (c+1))
-    --else
-    --    stringLoop (State i (b++[fst]) t n l (c+1))
+--s is for State, NOT String
+processString :: State -> State
+--string not closed error condition 1
+processString s@(State [] b t n l c) = error ("LEXER: string not closed on line "++(show l))
+--string not closed error condition 2 ELSE valid input
+processString s@(State i b t n l c) =
+    if ('\"' `notElem` i)
+        then error ("LEXER: string not closed on line "++(show l))
+    else
+        (State (dropWhile (/='\n') i) "" (t++[T_string ('\"':(takeWhile (/='\n') i))]) n l (c+(length (dropWhile (/='\n') i))))
 
 
 --returns an int which is the desired path for a
@@ -129,7 +126,7 @@ makeToken s@(State _ b _ n l c) =
     else if (b=="int") then     T_type TypeInt
     else if (b=="string") then  T_type TypeStr
     else if (b=="boolean") then T_type TypeBool
-    else if (((head b) == '\"') && ((last b) == '\"')) then (T_string (tail (init b)))
+    else if (((head b) == '\"') && ((last b) == '\"') && (length b > 1)) then (T_string b)
     else if (b=="$") then       T_EOP
     else Invalid
 

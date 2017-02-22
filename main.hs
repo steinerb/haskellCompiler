@@ -14,7 +14,7 @@ introMessage :: IO ()
 introMessage = do putStrLn ("Enter a String to be tokenized!\nWorking Tokens Include: "++workingTokens)
 
 workingTokens :: String
-workingTokens = "{, }, (, ), +, ==, !=, while, if, print, int, string, boolean"
+workingTokens = "{, }, (, ), +, ==, !=, true, false, while, if, print, int, string, boolean"
 
 --breaks programs up by $'s
 splitByEOP :: String -> [String] -> [String]

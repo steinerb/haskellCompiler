@@ -99,7 +99,7 @@ processString s@(State i b t n l c) =
     if ('\"' `notElem` i)
         then error ("LEXER: string not closed on line "++(show l))
     else
-        (State (dropWhile (/='\n') i) "" (t++[T_string ('\"':(takeWhile (/='\n') i))]) n l (c+(length (dropWhile (/='\n') i))))
+        (State (tail (dropWhile (/='\"') i)) "" (t++[T_string ((takeWhile (/='\"') i))]) n l (c+(length (takeWhile (/='\"') i))))
 
 
 --returns an int which is the desired path for a

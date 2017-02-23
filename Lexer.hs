@@ -77,30 +77,30 @@ tokenizeHelp s@(State (fst:i) b t n l c) = tokenizeHelp (processState (State i (
 --needs more conditions!!!
 processState :: State -> State
 processState s@(State i b t n l c) =
-    --buffer length 1
-    if (length b == 1) then
-        --buffer is = 
-        if ((b == "=") && ((lookAhead s  /= (Just '!')) || (lookAhead s /= (Just '='))))
-            then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
-        --buffer is an id, [a-z]
-        else if (( (b == "a" ) || (b == "b" ) || (b == "c" ) || (b == "d" ) || (b == "e" ) || (b == "f" ) || (b == "g" ) || (b == "h" ) || (b == "i" ) || (b == "j" ) || (b == "k" ) || (b == "l" ) || (b == "m" ) || (b == "n" ) || (b == "o" ) || (b == "p" ) || (b == "q" ) || (b == "r" ) || (b == "s" ) || (b == "t" ) || (b == "u" ) || (b == "v" ) || (b == "w" ) || (b == "x" ) || (b == "y" ) || (b == "z" ) ) && ((lookAhead s == (Just ' ') || (lookAhead s == (Nothing)))))
-            then error "T_id (a-z) detected!!!"
-        -- otherwise
-        else
-            s
     --token can be made
-    else if((makeToken s) /= Invalid)
+    if((makeToken s) /= Invalid)
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
+    --will eventually enter a string loop for another "
+    --buffer is a " (starting a string)
+    else if (b == "\"")
+        then (processString s)
+        --buffer is = 
+    else if (b == "=") then
+        --lookahead not =
+        if (lookAhead s /= (Just '='))
+            then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
+        --lookahead is =
+        else
+            (State i b t (makePath (makeToken s) s) l c)
+    --buffer is a VALID id, [a-z]
+    else if ( ((lookAhead s == (Just ' ') || (lookAhead s == (Just '\t')) || (lookAhead s == (Nothing)))) && ( (b == "a" ) || (b == "b" ) || (b == "c" ) || (b == "d" ) || (b == "e" ) || (b == "f" ) || (b == "g" ) || (b == "h" ) || (b == "i" ) || (b == "j" ) || (b == "k" ) || (b == "l" ) || (b == "m" ) || (b == "n" ) || (b == "o" ) || (b == "p" ) || (b == "q" ) || (b == "r" ) || (b == "s" ) || (b == "t" ) || (b == "u" ) || (b == "v" ) || (b == "w" ) || (b == "x" ) || (b == "y" ) || (b == "z" )))
+        then error "T_id (a-z) detected!!!"
     --buffer is a space or tab
     else if ((b == " ")||(b == "\t"))
         then (State i "" t n l (c+1))
     --buffer is a new line
     else if (b == "\n")
         then (State i "" t n (l+1) 0)
-    --will eventually enter a string loop for another "
-    --buffer is a " (starting a string)
-    else if (b == "\"")
-        then (processString s)
     --nothing to be processed
     else if ((True) `elem` (map (==(last b)) (map (getPair) symbolTable)))
         then s
@@ -129,27 +129,27 @@ makePath tkn s@(State _ b _ n _ _) = head (filter (==(getNum (last (makeTerminal
 --Takes a state, reads the buffer, makes a token
 makeToken :: State -> Token
 makeToken s@(State i b t n l c) =
-    if      (b=="{")  then      T_LBrace
-    else if (b=="}")  then      T_RBrace
-    else if (b=="(")  then      T_LParen
-    else if (b==")")  then      T_RParen
-    else if (b=="+")  then      T_intOp
-    else if (b=="=")  then      T_assign
-    else if (b=="$") then       T_EOP
-    else if (length b == 1) then 
-        if (b == "=") 
-            then T_assign 
-            else T_id (b)
-    else if (b=="!=")  then     T_boolOp (BoolOp False)
-    else if (b=="==")  then     T_boolOp (BoolOp True)
-    else if (b=="true")  then   T_true
-    else if (b=="false")  then  T_false
-    else if (b=="while")  then  T_while
-    else if (b=="print")  then  T_print
-    else if (b=="int") then     T_type TypeInt
-    else if (b=="string") then  T_type TypeStr
-    else if (b=="boolean") then T_type TypeBool
+    if      (b=="{")  then                                  T_LBrace
+    else if (b=="}")  then                                  T_RBrace
+    else if (b=="(")  then                                  T_LParen
+    else if (b==")")  then                                  T_RParen
+    else if (b=="+")  then                                  T_intOp
+    else if ((b=="=") && (lookAhead s) /= Just '=')  then   T_assign
+    else if (b=="$") then                                   T_EOP
+    else if (b=="!=")  then                                 T_boolOp (BoolOp False)
+    else if (b=="==")  then                                 T_boolOp (BoolOp True)
+    else if (b=="true")  then                               T_true
+    else if (b=="false")  then                              T_false
+    else if (b=="if")  then                                 T_if
+    else if (b=="while")  then                              T_while
+    else if (b=="print")  then                              T_print
+    else if (b=="int") then                                 T_type TypeInt
+    else if (b=="string") then                              T_type TypeStr
+    else if (b=="boolean") then                             T_type TypeBool
     else if (((head b) == '\"') && ((last b) == '\"') && (length b > 1)) then (T_string b)
+    --T_id
+    else if ( ((lookAhead s == (Just ' ')) || (lookAhead s == (Just '\t')) || (lookAhead s == Nothing)) && ((b == "a" ) || (b == "b" ) || (b == "c" ) || (b == "d" ) || (b == "e" ) || (b == "f" ) || (b == "g" ) || (b == "h" ) || (b == "i" ) || (b == "j" ) || (b == "k" ) || (b == "l" ) || (b == "m" ) || (b == "n" ) || (b == "o" ) || (b == "p" ) || (b == "q" ) || (b == "r" ) || (b == "s" ) || (b == "t" ) || (b == "u" ) || (b == "v" ) || (b == "w" ) || (b == "x" ) || (b == "y" ) || (b == "z" )) )
+                                                       then T_id b
     else Invalid
 
 
@@ -171,6 +171,7 @@ makeTerminal (T_type TypeInt) =  "int"
 makeTerminal (T_type TypeStr) =  "string"
 makeTerminal (T_type TypeBool) = "boolean"
 makeTerminal (T_string s) = s
+makeTerminal (T_id s) = s
 makeTerminal T_EOP = "$"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 
 

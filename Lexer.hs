@@ -2,6 +2,7 @@ module Lexer where
 
 import LanguageData
 import Data.List
+import Data.Maybe
 
 
 data BoolOp = BoolOp {isEq :: Bool} deriving (Eq, Show)
@@ -20,6 +21,7 @@ data Token = T_id String
            | T_LParen
            | T_RParen
            | T_intOp
+           | T_assign
            | T_boolOp BoolOp
            | T_true
            | T_false
@@ -41,14 +43,18 @@ getKey :: (Int, Char) -> Int
 getKey (k, p) = k
 getPair :: (Int, Char) -> Char
 getPair (k, p) = p
---getSymbols :: Int -> [Char]
---getSymbols k = map (getPair) (filter ((==k).getKey) symbolTable)
+getSymbols :: Int -> [Char]
+getSymbols k = map (getPair) (filter ((==k).getKey) symbolTable)
 getNum :: Char -> Int
 getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 
 --makes a blank state with input [to be tokenized].
 newState :: String -> State
 newState i = State i [] [] 0 0 0
+
+lookAhead :: State -> Maybe Char
+lookAhead s@(State [] b t n l c) = Nothing
+lookAhead s@(State (fst:i) b t n l c) = Just fst
 
 --takes a string, returns a list of tokens
 tokenize :: String -> [Token]
@@ -71,8 +77,19 @@ tokenizeHelp s@(State (fst:i) b t n l c) = tokenizeHelp (processState (State i (
 --needs more conditions!!!
 processState :: State -> State
 processState s@(State i b t n l c) =
+    --buffer length 1
+    if (length b == 1) then
+        --buffer is = 
+        if ((b == "=") && ((lookAhead s  /= (Just '!')) || (lookAhead s /= (Just '='))))
+            then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
+        --buffer is an id, [a-z]
+        else if (( (b == "a" ) || (b == "b" ) || (b == "c" ) || (b == "d" ) || (b == "e" ) || (b == "f" ) || (b == "g" ) || (b == "h" ) || (b == "i" ) || (b == "j" ) || (b == "k" ) || (b == "l" ) || (b == "m" ) || (b == "n" ) || (b == "o" ) || (b == "p" ) || (b == "q" ) || (b == "r" ) || (b == "s" ) || (b == "t" ) || (b == "u" ) || (b == "v" ) || (b == "w" ) || (b == "x" ) || (b == "y" ) || (b == "z" ) ) && ((lookAhead s == (Just ' ') || (lookAhead s == (Nothing)))))
+            then error "T_id (a-z) detected!!!"
+        -- otherwise
+        else
+            s
     --token can be made
-    if((makeToken s) /= Invalid)
+    else if((makeToken s) /= Invalid)
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
     --buffer is a space or tab
     else if ((b == " ")||(b == "\t"))
@@ -111,12 +128,18 @@ makePath tkn s@(State _ b _ n _ _) = head (filter (==(getNum (last (makeTerminal
 
 --Takes a state, reads the buffer, makes a token
 makeToken :: State -> Token
-makeToken s@(State _ b _ n l c) =
+makeToken s@(State i b t n l c) =
     if      (b=="{")  then      T_LBrace
     else if (b=="}")  then      T_RBrace
     else if (b=="(")  then      T_LParen
     else if (b==")")  then      T_RParen
     else if (b=="+")  then      T_intOp
+    else if (b=="=")  then      T_assign
+    else if (b=="$") then       T_EOP
+    else if (length b == 1) then 
+        if (b == "=") 
+            then T_assign 
+            else T_id (b)
     else if (b=="!=")  then     T_boolOp (BoolOp False)
     else if (b=="==")  then     T_boolOp (BoolOp True)
     else if (b=="true")  then   T_true
@@ -127,7 +150,6 @@ makeToken s@(State _ b _ n l c) =
     else if (b=="string") then  T_type TypeStr
     else if (b=="boolean") then T_type TypeBool
     else if (((head b) == '\"') && ((last b) == '\"') && (length b > 1)) then (T_string b)
-    else if (b=="$") then       T_EOP
     else Invalid
 
 
@@ -137,6 +159,7 @@ makeTerminal T_RBrace = "}"
 makeTerminal T_LParen = "("
 makeTerminal T_RParen = ")"
 makeTerminal T_intOp  = "+"
+makeTerminal T_assign  = "="
 makeTerminal (T_boolOp (BoolOp True))  = "=="
 makeTerminal (T_boolOp (BoolOp False)) = "!="
 makeTerminal T_true = "true"

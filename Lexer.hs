@@ -94,7 +94,7 @@ processState s@(State i b t n l c) =
             (State i b t (makePath (makeToken s) s) l c)
     --buffer is a VALID id, [a-z]
     else if ( ((lookAhead s == (Just ' ') || (lookAhead s == (Just '\t')) || (lookAhead s == (Nothing)))) && ( (b == "a" ) || (b == "b" ) || (b == "c" ) || (b == "d" ) || (b == "e" ) || (b == "f" ) || (b == "g" ) || (b == "h" ) || (b == "i" ) || (b == "j" ) || (b == "k" ) || (b == "l" ) || (b == "m" ) || (b == "n" ) || (b == "o" ) || (b == "p" ) || (b == "q" ) || (b == "r" ) || (b == "s" ) || (b == "t" ) || (b == "u" ) || (b == "v" ) || (b == "w" ) || (b == "x" ) || (b == "y" ) || (b == "z" )))
-        then error "T_id (a-z) detected!!!"
+        then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
     --buffer is a space or tab
     else if ((b == " ")||(b == "\t"))
         then (State i "" t n l (c+1))

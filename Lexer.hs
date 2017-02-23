@@ -7,7 +7,7 @@ import Data.Maybe
 
 data BoolOp = BoolOp {isEq :: Bool} deriving (Eq, Show)
 
---maybe T_Eq should represent both T_Eq and T_notEq???
+
 data Type = TypeInt
           | TypeStr
           | TypeBool
@@ -50,7 +50,7 @@ getNum s = getKey (head (filter ((==s).getPair) symbolTable))
 
 --makes a blank state with input [to be tokenized].
 newState :: String -> State
-newState i = State i [] [] 0 0 0
+newState i = State i [] [] 0 1 1
 
 lookAhead :: State -> Maybe Char
 lookAhead s@(State [] b t n l c) = Nothing

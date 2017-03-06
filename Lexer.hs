@@ -26,6 +26,7 @@ data Token = T_id String
            | T_true
            | T_false
            | T_string String
+           | T_int String
            | T_if
            | T_while
            | T_print
@@ -92,9 +93,12 @@ processState s@(State i b t n l c) =
         --lookahead is =
         else
             (State i b t (makePath (makeToken s) s) l c)
-    --buffer is a VALID id, [a-z]
+    --buffer is a VALID id [a-z] with whitespace in lookahead
     else if ( ((lookAhead s == (Just ' ') || (lookAhead s == (Just '\t')) || (lookAhead s == (Nothing)))) && ( (b == "a" ) || (b == "b" ) || (b == "c" ) || (b == "d" ) || (b == "e" ) || (b == "f" ) || (b == "g" ) || (b == "h" ) || (b == "i" ) || (b == "j" ) || (b == "k" ) || (b == "l" ) || (b == "m" ) || (b == "n" ) || (b == "o" ) || (b == "p" ) || (b == "q" ) || (b == "r" ) || (b == "s" ) || (b == "t" ) || (b == "u" ) || (b == "v" ) || (b == "w" ) || (b == "x" ) || (b == "y" ) || (b == "z" )))
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
+    --INCOMPLETE buffer is an INVALID id due to a character in the lookahead that isn't a valid token when added to the buffer
+    --else if ( (True `notElem` (map ((b++[(fromJust (lookAhead s))]) `isInfixOf`) validLiterals)) && ((b == "a" ) || (b == "b" ) || (b == "c" ) || (b == "d" ) || (b == "e" ) || (b == "f" ) || (b == "g" ) || (b == "h" ) || (b == "i" ) || (b == "j" ) || (b == "k" ) || (b == "l" ) || (b == "m" ) || (b == "n" ) || (b == "o" ) || (b == "p" ) || (b == "q" ) || (b == "r" ) || (b == "s" ) || (b == "t" ) || (b == "u" ) || (b == "v" ) || (b == "w" ) || (b == "x" ) || (b == "y" ) || (b == "z" )) )
+    --    then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s)))) 
     --buffer is a space or tab
     else if ((b == " ")||(b == "\t"))
         then (State i "" t n l (c+1))
@@ -146,6 +150,9 @@ makeToken s@(State i b t n l c) =
     else if (b=="int") then                                 T_type TypeInt
     else if (b=="string") then                              T_type TypeStr
     else if (b=="boolean") then                             T_type TypeBool
+    --T_int
+    else if ( (b=="0") || (b=="1") || (b=="2") || (b=="3") || (b=="4") || (b=="5") || (b=="6") || (b=="7") || (b=="8") || (b=="9") ) then (T_int b)
+    --T_string
     else if (((head b) == '\"') && ((last b) == '\"') && (length b > 1)) then (T_string b)
     --T_id
     else if ( ((lookAhead s == (Just ' ')) || (lookAhead s == (Just '\t')) || (lookAhead s == Nothing)) && ((b == "a" ) || (b == "b" ) || (b == "c" ) || (b == "d" ) || (b == "e" ) || (b == "f" ) || (b == "g" ) || (b == "h" ) || (b == "i" ) || (b == "j" ) || (b == "k" ) || (b == "l" ) || (b == "m" ) || (b == "n" ) || (b == "o" ) || (b == "p" ) || (b == "q" ) || (b == "r" ) || (b == "s" ) || (b == "t" ) || (b == "u" ) || (b == "v" ) || (b == "w" ) || (b == "x" ) || (b == "y" ) || (b == "z" )) )
@@ -170,7 +177,8 @@ makeTerminal T_print = "print"
 makeTerminal (T_type TypeInt) =  "int"
 makeTerminal (T_type TypeStr) =  "string"
 makeTerminal (T_type TypeBool) = "boolean"
-makeTerminal (T_string s) = s
+makeTerminal (T_string str) = str
+makeTerminal (T_int str) = str
 makeTerminal (T_id s) = s
 makeTerminal T_EOP = "$"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 

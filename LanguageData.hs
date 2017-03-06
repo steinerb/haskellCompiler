@@ -55,6 +55,8 @@ symbolTable =
         (46, '\"')
     ]
 
+validLiterals :: [String]
+validLiterals = ["{", "}", "(", ")", "+", "=", "!=", "==", "if", "while", "print", "int", "string", "boolean", "true", "false"]
 
 --state 8: (!|=) -> =
 --TO COMPLETE FOR NOW: if, while, print, int,

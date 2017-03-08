@@ -1,5 +1,7 @@
 import Lexer
-import Grammar
+import Parser
+
+
 
 --RUNS the I/O show. gets called
 main :: IO ()

@@ -1,6 +1,6 @@
 module Grammar where
 
-import Lexer
+--import Lexer
 --will be:
 --data Program = Program Block ...
 --when attempting parsing

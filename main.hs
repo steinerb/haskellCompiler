@@ -8,9 +8,14 @@ main :: IO ()
 main = do 
     introMessage
     userInput <- getLine
-    programs <- return (map (tokenize) (splitByEOP userInput []))
-    --printPrograms programs
-    printPrograms programs
+    tokensForPrograms <- return (map (tokenize) (splitByEOP userInput []))
+    printPrograms tokensForPrograms
+    putStrLn parseTokens
+
+    --tokensForPrograms <- parseTokens tokensForPrograms
+    --NEED TO PARSE tokensForPrograms!!
+
+
 --first printed text
 introMessage :: IO ()
 introMessage = do putStrLn ("Enter a String to be tokenized!\nWorking Tokens Include: \n\t"++workingTokens)

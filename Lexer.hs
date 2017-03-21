@@ -154,11 +154,11 @@ makeToken s@(State i b t n l c) =
     else if ( (b=="0") || (b=="1") || (b=="2") || (b=="3") || (b=="4") || (b=="5") || (b=="6") || (b=="7") || (b=="8") || (b=="9") ) then (T_int b)
     --T_string
     else if (((head b) == '\"') && ((last b) == '\"') && (length b > 1)) then (T_string b)
-    --T_id
+    --T_id OLD
     --else if ( ((lookAhead s == (Just ' ')) || (lookAhead s == (Just '\t')) || (lookAhead s == Nothing)) && ((b == "a" ) || (b == "b" ) || (b == "c" ) || (b == "d" ) || (b == "e" ) || (b == "f" ) || (b == "g" ) || (b == "h" ) || (b == "i" ) || (b == "j" ) || (b == "k" ) || (b == "l" ) || (b == "m" ) || (b == "n" ) || (b == "o" ) || (b == "p" ) || (b == "q" ) || (b == "r" ) || (b == "s" ) || (b == "t" ) || (b == "u" ) || (b == "v" ) || (b == "w" ) || (b == "x" ) || (b == "y" ) || (b == "z" )) )
     --        then T_id b
     --T_id
-    else if ( ( (lookAhead s == (Just ' ')) || (lookAhead s == (Just '\t')) || (lookAhead s == Nothing) ) && (b `elem` validCharsS) )
+    else if ( ( (lookAhead s == (Just ' ')) || (lookAhead s == (Just '\t')) || (lookAhead s == Nothing) || ( (fromJust (lookAhead s)) `notElem` validCharsC) ) && (b `elem` validCharsS) )
             then T_id b
     else Invalid
 

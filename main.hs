@@ -1,5 +1,4 @@
 import Lexer
-import Parser
 
 
 
@@ -10,7 +9,6 @@ main = do
     userInput <- getLine
     tokensForPrograms <- return (map (tokenize) (splitByEOP userInput []))
     printPrograms tokensForPrograms
-    putStrLn parseTokens
 
     --tokensForPrograms <- parseTokens tokensForPrograms
     --NEED TO PARSE tokensForPrograms!!

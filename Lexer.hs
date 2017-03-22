@@ -76,9 +76,10 @@ tokenizeHelp s@(State (fst:i) b t n l c) = tokenizeHelp (processState (State i (
 
 
 --takes a state, add input to buffer, read buffer
---needs more conditions!!!
 processState :: State -> State
 processState s@(State i b t n l c) =
+    --check to make sure $ is the last character in i!
+
     --token can be made
     if((makeToken s) /= Invalid)
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
@@ -97,9 +98,6 @@ processState s@(State i b t n l c) =
     --buffer is a VALID id [a-z] with whitespace in lookahead
     else if ( ((lookAhead s == (Just ' ') || (lookAhead s == (Just '\t')) || (lookAhead s == (Nothing)))) && (b `elem` validCharsS) )
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
-    --INCOMPLETE buffer is an INVALID id due to a character in the lookahead that isn't a valid token when added to the buffer
-    --else if ( (True `notElem` (map ((b++[(fromJust (lookAhead s))]) `isInfixOf`) validLiterals)) && ((b == "a" ) || (b == "b" ) || (b == "c" ) || (b == "d" ) || (b == "e" ) || (b == "f" ) || (b == "g" ) || (b == "h" ) || (b == "i" ) || (b == "j" ) || (b == "k" ) || (b == "l" ) || (b == "m" ) || (b == "n" ) || (b == "o" ) || (b == "p" ) || (b == "q" ) || (b == "r" ) || (b == "s" ) || (b == "t" ) || (b == "u" ) || (b == "v" ) || (b == "w" ) || (b == "x" ) || (b == "y" ) || (b == "z" )) )
-    --    then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s)))) 
     --buffer is a space or tab
     else if ((b == " ")||(b == "\t"))
         then (State i "" t n l (c+1))

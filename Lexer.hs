@@ -3,6 +3,7 @@ module Lexer where
 import LanguageData
 import Data.List
 import Data.Maybe
+import Data.Char
 
 
 data BoolOp = BoolOp {isEq :: Bool} deriving (Eq, Show)
@@ -115,13 +116,17 @@ processState s@(State i b t n l c) =
 processString :: State -> State
 --string not closed error condition 1
 processString s@(State [] b t n l c) = error ("LEXER: string not closed on line "++(show l))
---string not closed error condition 2 ELSE valid input
+--string not closed error condition 2 ELSE IFS check for invalid string data ELSE valid input
 processString s@(State i b t n l c) =
     if ('\"' `notElem` i)
         then error ("LEXER: string not closed on line "++(show l))
+    --Uppercase or Digit error
+    else if ((True `elem` (map (isUpper) stringData)) || (True `elem` (map (isDigit) stringData)))
+        then error ("LEXER: capital letter or digit detected in string starting on line "++(show l)++" character "++(show c))
+    --good to go!!!
     else
-        (State (tail (dropWhile (/='\"') i)) "" (t++[T_string ((takeWhile (/='\"') i))]) n l (c+(length (takeWhile (/='\"') i))))
-
+        (State (tail (dropWhile (/='\"') i)) "" (t++[T_string (stringData)]) n l (c+(length stringData)))
+    where stringData = ((takeWhile (/='\"') i))
 
 --returns an int which is the desired path for a
 --      given state and token.

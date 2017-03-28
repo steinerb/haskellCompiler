@@ -9,13 +9,13 @@ main = do
     introMessage
     userInput <- getLine
     tokensForPrograms <- return (map (tokenize) (splitByEOP userInput []))
-    printPrograms tokensForPrograms
+    lexPrograms tokensForPrograms
 
-    putStrLn (parseProgram (head (tokensForPrograms)))
+    --putStrLn (parseProgram (head (tokensForPrograms)))
 
 
 
---!!!!!NEED TO MAKE IO FOR PARSER!!!!!
+--NEED TO MAKE IO FOR PARSER!!!!!
 
 
 --first printed text
@@ -32,22 +32,22 @@ splitByEOP [] lst = lst
 splitByEOP i lst = splitByEOP (dropWhile (/='$') i) (lst++[(takeWhile (/='$') i)])
 
 
-printPrograms :: [[Token]] -> IO ()
-printPrograms [] = putStrLn "LEXER: END"
-printPrograms (p:ps) = do
-    (printProgram p 0)
-    (printPrograms ps)
+lexPrograms :: [[Token]] -> IO ()
+lexPrograms [] = putStrLn "LEXER: END"
+lexPrograms (p:ps) = do
+    (lexProgram p 0)
+    (lexPrograms ps)
 
 
-printProgram :: [Token] -> Int -> IO ()
-printProgram [] _ = do 
+lexProgram :: [Token] -> Int -> IO ()
+lexProgram [] _ = do 
     putStrLn "\nLEXER: Program Completed Successfully!\n"
-printProgram p 0 = do
+lexProgram p 0 = do
     putStrLn ("Lexing Program...\n")
-    (printProgram p 1)
-printProgram (t:ts) n = do
+    (lexProgram p 1)
+lexProgram (t:ts) n = do
     putStrLn ("LEXER: token found:\t"++(makeTerminal t))
-    (printProgram ts (n+1))
+    (lexProgram ts (n+1))
 
 
 
@@ -55,4 +55,4 @@ printProgram (t:ts) n = do
 test :: IO()
 test = do
     putStrLn "INPUT: {}${{{{{{}}}}}}${{{{{{}}}}}}}${int @}$"
-    printPrograms (map (tokenize) (splitByEOP "{}${{{{{{}}}}}}${{{{{{}}}}}}}${int @}$" []))
+    lexPrograms (map (tokenize) (splitByEOP "{}${{{{{{}}}}}}${{{{{{}}}}}}}${int @}$" []))

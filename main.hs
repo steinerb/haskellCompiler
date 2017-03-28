@@ -11,8 +11,11 @@ main = do
     tokensForPrograms <- return (map (tokenize) (splitByEOP userInput []))
     printPrograms tokensForPrograms
 
-    --tokensForPrograms <- parseTokens tokensForPrograms
-    --NEED TO PARSE tokensForPrograms!!
+    putStrLn (parseProgram (head (tokensForPrograms)))
+
+
+
+--!!!!!NEED TO MAKE IO FOR PARSER!!!!!
 
 
 --first printed text

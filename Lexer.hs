@@ -6,39 +6,6 @@ import Data.Maybe
 import Data.Char
 
 
-data BoolOp = BoolOp {isEq :: Bool} deriving (Eq, Show)
-
-
-data Type = TypeInt
-          | TypeStr
-          | TypeBool
-            deriving (Eq, Show)
-
-
---more tokens to be added
-data Token = T_id String
-           | T_LBrace
-           | T_RBrace
-           | T_LParen
-           | T_RParen
-           | T_intOp
-           | T_assign
-           | T_boolOp BoolOp
-           | T_true
-           | T_false
-           | T_string String
-           | T_int String
-           | T_if
-           | T_while
-           | T_print
-           | T_type Type
-           | T_EOP
-           | Invalid
-                deriving (Eq, Show)
-
-
-data State = State String String [Token] Int Int Int deriving (Show)
-
 
 
 getKey :: (Int, Char) -> Int

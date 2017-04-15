@@ -9,9 +9,12 @@ main = do
     introMessage
     userInput <- getLine
     tokensForPrograms <- return (map (tokenize) (splitByEOP userInput []))
-    lexPrograms tokensForPrograms
+    lexProgramsOUT tokensForPrograms
 
-    --putStrLn (parseProgram (head (tokensForPrograms)))
+    --line for parsing programs here!
+
+    parseProgramOUT (head tokensForPrograms)
+    
 
 
 
@@ -32,22 +35,36 @@ splitByEOP [] lst = lst
 splitByEOP i lst = splitByEOP (dropWhile (/='$') i) (lst++[(takeWhile (/='$') i)])
 
 
-lexPrograms :: [[Token]] -> IO ()
-lexPrograms [] = putStrLn "LEXER: END"
-lexPrograms (p:ps) = do
-    (lexProgram p 0)
-    (lexPrograms ps)
+--PARSER OUTPUT
+parseProgramsOUT :: [[Token]] -> IO ()
+parseProgramsOUT [] = putStrLn "PARSER: END"
+parseProgramsOUT (p:ps) = do
+    (parseProgramOUT p)
+    (parseProgramsOUT ps)
 
 
-lexProgram :: [Token] -> Int -> IO ()
-lexProgram [] _ = do 
+
+parseProgramOUT :: [Token] -> IO ()
+parseProgramOUT p = putStrLn "PARSER: single program parse reached!"
+
+
+
+lexProgramsOUT :: [[Token]] -> IO ()
+lexProgramsOUT [] = putStrLn "LEXER: END"
+lexProgramsOUT (p:ps) = do
+    (lexProgramOUT p 0)
+    (lexProgramsOUT ps)
+
+
+lexProgramOUT :: [Token] -> Int -> IO ()
+lexProgramOUT [] _ = do 
     putStrLn "\nLEXER: Program Completed Successfully!\n"
-lexProgram p 0 = do
+lexProgramOUT p 0 = do
     putStrLn ("Lexing Program...\n")
-    (lexProgram p 1)
-lexProgram (t:ts) n = do
+    (lexProgramOUT p 1)
+lexProgramOUT (t:ts) n = do
     putStrLn ("LEXER: token found:\t"++(makeTerminal t))
-    (lexProgram ts (n+1))
+    (lexProgramOUT ts (n+1))
 
 
 
@@ -55,4 +72,4 @@ lexProgram (t:ts) n = do
 test :: IO()
 test = do
     putStrLn "INPUT: {}${{{{{{}}}}}}${{{{{{}}}}}}}${int @}$"
-    lexPrograms (map (tokenize) (splitByEOP "{}${{{{{{}}}}}}${{{{{{}}}}}}}${int @}$" []))
+    lexProgramsOUT (map (tokenize) (splitByEOP "{}${{{{{{}}}}}}${{{{{{}}}}}}}${int @}$" []))

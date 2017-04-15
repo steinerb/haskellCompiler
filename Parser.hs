@@ -14,5 +14,5 @@ parseTest = "\nPARSER: parser reached!!"
 
 
 
-parseProgram :: [Token] -> [Token]
-parseProgram ts = ts
+parse :: [Token] -> [Token]
+parse ts = ts

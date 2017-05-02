@@ -8,7 +8,7 @@ main :: IO ()
 main = do 
     introMessage
     userInput <- getLine
-    tokensForPrograms <- return (map (tokenize) (splitByEOP userInput []))
+    tokensForPrograms <- return $ appendEOPs (map (tokenize) (splitByEOP userInput []))
     lexProgramsOUT tokensForPrograms
 
     --line for parsing programs here!
@@ -34,6 +34,8 @@ splitByEOP ((fst@('$')):i) lst = splitByEOP i lst
 splitByEOP [] lst = lst
 splitByEOP i lst = splitByEOP (dropWhile (/='$') i) (lst++[(takeWhile (/='$') i)])
 
+appendEOPs :: [[Token]] -> [[Token]]
+appendEOPs pgmTokens = map (++[T_EOP]) pgmTokens
 
 --PARSER OUTPUT
 parseProgramsOUT :: [[Token]] -> IO ()

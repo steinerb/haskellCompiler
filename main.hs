@@ -13,9 +13,9 @@ main = do
 
     --line for parsing programs here!
 
-    parseProgramOUT (head tokensForPrograms)
+    --parseProgramOUT (head tokensForPrograms)
     
-
+    
 
 
 --NEED TO MAKE IO FOR PARSER!!!!!

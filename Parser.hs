@@ -16,3 +16,14 @@ parseTest = "\nPARSER: parser reached!!"
 
 parse :: [Token] -> [Token]
 parse ts = ts
+
+
+
+
+myTree :: Tree String
+myTree = Node "rootNode" 
+         [
+            Node "Branch0-0" [],
+            Node "Branch0-1" []
+         ]
+

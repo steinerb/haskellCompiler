@@ -19,6 +19,13 @@ parse ts = ts
 
 
 
+tokenTree :: Tree Token
+tokenTree = Node T_LBrace []
+
+
+stringifyTree :: (Tree Token) -> (Tree String)
+stringifyTree t = fmap show t 
+
 
 myTree :: Tree String
 myTree = Node "rootNode" 

@@ -23,7 +23,15 @@ parse ts = ts
 myTree :: Tree String
 myTree = Node "rootNode" 
          [
-            Node "Branch0-0" [],
-            Node "Branch0-1" []
+            Node "BranchA-0" 
+            [
+                Node "BranchB-0" [],
+                Node "BranchB-1" []
+            ],
+            Node "BranchA-1" 
+            [
+                Node "BranchC-0" [],
+                Node "BranchC-1" []
+            ]
          ]
 

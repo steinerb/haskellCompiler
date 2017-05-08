@@ -67,7 +67,7 @@ processState s@(State i b t n l c) =
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
     --buffer is a space or tab
     else if ((b == " ")||(b == "\t"))
-        then (State i "" t n l (c+1))
+        then (State i "" (t++[T_space]) n (l+1) (c+1))
     --buffer is a new line
     else if (b == "\n")
         then (State i "" t n (l+1) 0)
@@ -110,6 +110,7 @@ makeToken s@(State i b t n l c) =
     else if (b=="+")  then                                  T_intOp
     else if ((b=="=") && (lookAhead s) /= Just '=')  then   T_assign
     else if (b=="$") then                                   T_EOP
+    else if (b==" ") then                                   T_space
     else if (b=="!=")  then                                 T_boolOp (BoolOp False)
     else if (b=="==")  then                                 T_boolOp (BoolOp True)
     else if (b=="true")  then                               T_true
@@ -156,6 +157,7 @@ makeTerminal (T_string str) = str
 makeTerminal (T_int str) = str
 makeTerminal (T_id s) = s
 makeTerminal T_EOP = "$"
+makeTerminal T_space = "space"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 
 
 --takes a state, looks at the number, returns list of possible state paths

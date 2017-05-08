@@ -12,12 +12,17 @@ parseTest :: String
 parseTest = "\nPARSER: parser reached!!"
 
 
+makeChild :: Tree String -> Tree String -> Tree String
+makeChild p@(Node n lst) c = Node n (c:lst)
+
+--parse :: [Token] -> Tree String -> Tree String
+--parse [] tree = tree
+--parse ts tree@(Node _ ns) =
+--    if (last ts == T_EOP) then parse (init ts) (Node "Program" )
 
 
-parse :: [Token] -> [Token]
-parse ts = ts
-
-
+programTree :: Tree String
+programTree = Node "Program" []
 
 tokenTree :: Tree Token
 tokenTree = Node T_LBrace []

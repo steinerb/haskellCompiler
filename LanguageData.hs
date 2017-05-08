@@ -8,7 +8,6 @@ data Type = TypeInt
           | TypeBool
             deriving (Eq, Show)
 
-
 --more tokens to be added
 data Token = T_id String
            | T_LBrace
@@ -26,10 +25,10 @@ data Token = T_id String
            | T_while
            | T_print
            | T_type Type
+           | T_space
            | T_EOP
            | Invalid
                 deriving (Eq, Show)
-
 
 data State = State String String [Token] Int Int Int deriving (Show)
 

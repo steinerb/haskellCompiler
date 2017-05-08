@@ -4,6 +4,7 @@ module Grammar where
 import LanguageData
 import Lexer
 
+
 data Program = Program Block Token
 
 data Block = Block Token StatementList Token
@@ -13,3 +14,4 @@ data StatementList = Statement
 
 --IS NOT INT
 data Statement = Int
+

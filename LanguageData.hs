@@ -1,13 +1,7 @@
 module LanguageData where
 
-data BoolOp = BoolOp {isEq :: Bool} deriving (Eq, Show)
 
-
-data Type = TypeInt
-          | TypeStr
-          | TypeBool
-            deriving (Eq, Show)
-
+data State = State String String [Token] Int Int Int deriving (Show)
 
 --more tokens to be added
 data Token = T_id String
@@ -17,7 +11,7 @@ data Token = T_id String
            | T_RParen
            | T_intOp
            | T_assign
-           | T_boolOp BoolOp
+           | T_boolOp Bool
            | T_true
            | T_false
            | T_string String
@@ -25,13 +19,11 @@ data Token = T_id String
            | T_if
            | T_while
            | T_print
-           | T_type Type
+           | T_type String
+           | T_space
            | T_EOP
            | Invalid
                 deriving (Eq, Show)
-
-
-data State = State String String [Token] Int Int Int deriving (Show)
 
 
 --CONDITION: cannot have multiple characters per number

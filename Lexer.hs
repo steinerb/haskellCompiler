@@ -67,7 +67,7 @@ processState s@(State i b t n l c) =
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
     --buffer is a space or tab
     else if ((b == " ")||(b == "\t"))
-        then (State i "" t n l (c+1))
+        then (State i "" (t++[T_space]) n (l+1) (c+1))
     --buffer is a new line
     else if (b == "\n")
         then (State i "" t n (l+1) 0)
@@ -110,16 +110,17 @@ makeToken s@(State i b t n l c) =
     else if (b=="+")  then                                  T_intOp
     else if ((b=="=") && (lookAhead s) /= Just '=')  then   T_assign
     else if (b=="$") then                                   T_EOP
-    else if (b=="!=")  then                                 T_boolOp (BoolOp False)
-    else if (b=="==")  then                                 T_boolOp (BoolOp True)
+    else if (b==" ") then                                   T_space
+    else if (b=="!=")  then                                 T_boolOp False
+    else if (b=="==")  then                                 T_boolOp True
     else if (b=="true")  then                               T_true
     else if (b=="false")  then                              T_false
     else if (b=="if")  then                                 T_if
     else if (b=="while")  then                              T_while
     else if (b=="print")  then                              T_print
-    else if (b=="int") then                                 T_type TypeInt
-    else if (b=="string") then                              T_type TypeStr
-    else if (b=="boolean") then                             T_type TypeBool
+    else if (b=="int") then                                 T_type "int"
+    else if (b=="string") then                              T_type "string"
+    else if (b=="boolean") then                             T_type "boolean"
     --T_int OLD
     --else if ( (b=="0") || (b=="1") || (b=="2") || (b=="3") || (b=="4") || (b=="5") || (b=="6") || (b=="7") || (b=="8") || (b=="9") ) then (T_int b)
     --T_int
@@ -142,20 +143,19 @@ makeTerminal T_LParen = "("
 makeTerminal T_RParen = ")"
 makeTerminal T_intOp  = "+"
 makeTerminal T_assign  = "="
-makeTerminal (T_boolOp (BoolOp True))  = "=="
-makeTerminal (T_boolOp (BoolOp False)) = "!="
+makeTerminal (T_boolOp True)  = "=="
+makeTerminal (T_boolOp False) = "!="
 makeTerminal T_true = "true"
 makeTerminal T_false = "false"
 makeTerminal T_if =    "if"
 makeTerminal T_while = "while"
 makeTerminal T_print = "print"
-makeTerminal (T_type TypeInt) =  "int"
-makeTerminal (T_type TypeStr) =  "string"
-makeTerminal (T_type TypeBool) = "boolean"
+makeTerminal (T_type s) =  s
 makeTerminal (T_string str) = str
 makeTerminal (T_int str) = str
 makeTerminal (T_id s) = s
 makeTerminal T_EOP = "$"
+makeTerminal T_space = "space"
 makeTerminal Invalid = error "Cannot tokenize buffer!" 
 
 --takes a state, looks at the number, returns list of possible state paths

@@ -62,40 +62,43 @@ Program                 : Block '$'                         { Program $1 }
 Block                   : '{' StatementList '}'             { Block $2 }
 
 
-StatementList           : Statement StatementList           { }
-                        | Null
+StatementList           : Statement StatementList           { StatementList $1 $2 }
 
-Statement               : PrintStatement
+Statement               : PrintStatement                    
                         | AssignStatement
                         | VarDecl
                         | WhileStatement
                         | IfStatement
                         | Block
 
-PrintStatement          : print '(' Expr ')'
+PrintStatement          : print '(' Expr ')'                { PrintStatement $3 }
 
-AssignStatement         : ID '=' Expr
+AssignStatement         : id '=' Expr                       { AssignStatement $1 $3 }
 
-VarDecl                 : type id
+VarDecl                 : type id                           { VarDecl $2 }
 
-WhileStatement          : while BooleanExpr Block
+WhileStatement          : while BooleanExpr Block           { WhileStatement $2 $3 }
 
-IfStatement             : if BooleanExpr Block
+IfStatement             : if BooleanExpr Block              { IfStatement $2 $3 }
 
-Expr                    : IntExpr
+Expr                    : IntExpr                                                  
                         | StringExpr
                         | BooleanExpr
                         | id
 
-IntExpr                 : digit intOp Expr
-                        | digit
+IntExpr                 : digit intOp Expr                  { IntExpr $3 }
+                        | digit                             
 
-StringExpr              : '"' CharList '"'
+StringExpr              : '"' CharList '"'                  
 
 BooleanExpr             : '(' Expr boolOp Expr ')'          
                         | boolVal
 
-id                      : ID
+id                      : char
+
+charList                : char charList
+                        | space charList
+
 
 char                    : 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y' | 'z'
 
@@ -110,6 +113,10 @@ boolVal                 : false
                         | true
 
 intOp                   : '+'
+
+type                    : int
+                        | string
+                        | boolean
 
 
 
@@ -168,6 +175,9 @@ data Factor
 
 --***MAKE DATATYPES HERE FOR ABOVE CODE!!!***
 
+type ID = Char
+
+
 data Program = Block
 
 data Block = StatementList
@@ -176,13 +186,13 @@ data Block = StatementList
 data StatementList = Statement StatementList
 
 data Statement = PrintStatement Expr
-               | AssignStatement Expr
-               | VarDecl Char 
+               | AssignStatement ID Expr
+               | VarDecl ID 
                | WhileStatement Expr Block
                | IfStatement Expr Block
                | Block
 
-data Expr = IntExpr Char Expr
+data Expr = IntExpr Expr
           | StringExpr String
           | BooleanExpr
           | ID --id
@@ -191,12 +201,12 @@ data BooleanExpr = Expr Expr
                  | True
                  | False
 
-type ID = Char
 
 
 
 
---TAKING FROM LanguageData.hs!!!
+
+--TAKING FROM LanguageData.hs instead!!!
 --data Token
 --      = TokenLet
 --      | TokenIn

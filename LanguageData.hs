@@ -28,7 +28,29 @@ data Token = T_id String
            | T_space
            | T_EOP
            | Invalid
-                deriving (Eq, Show)
+                deriving (Eq)
+
+
+instance Show Token where
+    show t@(T_id s) = show s
+    show t@(T_boolOp b) = show b
+    show t@(T_string s) = show s
+    show t@(T_type s) = show s
+    show t 
+        | t == T_LBrace = "{"
+        | t == T_RBrace = "}"
+        | t == T_LParen = "("
+        | t == T_RParen = ")"
+        | t == T_intOp = "+"
+        | t == T_assign = "="
+        | t == T_true = "true"
+        | t == T_false = "false"
+        | t == T_if = "if"
+        | t == T_while = "while"
+        | t == T_print = "print"
+        | t == T_space = " "
+        | t == T_EOP = "$" 
+        | t == Invalid = error "CANNOT SHOW AN INVALID TOKEN!!!"
 
 data State = State String String [Token] Int Int Int deriving (Show)
 

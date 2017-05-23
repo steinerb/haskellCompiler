@@ -5,6 +5,33 @@ import Grammar
 import Data.Tree
 
 
+import Text.ParserCombinators.Parsec
+import Text.Parsec
+
+
+
+
+
+boolParse :: Parser Bool
+boolParse = undefined
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 --the parser will validate token list. return list if good to go, error otherwise.
 --parseTokens :: [Token] -> [Token]
 

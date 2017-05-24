@@ -14,42 +14,32 @@ import Control.Monad
 
 
 
+-------PARSER START-------
 
+intop :: Parser Char
+intop = undefined
 
+boolFalse :: Parser (Tree Token)
+boolFalse = (string (show T_false)) *> pure (Node T_false [])
+boolTrue :: Parser (Tree Token)
+boolTrue = (string (show T_true)) *> pure (Node T_true [])
 
-boolFalse :: Parser Bool
-boolFalse = (string (show T_false)) *> (pure False)
-
-boolTrue :: Parser Bool
-boolTrue = (string (show T_true)) *> (pure True)
-
-bool :: Parser Bool
-bool = boolTrue <|> boolFalse
-
-
-
-
-
+boolval :: Parser (Tree Token)
+boolval = boolTrue <|> boolFalse
 
 
 
 
 
+-------PARSER STOP-------
 
---the parser will validate token list. return list if good to go, error otherwise.
---parseTokens :: [Token] -> [Token]
-
-parseTest :: String
-parseTest = "\nPARSER: parser reached!!"
+--TREES
 
 
 makeChild :: Tree String -> Tree String -> Tree String
 makeChild p@(Node n lst) c = Node n (c:lst)
 
---parse :: [Token] -> Tree String -> Tree String
---parse [] tree = tree
---parse ts tree@(Node _ ns) =
---    if (last ts == T_EOP) then parse (init ts) (Node "Program" )
+
 
 
 programTree :: Tree String

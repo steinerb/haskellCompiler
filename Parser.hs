@@ -5,15 +5,11 @@ import Grammar
 import Data.Tree
 
 
-import Text.ParserCombinators.Parsec
-import Text.Parsec
+import Text.ParserCombinators.Parsec hiding ((<|>), many)
+import Text.Parsec (parse)
 
-
-
-
-
-boolParse :: Parser Bool
-boolParse = undefined
+import Control.Applicative
+import Control.Monad
 
 
 
@@ -21,6 +17,14 @@ boolParse = undefined
 
 
 
+boolFalse :: Parser Bool
+boolFalse = (string (show T_false)) *> (pure False)
+
+boolTrue :: Parser Bool
+boolTrue = (string (show T_true)) *> (pure True)
+
+bool :: Parser Bool
+bool = boolTrue <|> boolFalse
 
 
 

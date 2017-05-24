@@ -16,18 +16,22 @@ import Control.Monad
 
 -------PARSER START-------
 
-intop :: Parser Char
-intop = undefined
+intOpP :: Parser (Tree Token)
+intOpP = (string (show T_intOp)) *> pure (Node T_intOp [])
+--
 
-boolFalse :: Parser (Tree Token)
-boolFalse = (string (show T_false)) *> pure (Node T_false [])
-boolTrue :: Parser (Tree Token)
-boolTrue = (string (show T_true)) *> pure (Node T_true [])
+boolFalseP :: Parser (Tree Token)
+boolFalseP = (string (show T_false)) *> pure (Node T_false [])
+boolTrueP :: Parser (Tree Token)
+boolTrueP = (string (show T_true)) *> pure (Node T_true [])
 
-boolval :: Parser (Tree Token)
-boolval = boolTrue <|> boolFalse
+boolValP :: Parser (Tree Token)
+boolValP = boolTrueP <|> boolFalseP
+--
 
-
+boolOpP :: Parser (Tree Token)
+boolOpP = ((string "==") *> pure (Node (T_boolOp (BoolOp True)) [])) 
+      <|> ((string "!=") *> pure (Node (T_boolOp (BoolOp False)) []))
 
 
 

@@ -13,6 +13,7 @@ import Control.Monad
 
 
 
+parseTEST = (parse boolOpP "test" "!=")
 
 -------PARSER START-------
 
@@ -32,7 +33,7 @@ boolValP = boolTrueP <|> boolFalseP
 boolOpP :: Parser (Tree Token)
 boolOpP = ((string "==") *> pure (Node (T_boolOp (BoolOp True)) [])) 
       <|> ((string "!=") *> pure (Node (T_boolOp (BoolOp False)) []))
-
+--
 
 
 -------PARSER STOP-------

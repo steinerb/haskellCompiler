@@ -3,6 +3,8 @@ module Grammar where
 
 import LanguageData
 import Lexer
+import Data.Char (toLower)
+
 
 
 data PROGRAM = Program              BLOCK           deriving (Eq, Show)
@@ -21,35 +23,37 @@ data STMT = PrintSTMT               EXPR
                                                     deriving (Eq, Show)
 
 
-
-
 data EXPR = IntEXPR                 IntEXPRlit
           | StringEXPR              StringEXPRlit
           | BooleanEXPR             BooleanEXPRlit
           | IDEXPR                  ID
                                                     deriving (Eq, Show)
 
-data IntEXPRlit = IntEXPRlitM       DIGIT INTOP EXPR
-                | IntEXPRlitS       DIGIT
+data IntEXPRlit = IntLitM           DIGIT INTOP EXPR
+                | IntLitS           DIGIT
                                                     deriving (Eq, Show)
 
 data StringEXPRlit = StringLit      CHARlist        deriving (Eq, Show)
 
 
-data CHARlist = CHARlistNode        CHAR CHARlist   
+data CHARlist = CHARlistNodeC       CHAR CHARlist
+              | CHARlistNodeS       SPACE CHARlist   
               | EmptyCHARlist
                                                     deriving (Eq, Show)
 
-data BooleanEXPRlit = BE Int                        deriving (Eq, Show)
+data BooleanEXPRlit = BooleanLitM   EXPR BOOLOP EXPR 
+                    | BooleanLitS   BOOLVAL
+                                                    deriving (Eq, Show)
 
 
 
 data ID = Id                        CHAR            deriving (Eq, Show)
 
+
 data TYPE = INT
           | STRING
           | BOOLEAN
-                                                    deriving (Eq, Show)
+                                                    deriving (Eq)
 
 data CHAR = A
           | B
@@ -77,7 +81,9 @@ data CHAR = A
           | X
           | Y
           | Z
-                                                    deriving (Eq, Show)
+                                                    deriving (Eq)
+
+data SPACE = SPACE                                  deriving (Eq)
 
 data DIGIT = ZERO
            | ONE
@@ -89,17 +95,60 @@ data DIGIT = ZERO
            | SEVEN
            | EIGHT
            | NINE
-                                                    deriving (Eq, Show)
+                                                    deriving (Eq)
 
 data BOOLOP = EQUALS
             | NOTEQUALS
-                                                    deriving (Eq, Show)
+                                                    deriving (Eq)
 
 data BOOLVAL = TRUE
              | FALSE
-                                                    deriving (Eq, Show)
+                                                    deriving (Eq)
 
-data INTOP = INTOP                                  deriving (Eq, Show)
+data INTOP = INTOP                                  deriving (Eq)
+
+
+
+instance Show TYPE where 
+    show s 
+            | s == INT = "int"
+            | s == STRING = "string"
+            | s == BOOLEAN = "boolean"
+
+instance Show CHAR where
+    show c = show $ toLower $ head $ show c
+
+instance Show SPACE where
+    show s = show " "
+
+instance Show DIGIT where
+    show d
+            | d == ZERO = "0"
+            | d == ONE = "1"
+            | d == TWO = "2"
+            | d == THREE = "3"
+            | d == FOUR = "4"
+            | d == FIVE = "5"
+            | d == SIX = "6"
+            | d == SEVEN = "7"
+            | d == EIGHT = "8"
+            | d == NINE = "9"
+
+instance Show BOOLOP where
+    show bo
+            | bo == EQUALS = "=="
+            | bo == NOTEQUALS = "!="
+
+instance Show BOOLVAL where
+    show bv
+            | bv == TRUE = "true"
+            | bv == FALSE = "false"
+
+instance Show INTOP where
+    show io = "+"
+
+
+
 
 
 

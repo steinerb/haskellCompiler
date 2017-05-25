@@ -5,18 +5,20 @@ import LanguageData
 import Lexer
 
 
-data PROGRAM = Program              BLOCK
+data PROGRAM = Program              BLOCK           deriving (Eq, Show)
 
-data BLOCK = Block                  STMTlist
+data BLOCK = Block                  STMTlist        deriving (Eq, Show)
 
-data STMTlist = SList               STMT STMTlist
-              | EmptySTMT
+data STMTlist = STMTlistNode        STMT STMTlist 
+              | EmptySTMTlist
+                                                    deriving (Eq, Show)
 
 data STMT = PrintSTMT               EXPR
           | AssignSTMT              ID EXPR
           | VarDeclSTMT             TYPE ID
           | WhileSTMT               BooleanEXPRlit BLOCK
           | IfSTMT                  BooleanEXPRlit BLOCK
+                                                    deriving (Eq, Show)
 
 
 
@@ -25,21 +27,29 @@ data EXPR = IntEXPR                 IntEXPRlit
           | StringEXPR              StringEXPRlit
           | BooleanEXPR             BooleanEXPRlit
           | IDEXPR                  ID
+                                                    deriving (Eq, Show)
 
 data IntEXPRlit = IntEXPRlitM       DIGIT INTOP EXPR
                 | IntEXPRlitS       DIGIT
+                                                    deriving (Eq, Show)
 
-data StringEXPRlit = SE Int
-
-data BooleanEXPRlit = BE Int
-
+data StringEXPRlit = StringLit      CHARlist        deriving (Eq, Show)
 
 
-data ID = Id                        CHAR
+data CHARlist = CHARlistNode        CHAR CHARlist   
+              | EmptyCHARlist
+                                                    deriving (Eq, Show)
+
+data BooleanEXPRlit = BE Int                        deriving (Eq, Show)
+
+
+
+data ID = Id                        CHAR            deriving (Eq, Show)
 
 data TYPE = INT
           | STRING
           | BOOLEAN
+                                                    deriving (Eq, Show)
 
 data CHAR = A
           | B
@@ -67,6 +77,7 @@ data CHAR = A
           | X
           | Y
           | Z
+                                                    deriving (Eq, Show)
 
 data DIGIT = ZERO
            | ONE
@@ -78,14 +89,17 @@ data DIGIT = ZERO
            | SEVEN
            | EIGHT
            | NINE
+                                                    deriving (Eq, Show)
 
 data BOOLOP = EQUALS
             | NOTEQUALS
+                                                    deriving (Eq, Show)
 
 data BOOLVAL = TRUE
              | FALSE
+                                                    deriving (Eq, Show)
 
-data INTOP = INTOP
+data INTOP = INTOP                                  deriving (Eq, Show)
 
 
 

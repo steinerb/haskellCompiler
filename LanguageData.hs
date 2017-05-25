@@ -36,6 +36,7 @@ instance Show Token where
     show t@(T_boolOp b) = show b
     show t@(T_string s) = show s
     show t@(T_type s) = show s
+    show t@(T_int s) = show s
     show t 
         | t == T_LBrace = "{"
         | t == T_RBrace = "}"

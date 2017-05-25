@@ -12,8 +12,8 @@ import Control.Applicative
 import Control.Monad
 
 
-
-parseTEST = (parse boolOpP "test" "!=")
+--drawTEST = drawTree (parseTEST)
+parseTEST = (parse digitP "test" "0") *> (parse digitP "test2" "1")
 
 -------PARSER START-------
 
@@ -34,6 +34,19 @@ boolOpP :: Parser (Tree Token)
 boolOpP = ((string "==") *> pure (Node (T_boolOp (BoolOp True)) [])) 
       <|> ((string "!=") *> pure (Node (T_boolOp (BoolOp False)) []))
 --
+
+digitP :: Parser (Tree Token)
+digitP = ((string "0") *> pure (Node (T_int "0") []))
+     <|> ((string "1") *> pure (Node (T_int "1") []))
+     <|> ((string "2") *> pure (Node (T_int "2") []))
+     <|> ((string "3") *> pure (Node (T_int "3") []))
+     <|> ((string "4") *> pure (Node (T_int "4") []))
+     <|> ((string "5") *> pure (Node (T_int "5") []))
+     <|> ((string "6") *> pure (Node (T_int "6") []))
+     <|> ((string "7") *> pure (Node (T_int "7") []))
+     <|> ((string "8") *> pure (Node (T_int "8") []))
+     <|> ((string "9") *> pure (Node (T_int "9") []))
+--     
 
 
 -------PARSER STOP-------

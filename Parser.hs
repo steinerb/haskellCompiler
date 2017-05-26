@@ -55,7 +55,7 @@ stringExprLitP = (string "\"") *> charListP <* (string "\"")
 --
 
 booleanExprLitP :: Parser BooleanEXPRlit
-booleanExprLitP = ( BooleanLitM <$> (exprP) *> (boolOpP) *> (exprP) )
+booleanExprLitP = ( BooleanLitM <$> ((exprP) *> (boolOpP) *> (exprP)) )
               <|> ( BooleanLitS <$> (boolValP) ) 
 --ABOVE PARSER FUNCTIONS NEED <$> ADDED!!!!
 

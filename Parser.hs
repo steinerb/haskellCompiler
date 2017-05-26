@@ -16,61 +16,130 @@ import Control.Monad
 parseTEST = (parse boolValP "test" "true") 
 
 
---NEED TO CHANGE (Tree Token) AS Parser PARAMETER WITH TYPES FROM THE GRAMMAR!!
-
-
-
 
 
 
 -------PARSER START-------
 
-testP :: Parser (Tree String)
-testP = spaceP *> digitP
+--testP :: Parser (Tree String)
+--testP = spaceP *> boolValP
 
 
 
---SHOULD NOT RETURN A T_ID!!!! ONLY TEMPORARY FOR CONSISTENT TYPES
-charP :: Parser (Tree String)
-charP = ((string "a") *> pure (Node (show A) []))
-     <|>((string "b") *> pure (Node (show B) []))
-     <|>((string "c") *> pure (Node (show C) []))
---come back to!
+programP :: Parser PROGRAM
+programP = blockP <* (string "$")
 
-spaceP :: Parser (Tree String)
-spaceP = (string " ") *> pure (Node (show SPACE) [])
+
+blockP :: Parser BLOCK
+blockP = (string "{") *> stmtListP <* (string "}")
+
+stmtListP :: Parser [STMTlist]
+stmtListP = many stmtP
+
+--INCOMPLETE!!! (only includes print statements currently)
+stmtP :: Parser STMT
+stmtP = (exprP)
 --
 
-digitP :: Parser (Tree String)
-digitP = ((string "0") *> pure (Node (show ZERO) []))
-     <|> ((string "1") *> pure (Node (show ONE) []))
-     <|> ((string "2") *> pure (Node (show TWO) []))
-     <|> ((string "3") *> pure (Node (show THREE) []))
-     <|> ((string "4") *> pure (Node (show FOUR) []))
-     <|> ((string "5") *> pure (Node (show FIVE) []))
-     <|> ((string "6") *> pure (Node (show SIX) []))
-     <|> ((string "7") *> pure (Node (show SEVEN) []))
-     <|> ((string "8") *> pure (Node (show EIGHT) []))
-     <|> ((string "9") *> pure (Node (show NINE) []))
+exprP :: Parser EXPR
+exprP = intExprLitP <|> stringExprLitP <|> booleanExprLitP <|> idP
+--
+
+intExprLitP :: Parser IntEXPRlit 
+intExprLitP = (digitP *> (string "+") *> (exprP `sepBy` (string "+"))) 
+          <|> (digitP)
+--
+
+stringExprLitP :: Parser StringEXPRlit
+stringExprLitP = (string "\"") *> charListP <* (string "\"")
+--
+
+booleanExprLitP :: Parser BooleanEXPRlit
+booleanExprLitP = ( BooleanLitM <$> (exprP) *> (boolOpP) *> (exprP) )
+              <|> ( BooleanLitS <$> (boolValP) ) 
+--ABOVE PARSER FUNCTIONS NEED <$> ADDED!!!!
+
+idP :: Parser ID
+idP = Id <$> charP
+--
+
+charListP :: Parser [CHARlist]
+charListP = many ((CHARlistNodeS <$> spaceP) <|> (CHARlistNodeC <$> charP))
+
+--makeCharListP :: Parser CHAR -> Parser CHARlist
+--makeCharListP pc@(Parser c) = pure (CHARlistNodeC $ c)
+
+
+typeP :: Parser TYPE
+typeP = ((string "int") *> pure INT)
+    <|> ((string "string") *> pure STRING)
+    <|> ((string "boolean") *> pure BOOLEAN)
+--
+
+charP :: Parser CHAR
+charP = ((string "a") *> pure A)
+     <|>((string "b") *> pure B)
+     <|>((string "c") *> pure C)
+     <|>((string "d") *> pure D)
+     <|>((string "e") *> pure E)
+     <|>((string "f") *> pure F)
+     <|>((string "g") *> pure G)
+     <|>((string "h") *> pure H)
+     <|>((string "i") *> pure I)
+     <|>((string "j") *> pure J)
+     <|>((string "k") *> pure K)
+     <|>((string "l") *> pure L)
+     <|>((string "m") *> pure M)
+     <|>((string "n") *> pure N)
+     <|>((string "o") *> pure O)
+     <|>((string "p") *> pure P)
+     <|>((string "q") *> pure Q)
+     <|>((string "r") *> pure R)
+     <|>((string "s") *> pure S)
+     <|>((string "t") *> pure T)
+     <|>((string "u") *> pure U)
+     <|>((string "v") *> pure V)
+     <|>((string "w") *> pure W)
+     <|>((string "x") *> pure X)
+     <|>((string "y") *> pure Y)
+     <|>((string "z") *> pure Z)
+--
+
+spaceP :: Parser SPACE
+spaceP = (string " ") *> pure SPACE
+--
+
+digitP :: Parser DIGIT
+digitP = ((string "0") *> pure ZERO)
+     <|> ((string "1") *> pure ONE)
+     <|> ((string "2") *> pure TWO)
+     <|> ((string "3") *> pure THREE)
+     <|> ((string "4") *> pure FOUR)
+     <|> ((string "5") *> pure FIVE)
+     <|> ((string "6") *> pure SIX)
+     <|> ((string "7") *> pure SEVEN)
+     <|> ((string "8") *> pure EIGHT)
+     <|> ((string "9") *> pure NINE)
 --     
 
-boolOpP :: Parser (Tree String)
-boolOpP = ((string "==") *> pure (Node (show EQUALS) [])) 
-      <|> ((string "!=") *> pure (Node (show NOTEQUALS) []))
+boolOpP :: Parser BOOLOP
+boolOpP = ((string "==") *> pure EQUALS)
+      <|> ((string "!=") *> pure NOTEQUALS)
 --
 
-boolFalseP :: Parser (Tree String)
-boolFalseP = (string (show FALSE)) *> pure (Node (show FALSE) [])
-boolTrueP :: Parser (Tree String)
-boolTrueP = (string (show TRUE)) *> pure (Node (show TRUE) [])
+boolFalseP :: Parser BOOLVAL
+boolFalseP = (string (show FALSE)) *> pure FALSE
 
-boolValP :: Parser (Tree String)
+boolTrueP :: Parser BOOLVAL
+boolTrueP = (string (show TRUE)) *> pure TRUE
+
+boolValP :: Parser BOOLVAL
 boolValP = boolTrueP <|> boolFalseP
 --
 
 
-intOpP :: Parser (Tree String)
-intOpP = (string (show INTOP)) *> pure (Node (show INTOP) [])
+intOpP :: Parser INTOP
+intOpP = (string (show INTOP)) *> pure INTOP
 --
 
 

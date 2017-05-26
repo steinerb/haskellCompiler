@@ -9,10 +9,15 @@ import Data.Char (toLower)
 
 data PROGRAM = Program              BLOCK           deriving (Eq, Show)
 
-data BLOCK = Block                  STMTlist        deriving (Eq, Show)
+--data BLOCK = Block                  STMTlist
+data BLOCK = Block                  [STMTlist]        
+                                                    deriving (Eq, Show)
 
-data STMTlist = STMTlistNode        STMT STMTlist 
-              | EmptySTMTlist
+--data STMTlist = STMTlistNode        STMT STMTlist 
+--x              | EmptySTMTlist
+--                                                    deriving (Eq, Show)
+
+data STMTlist = STMTlistNode        STMT
                                                     deriving (Eq, Show)
 
 data STMT = PrintSTMT               EXPR
@@ -33,13 +38,18 @@ data IntEXPRlit = IntLitM           DIGIT INTOP EXPR
                 | IntLitS           DIGIT
                                                     deriving (Eq, Show)
 
-data StringEXPRlit = StringLit      CHARlist        deriving (Eq, Show)
+data StringEXPRlit = StringLit      [CHARlist]      deriving (Eq, Show)
 
 
-data CHARlist = CHARlistNodeC       CHAR CHARlist
-              | CHARlistNodeS       SPACE CHARlist   
-              | EmptyCHARlist
+--data CHARlist = CHARlistNodeC       CHAR CHARlist
+--x              | CHARlistNodeS       SPACE CHARlist   
+--x              | EmptyCHARlist
+--                                                    deriving (Eq, Show)
+
+data CHARlist = CHARlistNodeC       CHAR
+              | CHARlistNodeS       SPACE
                                                     deriving (Eq, Show)
+
 
 data BooleanEXPRlit = BooleanLitM   EXPR BOOLOP EXPR 
                     | BooleanLitS   BOOLVAL

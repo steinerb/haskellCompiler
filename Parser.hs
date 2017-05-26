@@ -39,11 +39,14 @@ stmtListP = many stmtP
 --INCOMPLETE!!! (only includes print statements currently)
 stmtP :: Parser STMT
 stmtP = (exprP)
---
+--ABOVE PARSER FUNCTIONS NEED <$> ADDED!!!!
 
 exprP :: Parser EXPR
-exprP = intExprLitP <|> stringExprLitP <|> booleanExprLitP <|> idP
---ABOVE PARSER FUNCTIONS NEED <$> ADDED!!!!
+exprP = (IntEXPR <$> intExprLitP)
+    <|> (StringEXPR <$> stringExprLitP)
+    <|> (BooleanEXPR <$> booleanExprLitP) 
+    <|> (IDEXPR <$> idP)
+--
 
 intExprLitP :: Parser IntEXPRlit 
 intExprLitP = ( (digitP *> (string "+") *> (exprP `sepBy` (string "+"))) *> pass )

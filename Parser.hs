@@ -43,22 +43,24 @@ stmtP = (exprP)
 
 exprP :: Parser EXPR
 exprP = intExprLitP <|> stringExprLitP <|> booleanExprLitP <|> idP
---
+--ABOVE PARSER FUNCTIONS NEED <$> ADDED!!!!
 
 intExprLitP :: Parser IntEXPRlit 
-intExprLitP = (digitP *> (string "+") *> (exprP `sepBy` (string "+"))) 
-          <|> (digitP)
+intExprLitP = ( (digitP *> (string "+") *> (exprP `sepBy` (string "+"))) *> pass )
+          <|> (IntLitS <$> digitP)
+                where
+                    pass = pure (IntLitS ZERO)
 --
 
 stringExprLitP :: Parser StringEXPRlit
-stringExprLitP = (string "\"") *> charListP <* (string "\"")
---ABOVE PARSER FUNCTIONS NEED <$> ADDED!!!!
+stringExprLitP = (string "\"") *> (StringLit <$> charListP) <* (string "\"")
+--
 
 booleanExprLitP :: Parser BooleanEXPRlit
 booleanExprLitP = ( ((exprP) *> (boolOpP) *> (exprP)) *> (pass) )
               <|> ( BooleanLitS <$> (boolValP) ) 
-                where
-                    pass = pure (BooleanLitS TRUE)
+                    where
+                        pass = pure (BooleanLitS TRUE)
 --
 
 idP :: Parser ID

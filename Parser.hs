@@ -25,38 +25,38 @@ parseTEST = (parse boolValP "test" "true")
 
 -------PARSER START-------
 
-testP :: Parser (Tree Token)
+testP :: Parser (Tree String)
 testP = spaceP *> digitP
 
 
 
 --SHOULD NOT RETURN A T_ID!!!! ONLY TEMPORARY FOR CONSISTENT TYPES
-charP :: Parser (Tree Token)
-charP = ((string "a") *> pure (Node (T_id "a") []))
-     <|>((string "b") *> pure (Node (T_id "b") []))
-     <|>((string "c") *> pure (Node (T_id "c") []))
+charP :: Parser (Tree String)
+charP = ((string "a") *> pure (Node (show A) []))
+     <|>((string "b") *> pure (Node (show B) []))
+     <|>((string "c") *> pure (Node (show C) []))
 --come back to!
 
-spaceP :: Parser (Tree Token)
-spaceP = (string " ") *> pure (Node T_space [])
+spaceP :: Parser (Tree String)
+spaceP = (string " ") *> pure (Node (show SPACE) [])
 --
 
-digitP :: Parser (Tree Token)
-digitP = ((string "0") *> pure (Node (T_int "0") []))
-     <|> ((string "1") *> pure (Node (T_int "1") []))
-     <|> ((string "2") *> pure (Node (T_int "2") []))
-     <|> ((string "3") *> pure (Node (T_int "3") []))
-     <|> ((string "4") *> pure (Node (T_int "4") []))
-     <|> ((string "5") *> pure (Node (T_int "5") []))
-     <|> ((string "6") *> pure (Node (T_int "6") []))
-     <|> ((string "7") *> pure (Node (T_int "7") []))
-     <|> ((string "8") *> pure (Node (T_int "8") []))
-     <|> ((string "9") *> pure (Node (T_int "9") []))
+digitP :: Parser (Tree String)
+digitP = ((string "0") *> pure (Node (show ZERO) []))
+     <|> ((string "1") *> pure (Node (show ONE) []))
+     <|> ((string "2") *> pure (Node (show TWO) []))
+     <|> ((string "3") *> pure (Node (show THREE) []))
+     <|> ((string "4") *> pure (Node (show FOUR) []))
+     <|> ((string "5") *> pure (Node (show FIVE) []))
+     <|> ((string "6") *> pure (Node (show SIX) []))
+     <|> ((string "7") *> pure (Node (show SEVEN) []))
+     <|> ((string "8") *> pure (Node (show EIGHT) []))
+     <|> ((string "9") *> pure (Node (show NINE) []))
 --     
 
-boolOpP :: Parser (Tree Token)
-boolOpP = ((string "==") *> pure (Node (T_boolOp (BoolOp True)) [])) 
-      <|> ((string "!=") *> pure (Node (T_boolOp (BoolOp False)) []))
+boolOpP :: Parser (Tree String)
+boolOpP = ((string "==") *> pure (Node (show EQUALS) [])) 
+      <|> ((string "!=") *> pure (Node (show NOTEQUALS) []))
 --
 
 boolFalseP :: Parser (Tree String)

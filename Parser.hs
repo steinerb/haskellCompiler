@@ -52,12 +52,14 @@ intExprLitP = (digitP *> (string "+") *> (exprP `sepBy` (string "+")))
 
 stringExprLitP :: Parser StringEXPRlit
 stringExprLitP = (string "\"") *> charListP <* (string "\"")
---
+--ABOVE PARSER FUNCTIONS NEED <$> ADDED!!!!
 
 booleanExprLitP :: Parser BooleanEXPRlit
-booleanExprLitP = ( BooleanLitM <$> ((exprP) *> (boolOpP) *> (exprP)) )
+booleanExprLitP = ( ((exprP) *> (boolOpP) *> (exprP)) *> (pass) )
               <|> ( BooleanLitS <$> (boolValP) ) 
---ABOVE PARSER FUNCTIONS NEED <$> ADDED!!!!
+                where
+                    pass = pure (BooleanLitS TRUE)
+--
 
 idP :: Parser ID
 idP = Id <$> charP

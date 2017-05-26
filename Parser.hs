@@ -12,11 +12,16 @@ import Control.Applicative
 import Control.Monad
 
 
---drawTEST = drawTree (parseTEST)
-parseTEST = (parse testP "test" " 1") *> (parse testP "test" "1")
+
+parseTEST = (parse boolValP "test" "true") 
 
 
 --NEED TO CHANGE (Tree Token) AS Parser PARAMETER WITH TYPES FROM THE GRAMMAR!!
+
+
+
+
+
 
 -------PARSER START-------
 
@@ -54,35 +59,30 @@ boolOpP = ((string "==") *> pure (Node (T_boolOp (BoolOp True)) []))
       <|> ((string "!=") *> pure (Node (T_boolOp (BoolOp False)) []))
 --
 
-boolFalseP :: Parser (Tree Token)
-boolFalseP = (string (show T_false)) *> pure (Node T_false [])
-boolTrueP :: Parser (Tree Token)
-boolTrueP = (string (show T_true)) *> pure (Node T_true [])
+boolFalseP :: Parser (Tree String)
+boolFalseP = (string (show FALSE)) *> pure (Node (show FALSE) [])
+boolTrueP :: Parser (Tree String)
+boolTrueP = (string (show TRUE)) *> pure (Node (show TRUE) [])
 
-boolValP :: Parser (Tree Token)
+boolValP :: Parser (Tree String)
 boolValP = boolTrueP <|> boolFalseP
 --
 
 
-intOpP :: Parser (Tree Token)
-intOpP = (string (show T_intOp)) *> pure (Node T_intOp [])
+intOpP :: Parser (Tree String)
+intOpP = (string (show INTOP)) *> pure (Node (show INTOP) [])
 --
-
-
-
-
-
-
-
-
-
-
 
 
 
 -------PARSER STOP-------
 
---TREE EXAMPLES!!!
+
+
+
+--TREE METHODS
+stringifyTokenTree :: (Tree Token) -> (Tree String)
+stringifyTokenTree t = fmap show t 
 
 
 makeChild :: Tree String -> Tree String -> Tree String
@@ -90,6 +90,7 @@ makeChild p@(Node n lst) c = Node n (c:lst)
 
 
 
+--TREE EXAMPLES!!!
 
 programTree :: Tree String
 programTree = Node "Program" []
@@ -97,9 +98,6 @@ programTree = Node "Program" []
 tokenTree :: Tree Token
 tokenTree = Node T_LBrace []
 
-
-stringifyTree :: (Tree Token) -> (Tree String)
-stringifyTree t = fmap show t 
 
 
 myTree :: Tree String
@@ -116,4 +114,8 @@ myTree = Node "rootNode"
                 Node "BranchC-1" []
             ]
          ]
+
+
+
+
 

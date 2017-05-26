@@ -49,7 +49,7 @@ parseProgramOUT :: [Token] -> IO ()
 parseProgramOUT p = putStrLn "PARSER: single program parse reached!"
 
 
-
+--LEXER OUTPUT
 lexProgramsOUT :: [[Token]] -> IO ()
 lexProgramsOUT [] = putStrLn "LEXER: END"
 lexProgramsOUT (p:ps) = do

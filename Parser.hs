@@ -12,9 +12,10 @@ import Control.Applicative
 import Control.Monad
 
 
-
+--GHCI test functions
+parseTEST = (parse programP "Bool parse test" "{print true}$")
 parseIntTEST  = (parse programP "IntM parse test" "{print7+2+5}$")
-parseBoolTEST = (parse programP "Bool parse test" "{()}$")
+parseBoolTEST = (parse programP "Bool parse test" "{printtrue}$")
 
 
 
@@ -28,7 +29,7 @@ parseBoolTEST = (parse programP "Bool parse test" "{()}$")
 
 
 programP :: Parser PROGRAM
-programP = (Program <$> blockP) <* (string "$")
+programP = (Program <$> blockP) <* skipSpaces <* (string "$")
 
 
 blockP :: Parser BLOCK
@@ -49,13 +50,6 @@ exprP = (IntEXPR <$> intExprLitP)
     <|> (IDEXPR <$> idP)
 --
 
---attempt 2:
---intExprLitP :: Parser IntEXPRlit 
---intExprLitP = ( (digitP *> (string "+") *> exprP *> (optional (exprP `sepBy` (string "+")))) *> pass )
---a2          <|> (IntLitS <$> digitP)
---a2                where
---a2                    pass = pure (IntLitS ZERO)
---
 intExprLitP :: Parser IntEXPRlit
 intExprLitP = (IntLitS <$> digitP) <* (optional ((string "+") <* (exprP `sepBy` (string "+")))) 
 --
@@ -64,11 +58,15 @@ stringExprLitP :: Parser StringEXPRlit
 stringExprLitP = (string "\"") *> (StringLit <$> charListP) <* (string "\"")
 --
 
+--TO TEST:
+--booleanExprLitP :: Parser BooleanEXPRlit
+--booleanExprLitP = ( ((exprP) *> (boolOpP) *> (exprP)) *> (pass) )
+--TT              <|> ( BooleanLitS <$> (boolValP) ) 
+--TT                    where
+--TT                        pass = pure (BooleanLitS TRUE)
+--
 booleanExprLitP :: Parser BooleanEXPRlit
-booleanExprLitP = ( ((exprP) *> (boolOpP) *> (exprP)) *> (pass) )
-              <|> ( BooleanLitS <$> (boolValP) ) 
-                    where
-                        pass = pure (BooleanLitS TRUE)
+booleanExprLitP = BooleanLitS <$> boolValP 
 --
 
 idP :: Parser ID
@@ -151,7 +149,8 @@ intOpP :: Parser INTOP
 intOpP = (string (show INTOP)) *> pure INTOP
 --
 
-
+skipSpaces = (skipMany (string " "))
+--
 
 -------PARSER STOP-------
 

@@ -13,7 +13,7 @@ import Control.Monad
 
 
 --GHCI test functions
-parseTEST = (parse programP "Bool parse test" "{print true}$")
+parseTEST = (parse programP "Bool parse test" "{print(5==5)}$")
 parseIntTEST  = (parse programP "IntM parse test" "{print7+2+5}$")
 parseIntTEST'  = (parse programP "IntM parse test" "{print7+2+5}$")
 parseBoolTEST = (parse programP "Bool parse test" "{printtrue}$")
@@ -61,17 +61,15 @@ stringExprLitP :: Parser StringEXPRlit
 stringExprLitP = (string "\"") *> (StringLit <$> charListP) <* (string "\"")
 --
 
---TO TEST:
---booleanExprLitP :: Parser BooleanEXPRlit
---booleanExprLitP = ( ((exprP) *> (boolOpP) *> (exprP)) *> (pass) )
---TT              <|> ( BooleanLitS <$> (boolValP) ) 
---TT                    where
---TT                        pass = pure (BooleanLitS TRUE)
---
+--NEEDS TESTING!!
 booleanExprLitP :: Parser BooleanEXPRlit
-booleanExprLitP = BooleanLitS <$> boolValP 
+booleanExprLitP = ((string "(") *> (exprP) *> (boolOpP) *> (exprP) *> (string ")") *> (pass) )
+              <|> ( BooleanLitS <$> boolValP ) 
+                    where
+                        pass = pure (BooleanLitS TRUE)
 --
 
+--WARNING: this shouldn't matter, but be careful of skipSpace here!
 idP :: Parser ID
 idP = Id <$> charP
 --
@@ -133,18 +131,18 @@ digitP = ((string "0") *> pure ZERO)
 --     
 
 boolOpP :: Parser BOOLOP
-boolOpP = ((string "==") *> pure EQUALS)
-      <|> ((string "!=") *> pure NOTEQUALS)
+boolOpP = (skipSpaces *> (string "==") *> skipSpaces *> pure EQUALS)
+      <|> (skipSpaces *> (string "!=") *> skipSpaces *> pure NOTEQUALS)
 --
 
 boolFalseP :: Parser BOOLVAL
-boolFalseP = (string (show FALSE)) *> pure FALSE
+boolFalseP = skipSpaces *> (string (show FALSE)) *> skipSpaces *> pure FALSE
 
 boolTrueP :: Parser BOOLVAL
-boolTrueP = (string (show TRUE)) *> pure TRUE
+boolTrueP = skipSpaces *> (string (show TRUE)) *> skipSpaces *> pure TRUE
 
 boolValP :: Parser BOOLVAL
-boolValP = boolTrueP <|> boolFalseP
+boolValP = skipSpaces *> (boolTrueP <|> boolFalseP) <* skipSpaces
 --
 
 intOpP :: Parser INTOP

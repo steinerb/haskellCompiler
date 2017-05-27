@@ -22,6 +22,8 @@ parseBoolTEST = (parse programP "Bool parse test" "{print(5==5)}$")
 parseBoolTEST' = (parse programP "Bool parse test" "{printtrue}$")
 parseDeclTEST = (parse programP "Var Decl test" "{inta}$")
 parseAssnTEST = (parse programP "Assign Statement test" "{x=5}$")
+parseWhileTEST = (parse programP "While Statement test" "{whiletrue{print5}}$")
+parseIfTEST = (parse programP "If Statement test" "{iftrue{print5}}$")
 
 
 
@@ -48,6 +50,8 @@ stmtListP = many (STMTlistNode <$> stmtP)
 --WARNING: make sure AssignSTMT is last!!! idP/charP will pick up any char.
 stmtP :: Parser STMT
 stmtP = ( (string "print") *> (PrintSTMT <$> exprP) )
+    <|> ( (string "while") *> (WhileSTMT <$> booleanExprLitP <*> blockP) )
+    <|> ( (string "if") *> (IfSTMT <$> booleanExprLitP <*> blockP) )
     <|> ( VarDeclSTMT <$> typeP <*> idP )
     <|> ( AssignSTMT <$> (idP <* (string "=")) <*> exprP )
 --

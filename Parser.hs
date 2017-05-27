@@ -13,11 +13,15 @@ import Control.Monad
 
 
 --GHCI test functions
-parseTEST = (parse programP "Bool parse test" "{print(5==5)}$")
-parseIntTEST  = (parse programP "IntM parse test" "{print7+2+5}$")
+--to use: enter ghci main in your Unix command line. from there, enter any of these functions:
+
+parseTEST = (parse programP "Var Decl test" "{inta}$")
+parseIntTEST  = (parse programP "IntM parse test" "{print7 + 2 + 5}$")
 parseIntTEST'  = (parse programP "IntM parse test" "{print7+2+5}$")
-parseBoolTEST = (parse programP "Bool parse test" "{printtrue}$")
-parseOPTEST = (parse intOpP "Int Op whitespace test" "   +  ")
+parseBoolTEST = (parse programP "Bool parse test" "{print(5==5)}$")
+parseBoolTEST' = (parse programP "Bool parse test" "{printtrue}$")
+parseDeclTEST = (parse programP "Var Decl test" "{inta}$")
+parseAssnTEST = (parse programP "Assign Statement test" "{x=5}$")
 
 
 
@@ -41,9 +45,11 @@ stmtListP :: Parser [STMTlist]
 stmtListP = many (STMTlistNode <$> stmtP)
 
 --stmtP INCOMPLETE!!! (only includes print statements currently)
+--WARNING: make sure AssignSTMT is last!!! idP/charP will pick up any char.
 stmtP :: Parser STMT
 stmtP = ( (string "print") *> (PrintSTMT <$> exprP) )
---i    <|> ( AssignSTMT <$> ((idP <* (string "="))))
+    <|> ( VarDeclSTMT <$> typeP <*> idP )
+    <|> ( AssignSTMT <$> (idP <* (string "=")) <*> exprP )
 --
 
 exprP :: Parser EXPR
@@ -55,7 +61,6 @@ exprP = (IntEXPR <$> intExprLitP)
 
 intExprLitP :: Parser IntEXPRlit
 intExprLitP = (IntLitS <$> digitP) <* (optional (intOpP <* (exprP `sepBy` intOpP)))
---intExprLitP = (IntLitS <$> digitP) <* (optional ((string "+") <* (exprP `sepBy` (string "+")))) 
 --
 
 stringExprLitP :: Parser StringEXPRlit

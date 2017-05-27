@@ -15,7 +15,9 @@ import Control.Monad
 --GHCI test functions
 parseTEST = (parse programP "Bool parse test" "{print true}$")
 parseIntTEST  = (parse programP "IntM parse test" "{print7+2+5}$")
+parseIntTEST'  = (parse programP "IntM parse test" "{print7+2+5}$")
 parseBoolTEST = (parse programP "Bool parse test" "{printtrue}$")
+parseOPTEST = (parse intOpP "Int Op whitespace test" "   +  ")
 
 
 
@@ -51,7 +53,8 @@ exprP = (IntEXPR <$> intExprLitP)
 --
 
 intExprLitP :: Parser IntEXPRlit
-intExprLitP = (IntLitS <$> digitP) <* (optional ((string "+") <* (exprP `sepBy` (string "+")))) 
+intExprLitP = (IntLitS <$> digitP) <* (optional (intOpP <* (exprP `sepBy` intOpP)))
+--intExprLitP = (IntLitS <$> digitP) <* (optional ((string "+") <* (exprP `sepBy` (string "+")))) 
 --
 
 stringExprLitP :: Parser StringEXPRlit
@@ -144,9 +147,8 @@ boolValP :: Parser BOOLVAL
 boolValP = boolTrueP <|> boolFalseP
 --
 
-
 intOpP :: Parser INTOP
-intOpP = (string (show INTOP)) *> pure INTOP
+intOpP = skipSpaces *> (string (show INTOP)) *> skipSpaces *> pure INTOP
 --
 
 skipSpaces = (skipMany (string " "))

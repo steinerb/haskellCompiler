@@ -5,7 +5,7 @@ import Grammar
 import Data.Tree
 
 
-import Text.ParserCombinators.Parsec hiding ((<|>), many)
+import Text.ParserCombinators.Parsec hiding ((<|>), many, optional)
 import Text.Parsec (parse)
 
 import Control.Applicative
@@ -13,7 +13,8 @@ import Control.Monad
 
 
 
-parseTEST = (parse programP "test" "{print\"hello world\"}$") 
+parseIntTEST  = (parse programP "IntM parse test" "{print7+2+5}$")
+parseBoolTEST = (parse programP "Bool parse test" "{()}$")
 
 
 
@@ -39,7 +40,7 @@ stmtListP = many (STMTlistNode <$> stmtP)
 --stmtP INCOMPLETE!!! (only includes print statements currently)
 stmtP :: Parser STMT
 stmtP = (string "print") *> (PrintSTMT <$> exprP)
---ABOVE PARSER FUNCTIONS NEED <$> ADDED!!!!
+--
 
 exprP :: Parser EXPR
 exprP = (IntEXPR <$> intExprLitP)
@@ -48,11 +49,15 @@ exprP = (IntEXPR <$> intExprLitP)
     <|> (IDEXPR <$> idP)
 --
 
-intExprLitP :: Parser IntEXPRlit 
-intExprLitP = ( (digitP *> (string "+") *> (exprP `sepBy` (string "+"))) *> pass )
-          <|> (IntLitS <$> digitP)
-                where
-                    pass = pure (IntLitS ZERO)
+--attempt 2:
+--intExprLitP :: Parser IntEXPRlit 
+--intExprLitP = ( (digitP *> (string "+") *> exprP *> (optional (exprP `sepBy` (string "+")))) *> pass )
+--a2          <|> (IntLitS <$> digitP)
+--a2                where
+--a2                    pass = pure (IntLitS ZERO)
+--
+intExprLitP :: Parser IntEXPRlit
+intExprLitP = (IntLitS <$> digitP) <* (optional ((string "+") <* (exprP `sepBy` (string "+")))) 
 --
 
 stringExprLitP :: Parser StringEXPRlit

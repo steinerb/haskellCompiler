@@ -13,7 +13,7 @@ import Control.Monad
 
 
 
-parseTEST = (parse boolValP "test" "true") 
+parseTEST = (parse programP "test" "{print\"hello world\"}$") 
 
 
 
@@ -27,18 +27,18 @@ parseTEST = (parse boolValP "test" "true")
 
 
 programP :: Parser PROGRAM
-programP = blockP <* (string "$")
+programP = (Program <$> blockP) <* (string "$")
 
 
 blockP :: Parser BLOCK
-blockP = (string "{") *> stmtListP <* (string "}")
+blockP = (string "{") *> (Block <$> stmtListP) <* (string "}")
 
 stmtListP :: Parser [STMTlist]
-stmtListP = many stmtP
+stmtListP = many (STMTlistNode <$> stmtP)
 
---INCOMPLETE!!! (only includes print statements currently)
+--stmtP INCOMPLETE!!! (only includes print statements currently)
 stmtP :: Parser STMT
-stmtP = (exprP)
+stmtP = (string "print") *> (PrintSTMT <$> exprP)
 --ABOVE PARSER FUNCTIONS NEED <$> ADDED!!!!
 
 exprP :: Parser EXPR
@@ -72,10 +72,7 @@ idP = Id <$> charP
 
 charListP :: Parser [CHARlist]
 charListP = many ((CHARlistNodeS <$> spaceP) <|> (CHARlistNodeC <$> charP))
-
---makeCharListP :: Parser CHAR -> Parser CHARlist
---makeCharListP pc@(Parser c) = pure (CHARlistNodeC $ c)
-
+--
 
 typeP :: Parser TYPE
 typeP = ((string "int") *> pure INT)

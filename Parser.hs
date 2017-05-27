@@ -42,7 +42,8 @@ stmtListP = many (STMTlistNode <$> stmtP)
 
 --stmtP INCOMPLETE!!! (only includes print statements currently)
 stmtP :: Parser STMT
-stmtP = (string "print") *> (PrintSTMT <$> exprP)
+stmtP = ( (string "print") *> (PrintSTMT <$> exprP) )
+--i    <|> ( AssignSTMT <$> ((idP <* (string "="))))
 --
 
 exprP :: Parser EXPR
@@ -61,12 +62,16 @@ stringExprLitP :: Parser StringEXPRlit
 stringExprLitP = (string "\"") *> (StringLit <$> charListP) <* (string "\"")
 --
 
---NEEDS TESTING!!
+--OLD WORKING VERSION WITHOUT <*>!!
+--booleanExprLitP :: Parser BooleanEXPRlit
+--booleanExprLitP = ((string "(") *> (exprP) *> (boolOpP) *> (exprP) *> (string ")") *> (pass) )
+--t              <|> ( BooleanLitS <$> boolValP ) 
+--t                    where
+--t                        pass = pure (BooleanLitS TRUE)
+
 booleanExprLitP :: Parser BooleanEXPRlit
-booleanExprLitP = ((string "(") *> (exprP) *> (boolOpP) *> (exprP) *> (string ")") *> (pass) )
+booleanExprLitP = ((string "(") *> (BooleanLitM <$> exprP <*> boolOpP <*> exprP) <* (string ")") )
               <|> ( BooleanLitS <$> boolValP ) 
-                    where
-                        pass = pure (BooleanLitS TRUE)
 --
 
 --WARNING: this shouldn't matter, but be careful of skipSpace here!

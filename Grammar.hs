@@ -91,6 +91,7 @@ data CHAR = A
           | X
           | Y
           | Z
+          | IDholder
                                                     deriving (Eq)
 
 data SPACE = SPACE                                  deriving (Eq)
@@ -126,6 +127,7 @@ instance Show TYPE where
             | s == BOOLEAN = "boolean"
 
 instance Show CHAR where
+    show c@(IDholder) = "ID"
     show c = show $ toLower $ head $ show c
 
 instance Show SPACE where

@@ -56,8 +56,8 @@ data BooleanEXPRlit = BooleanLitM   EXPR BOOLOP EXPR
                                                     deriving (Eq, Show)
 
 
-
-data ID = Id                        CHAR            deriving (Eq, Show)
+--MAKE DERIVING SHOW IF NO INSTANCE!
+data ID = Id                        CHAR            deriving (Eq)
 
 
 data TYPE = INT
@@ -118,6 +118,9 @@ data BOOLVAL = TRUE
 data INTOP = INTOP                                  deriving (Eq)
 
 
+--remove this for more accurate show at the cost of Stack Overflow
+instance Show ID where
+    show id@(Id a) = "VALID_ID"
 
 instance Show TYPE where 
     show s 

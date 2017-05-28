@@ -15,7 +15,7 @@ import Control.Monad
 --GHCI test functions
 --to use: enter ghci main in your Unix command line. from there, enter any of these functions:
 
-parseTEST = (parse programP "Var Decl test" "{inta}$")
+parseTEST = (parse programP "Var Decl test" "{print (a == a)} $")
 parseIntTEST  = (parse programP "IntM parse test" "{print 7 + 2 + 5} $")
 parseIntTEST'  = (parse programP "IntM parse test" "{print7+2+5}$")
 parseBoolTEST = (parse programP "Bool parse test" "{print(5==5)}$")
@@ -86,7 +86,7 @@ booleanExprLitP = ((string "(") *> (BooleanLitM <$> exprP <*> boolOpP <*> exprP)
 
 --WARNING: this shouldn't matter, but be careful of skipSpace here!
 idP :: Parser ID
-idP = Id <$> charP
+idP = (Id <$> charP)
 --
 
 charListP :: Parser [CHARlist]
@@ -94,9 +94,9 @@ charListP = many ((CHARlistNodeS <$> spaceP) <|> (CHARlistNodeC <$> charP))
 --
 
 typeP :: Parser TYPE
-typeP = ((string "int") *> pure INT)
-    <|> ((string "string") *> pure STRING)
-    <|> ((string "boolean") *> pure BOOLEAN)
+typeP = (skipSpaces *> (string "int") *> skipSpaces *> pure INT)
+    <|> (skipSpaces *> (string "string") *> skipSpaces *> pure STRING)
+    <|> (skipSpaces *> (string "boolean") *> skipSpaces *> pure BOOLEAN)
 --
 
 charP :: Parser CHAR

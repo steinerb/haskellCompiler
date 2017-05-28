@@ -20,6 +20,7 @@ parseIntTEST  = (parse programP "IntM parse test" "{print 7 + 2 + 5} $")
 parseIntTEST'  = (parse programP "IntM parse test" "{print7+2+5}$")
 parseBoolTEST = (parse programP "Bool parse test" "{print(5 == 5)}$")
 parseBoolTEST' = (parse programP "Bool parse test" "{print true}$")
+parseStrTEST = (parse programP "String parse test" ("{print "++('"':"abc")++('"':"}$")))
 parseDeclTEST = (parse programP "Var Decl test" "{inta}$")
 parseAssnTEST = (parse programP "Assign Statement test" "{x=5}$")
 parseWhileTEST = (parse programP "While Statement test" "{whiletrue{print5}}$")
@@ -69,7 +70,9 @@ intExprLitP = (IntLitS <$> digitP) <* (optional (intOpP <* (exprP `sepBy` intOpP
 --
 
 stringExprLitP :: Parser StringEXPRlit
-stringExprLitP = (string "\"") *> (StringLit <$> charListP) <* (string "\"")
+stringExprLitP = ((char '"') *> (StringLit <$> charListP) <* (char '"'))
+             <|> ((string "\"") *> (StringLit <$> charListP) <* (string "\""))
+
 --
 
 --OLD WORKING VERSION WITHOUT <*>!!

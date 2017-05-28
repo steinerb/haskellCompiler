@@ -48,7 +48,7 @@ data StringEXPRlit = StringLit      [CHARlist]      deriving (Eq, Show)
 
 data CHARlist = CHARlistNodeC       CHAR
               | CHARlistNodeS       SPACE
-                                                    deriving (Eq, Show)
+                                                    deriving (Eq)
 
 
 data BooleanEXPRlit = BooleanLitM   EXPR BOOLOP EXPR 
@@ -117,6 +117,10 @@ data BOOLVAL = TRUE
 
 data INTOP = INTOP                                  deriving (Eq)
 
+
+
+instance Show CHARlist where
+    show c = "VALID_CHAR"
 
 --remove this for more accurate show at the cost of Stack Overflow
 instance Show ID where

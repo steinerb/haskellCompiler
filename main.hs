@@ -2,16 +2,18 @@ import LanguageData
 import Lexer
 import Parser
 import Text.Parsec (parse)
-import Control.Applicative (pure)
+import Control.Monad (join)
 
 --RUNS the I/O show. gets called
 main :: IO ()
 main = do 
     introMessage
     userInput <- getLine
+    parsablePrograms <- return (map (++"$") (splitByEOP userInput []))
     tokensForPrograms <- return $ appendEOPs (map (tokenize) (splitByEOP userInput []))
     lexProgramsOUT tokensForPrograms
-    parsablePrograms <- return (map (concat.(map show)) tokensForPrograms)
+    print tokensForPrograms
+    --parsablePrograms <- return (map (concat.(map show)) tokensForPrograms)
     print (parsablePrograms)
     putStrLn "\nPARSER: BEGIN\n" 
     parseProgramsOUT parsablePrograms

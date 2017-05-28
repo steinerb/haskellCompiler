@@ -1,7 +1,8 @@
 import LanguageData
 import Lexer
 import Parser
-
+import Text.Parsec (parse)
+import Control.Applicative (pure)
 
 --RUNS the I/O show. gets called
 main :: IO ()
@@ -10,14 +11,16 @@ main = do
     userInput <- getLine
     tokensForPrograms <- return $ appendEOPs (map (tokenize) (splitByEOP userInput []))
     lexProgramsOUT tokensForPrograms
+    parsablePrograms <- return (map (concat.(map show)) tokensForPrograms)
+    print (parsablePrograms)
+    putStrLn "\nPARSER: BEGIN\n" 
+    parseProgramsOUT parsablePrograms
 
-    --line for parsing programs here!
+    putStrLn("\nSEMANTIC ANALYSIS: REACHED!")
 
     --parseProgramOUT (head tokensForPrograms)
     
     
-
---NEED TO MAKE IO FOR PARSER!!!!!
 
 
 --first printed text
@@ -37,7 +40,7 @@ appendEOPs :: [[Token]] -> [[Token]]
 appendEOPs pgmTokens = map (++[T_EOP]) pgmTokens
 
 --PARSER OUTPUT
-parseProgramsOUT :: [[Token]] -> IO ()
+parseProgramsOUT :: [String] -> IO ()
 parseProgramsOUT [] = putStrLn "PARSER: END"
 parseProgramsOUT (p:ps) = do
     (parseProgramOUT p)
@@ -45,8 +48,13 @@ parseProgramsOUT (p:ps) = do
 
 
 
-parseProgramOUT :: [Token] -> IO ()
-parseProgramOUT p = putStrLn "PARSER: single program parse reached!"
+parseProgramOUT :: String -> IO ()
+parseProgramOUT p = do
+    putStrLn "PARSER: Parsing Program...\n"
+    putStrLn "PARSER: Right = Success, Left = Failure"
+    putStr "PARSER: "
+    print (parse programP "Program" p)
+    putStr "\n"
 
 
 --LEXER OUTPUT

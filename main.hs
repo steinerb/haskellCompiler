@@ -12,9 +12,8 @@ main = do
     parsablePrograms <- return (map (++"$") (splitByEOP userInput []))
     tokensForPrograms <- return $ appendEOPs (map (tokenize) (splitByEOP userInput []))
     lexProgramsOUT tokensForPrograms
-    print tokensForPrograms
-    --parsablePrograms <- return (map (concat.(map show)) tokensForPrograms)
-    print (parsablePrograms)
+    --print tokensForPrograms
+    --print (parsablePrograms)
     putStrLn "\nPARSER: BEGIN\n" 
     parseProgramsOUT parsablePrograms
 

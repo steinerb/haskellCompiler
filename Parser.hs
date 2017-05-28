@@ -16,7 +16,7 @@ import Control.Monad
 --to use: enter ghci main in your Unix command line. from there, enter any of these functions:
 
 parseTEST = (parse programP "Var Decl test" "{inta}$")
-parseIntTEST  = (parse programP "IntM parse test" "{print7 + 2 + 5}$")
+parseIntTEST  = (parse programP "IntM parse test" "{print 7 + 2 + 5} $")
 parseIntTEST'  = (parse programP "IntM parse test" "{print7+2+5}$")
 parseBoolTEST = (parse programP "Bool parse test" "{print(5==5)}$")
 parseBoolTEST' = (parse programP "Bool parse test" "{printtrue}$")
@@ -38,29 +38,30 @@ parseIfTEST = (parse programP "If Statement test" "{iftrue{print5}}$")
 
 programP :: Parser PROGRAM
 programP = (Program <$> blockP) <* skipSpaces <* (string "$")
-
+--
 
 blockP :: Parser BLOCK
-blockP = (string "{") *> (Block <$> stmtListP) <* (string "}")
+blockP = (string "{") *> skipSpaces *> (Block <$> stmtListP) <* skipSpaces <* (string "}")
+--
 
 stmtListP :: Parser [STMTlist]
 stmtListP = many (STMTlistNode <$> stmtP)
+--
 
---stmtP INCOMPLETE!!! (only includes print statements currently)
 --WARNING: make sure AssignSTMT is last!!! idP/charP will pick up any char.
 stmtP :: Parser STMT
-stmtP = ( (string "print") *> (PrintSTMT <$> exprP) )
-    <|> ( (string "while") *> (WhileSTMT <$> booleanExprLitP <*> blockP) )
-    <|> ( (string "if") *> (IfSTMT <$> booleanExprLitP <*> blockP) )
+stmtP = ( (string "print") *> skipSpaces *> (PrintSTMT <$> exprP) )
+    <|> ( (string "while") *> skipSpaces *> (WhileSTMT <$> booleanExprLitP <*> blockP) )
     <|> ( VarDeclSTMT <$> typeP <*> idP )
-    <|> ( AssignSTMT <$> (idP <* (string "=")) <*> exprP )
+    <|> ( (string "if") *> skipSpaces *> (IfSTMT <$> booleanExprLitP <*> blockP) )
+    <|> ( AssignSTMT <$> (idP <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )
 --
 
 exprP :: Parser EXPR
-exprP = (IntEXPR <$> intExprLitP)
-    <|> (StringEXPR <$> stringExprLitP)
-    <|> (BooleanEXPR <$> booleanExprLitP) 
-    <|> (IDEXPR <$> idP)
+exprP = ( skipSpaces *> (IntEXPR <$> intExprLitP) <* skipSpaces )
+    <|> ( skipSpaces *> (StringEXPR <$> stringExprLitP) <* skipSpaces )
+    <|> ( skipSpaces *> (BooleanEXPR <$> booleanExprLitP) <* skipSpaces ) 
+    <|> ( skipSpaces *> (IDEXPR <$> idP) <* skipSpaces )
 --
 
 intExprLitP :: Parser IntEXPRlit

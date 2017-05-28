@@ -9,16 +9,14 @@ import Data.Char (toLower)
 
 data PROGRAM = Program              BLOCK           deriving (Eq, Show)
 
---data BLOCK = Block                  STMTlist
+
 data BLOCK = Block                  [STMTlist]        
                                                     deriving (Eq, Show)
 
---data STMTlist = STMTlistNode        STMT STMTlist 
---x              | EmptySTMTlist
---                                                    deriving (Eq, Show)
 
 data STMTlist = STMTlistNode        STMT
                                                     deriving (Eq, Show)
+
 
 data STMT = PrintSTMT               EXPR
           | AssignSTMT              ID EXPR
@@ -41,10 +39,6 @@ data IntEXPRlit = IntLitM           DIGIT INTOP EXPR
 data StringEXPRlit = StringLit      [CHARlist]      deriving (Eq, Show)
 
 
---data CHARlist = CHARlistNodeC       CHAR CHARlist
---x              | CHARlistNodeS       SPACE CHARlist   
---x              | EmptyCHARlist
---                                                    deriving (Eq, Show)
 
 data CHARlist = CHARlistNodeC       CHAR
               | CHARlistNodeS       SPACE
@@ -118,7 +112,7 @@ data BOOLVAL = TRUE
 data INTOP = INTOP                                  deriving (Eq)
 
 
-
+--remove this for more accurate show at the cost of Stack Overflow
 instance Show CHARlist where
     show c = "VALID_CHAR"
 

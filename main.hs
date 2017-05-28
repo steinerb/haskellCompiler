@@ -13,7 +13,7 @@ main = do
     tokensForPrograms <- return $ appendEOPs (map (tokenize) (splitByEOP userInput []))
     lexProgramsOUT tokensForPrograms
     --print tokensForPrograms
-    --print (parsablePrograms)
+    print (parsablePrograms)
     putStrLn "\nPARSER: BEGIN\n" 
     parseProgramsOUT parsablePrograms
 

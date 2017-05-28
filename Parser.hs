@@ -15,9 +15,9 @@ import Control.Monad
 --GHCI test functions
 --to use: enter ghci main in your Unix command line. from there, enter any of these functions:
 
-parseTEST = (parse programP "Var Decl test" "{print 5} $")
-parseIntTEST  = (parse programP "IntM parse test" "{print 7 + 2 + 5} $")
-parseIntTEST'  = (parse programP "IntM parse test" "{print7+2+5}$")
+parseTEST = (parse programP "test" "{print 5} $")
+parseIntTEST'  = (parse programP "IntM parse test" "{print 7 + 2 + 5} $")
+parseIntTEST  = (parse programP "IntM parse test" "{print7+2+5}$")
 parseBoolTEST = (parse programP "Bool parse test" "{print(5 == 5)}$")
 parseBoolTEST' = (parse programP "Bool parse test" "{print true}$")
 parseStrTEST = (parse programP "String parse test" ("{print "++('"':"abc")++('"':"}$")))
@@ -59,14 +59,16 @@ stmtP = ( (string "print") *> skipSpaces *> (PrintSTMT <$> exprP) )
 --
 
 exprP :: Parser EXPR
-exprP = ( skipSpaces *> (IntEXPR <$> intExprLitP) <* skipSpaces )
+exprP = ( skipSpaces *> (BooleanEXPR <$> booleanExprLitP) <* skipSpaces )
     <|> ( skipSpaces *> (StringEXPR <$> stringExprLitP) <* skipSpaces )
-    <|> ( skipSpaces *> (BooleanEXPR <$> booleanExprLitP) <* skipSpaces ) 
+    <|> ( skipSpaces *> (IntEXPR <$> intExprLitP) <* skipSpaces )
     <|> ( skipSpaces *> (IDEXPR <$> idP) <* skipSpaces )
 --
 
 intExprLitP :: Parser IntEXPRlit
-intExprLitP = (IntLitS <$> digitP) <* (optional (intOpP <* (exprP `sepBy` intOpP)))
+intExprLitP = (IntLitS <$> digitP) <* skipSpaces <* (optional (intOpP <* (exprP `sepBy` intOpP)))
+--intExprLitP = (IntLitM <$> digitP <*> intOpP <*> exprP)
+--          <|> (IntLitS <$> digitP)
 --
 
 stringExprLitP :: Parser StringEXPRlit
@@ -83,7 +85,7 @@ stringExprLitP = ((char '"') *> (StringLit <$> charListP) <* (char '"'))
 --t                        pass = pure (BooleanLitS TRUE)
 
 booleanExprLitP :: Parser BooleanEXPRlit
-booleanExprLitP = ((string "(") *> (BooleanLitM <$> exprP <*> boolOpP <*> exprP) <* (string ")") )
+booleanExprLitP = ((string "(") *> skipSpaces *> (BooleanLitM <$> exprP <*> boolOpP <*> exprP) <* skipSpaces <* (string ")") )
               <|> ( BooleanLitS <$> boolValP ) 
 --
 

@@ -59,10 +59,10 @@ stmtP = ( (string "print") *> skipSpaces *> (PrintSTMT <$> exprP) )
 --
 
 exprP :: Parser EXPR
-exprP = ( skipSpaces *> (BooleanEXPR <$> booleanExprLitP) <* skipSpaces )
-    <|> ( skipSpaces *> (StringEXPR <$> stringExprLitP) <* skipSpaces )
-    <|> ( skipSpaces *> (IntEXPR <$> intExprLitP) <* skipSpaces )
-    <|> ( skipSpaces *> (IDEXPR <$> idP) <* skipSpaces )
+exprP = ( (BooleanEXPR <$> booleanExprLitP) <* skipSpaces )
+    <|> ( (StringEXPR <$> stringExprLitP) <* skipSpaces )
+    <|> ( (IntEXPR <$> intExprLitP) <* skipSpaces )
+    <|> ( (IDEXPR <$> idP) <* skipSpaces )
 --
 
 intExprLitP :: Parser IntEXPRlit
@@ -99,9 +99,9 @@ charListP = many ((CHARlistNodeS <$> spaceP) <|> (CHARlistNodeC <$> charP))
 --
 
 typeP :: Parser TYPE
-typeP = (skipSpaces *> (string "int") *> skipSpaces *> pure INT)
-    <|> (skipSpaces *> (string "string") *> skipSpaces *> pure STRING)
-    <|> (skipSpaces *> (string "boolean") *> skipSpaces *> pure BOOLEAN)
+typeP = ((string "int") *> skipSpaces *> pure INT)
+    <|> ((string "string") *> skipSpaces *> pure STRING)
+    <|> ((string "boolean") *> skipSpaces *> pure BOOLEAN)
 --
 
 charP :: Parser CHAR
@@ -151,22 +151,22 @@ digitP = ((string "0") *> pure ZERO)
 --     
 
 boolOpP :: Parser BOOLOP
-boolOpP = (skipSpaces *> (string "==") *> skipSpaces *> pure EQUALS)
-      <|> (skipSpaces *> (string "!=") *> skipSpaces *> pure NOTEQUALS)
+boolOpP = ((string "==") *> skipSpaces *> pure EQUALS)
+      <|> ((string "!=") *> skipSpaces *> pure NOTEQUALS)
 --
 
 boolFalseP :: Parser BOOLVAL
-boolFalseP = skipSpaces *> (string (show FALSE)) *> skipSpaces *> pure FALSE
+boolFalseP = (string (show FALSE)) *> skipSpaces *> pure FALSE
 
 boolTrueP :: Parser BOOLVAL
-boolTrueP = skipSpaces *> (string (show TRUE)) *> skipSpaces *> pure TRUE
+boolTrueP = (string (show TRUE)) *> skipSpaces *> pure TRUE
 
 boolValP :: Parser BOOLVAL
-boolValP = skipSpaces *> (boolTrueP <|> boolFalseP) <* skipSpaces
+boolValP = (boolTrueP <|> boolFalseP) <* skipSpaces
 --
 
 intOpP :: Parser INTOP
-intOpP = skipSpaces *> (string (show INTOP)) *> skipSpaces *> pure INTOP
+intOpP = (string (show INTOP)) *> skipSpaces *> pure INTOP
 --
 
 skipSpaces = (skipMany (string " "))

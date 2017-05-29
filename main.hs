@@ -1,8 +1,10 @@
 import LanguageData
 import Lexer
 import Parser
+import Grammar
 import Text.Parsec (parse)
 import Control.Monad (join)
+import Data.Either (rights)
 
 --RUNS the I/O show. gets called
 main :: IO ()
@@ -41,13 +43,21 @@ appendEOPs :: [[Token]] -> [[Token]]
 appendEOPs pgmTokens = map (++[T_EOP]) pgmTokens
 
 --PARSER OUTPUT
+--parseProgramsOUT :: [String] -> [IO (PROGRAM)] -> IO ([IO (PROGRAM)])
+--parseProgramsOUT [] xs = do
+--    putStrLn "PARSER: END"
+--    return xs
+--parseProgramsOUT (p:ps) xs = do
+--    x <- return (parseProgramOUT p)
+--    (parseProgramsOUT ps (x:xs))
+
+
 parseProgramsOUT :: [String] -> IO ()
-parseProgramsOUT [] = putStrLn "PARSER: END"
+parseProgramsOUT [] = do
+    putStrLn "PARSER: END"
 parseProgramsOUT (p:ps) = do
     (parseProgramOUT p)
     (parseProgramsOUT ps)
-
-
 
 parseProgramOUT :: String -> IO ()
 parseProgramOUT p = do
@@ -56,6 +66,9 @@ parseProgramOUT p = do
     putStr "PARSER: "
     print (parse programP "Program" p)
     putStr "\n"
+    print (head$rights [(parse programP "Program" p)])
+    --return$head$rights [(parse programP "Program" p)]
+--COMMENT OUT LAST LINE^^^ FOR IO () VERSION!!!
 
 
 --LEXER OUTPUT

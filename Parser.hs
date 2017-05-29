@@ -51,29 +51,29 @@ stmtListP = many (STMTlistNode <$> stmtP)
 
 --WARNING: make sure AssignSTMT is last!!! idP/charP will pick up any char.
 stmtP :: Parser STMT
-stmtP = ( (string "print") *> skipSpaces *> (PrintSTMT <$> exprP) )
-    <|> ( (string "while") *> skipSpaces *> (WhileSTMT <$> booleanExprLitP <*> blockP) )
-    <|> ( VarDeclSTMT <$> typeP <*> idP )
-    <|> ( (string "if") *> skipSpaces *> (IfSTMT <$> booleanExprLitP <*> blockP) )
-    <|> ( AssignSTMT <$> (idP <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )
+stmtP = (( (string "print") *> skipSpaces *> (PrintSTMT <$> exprP) )                        <* skipSpaces)
+    <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> booleanExprLitP <*> blockP) )   <* skipSpaces)
+    <|> (( VarDeclSTMT <$> typeP <*> idP )                                                  <* skipSpaces)
+    <|> (( (string "if") *> skipSpaces *> (IfSTMT <$> booleanExprLitP <*> blockP) )         <* skipSpaces)
+    <|> (( AssignSTMT <$> (idP <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )     <* skipSpaces)
 --
 
 exprP :: Parser EXPR
-exprP = ( (BooleanEXPR <$> booleanExprLitP) <* skipSpaces )
-    <|> ( (StringEXPR <$> stringExprLitP) <* skipSpaces )
-    <|> ( (IntEXPR <$> intExprLitP) <* skipSpaces )
-    <|> ( (IDEXPR <$> idP) <* skipSpaces )
+exprP = ( (BooleanEXPR <$> booleanExprLitP) <* skipSpaces)
+    <|> ( (StringEXPR <$> stringExprLitP)   <* skipSpaces)
+    <|> ( (IntEXPR <$> intExprLitP)         <* skipSpaces)
+    <|> ( (IDEXPR <$> idP)                  <* skipSpaces)
 --
 
 intExprLitP :: Parser IntEXPRlit
-intExprLitP = (IntLitS <$> digitP) <* skipSpaces <* (optional (intOpP <* (exprP `sepBy` intOpP)))
+intExprLitP = (IntLitS <$> digitP) <* skipSpaces <* (optional (intOpP <* (exprP `sepBy` intOpP))) <* skipSpaces
 --intExprLitP = (IntLitM <$> digitP <*> intOpP <*> exprP)
 --          <|> (IntLitS <$> digitP)
 --
 
 stringExprLitP :: Parser StringEXPRlit
-stringExprLitP = ((char '"') *> (StringLit <$> charListP) <* (char '"'))
-             <|> ((string "\"") *> (StringLit <$> charListP) <* (string "\""))
+stringExprLitP = ( ((char '"') *> (StringLit <$> charListP) <* (char '"'))          <* skipSpaces)
+             <|> ( ((string "\"") *> (StringLit <$> charListP) <* (string "\""))    <* skipSpaces)
 
 --
 
@@ -151,10 +151,11 @@ digitP = ((string "0") *> pure ZERO)
 --     
 
 boolOpP :: Parser BOOLOP
-boolOpP = ((string "==") *> skipSpaces *> pure EQUALS)
-      <|> ((string "!=") *> skipSpaces *> pure NOTEQUALS)
+boolOpP = (((string "==") *> skipSpaces *> pure EQUALS) <* skipSpaces)
+      <|> (((string "!=") *> skipSpaces *> pure NOTEQUALS) <* skipSpaces)
 --
 
+--already has skipSpaces in boolValP
 boolFalseP :: Parser BOOLVAL
 boolFalseP = (string (show FALSE)) *> skipSpaces *> pure FALSE
 
@@ -166,7 +167,7 @@ boolValP = (boolTrueP <|> boolFalseP) <* skipSpaces
 --
 
 intOpP :: Parser INTOP
-intOpP = (string (show INTOP)) *> skipSpaces *> pure INTOP
+intOpP = ((string (show INTOP)) *> skipSpaces *> pure INTOP) <* skipSpaces
 --
 
 skipSpaces = (skipMany (string " "))

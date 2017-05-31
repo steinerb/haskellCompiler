@@ -13,14 +13,19 @@ main = do
     userInput <- getLine
     parsablePrograms <- return (map (++"$") (splitByEOP userInput []))
     tokensForPrograms <- return $ appendEOPs (map (tokenize) (splitByEOP userInput []))
+    putStrLn "\nLEXER: BEGIN\n" 
     lexProgramsOUT tokensForPrograms
     --print tokensForPrograms
-    print (parsablePrograms)
+    --print (parsablePrograms)
     putStrLn "\nPARSER: BEGIN\n" 
     parseProgramsOUT parsablePrograms
 
-    putStrLn("\nSEMANTIC ANALYSIS: REACHED!")
+    --print (head$rights [(parse programP "Program" (head parsablePrograms))])
+    treeDataForPrograms <- (getTreeData parsablePrograms [])
+    print treeDataForPrograms
 
+    putStrLn("\nSEMANTIC ANALYSIS: REACHED!")
+ 
     --parseProgramOUT (head tokensForPrograms)
     
     
@@ -52,6 +57,17 @@ appendEOPs pgmTokens = map (++[T_EOP]) pgmTokens
 --    (parseProgramsOUT ps (x:xs))
 
 
+getTreeData :: [String] -> [PROGRAM] -> IO ([PROGRAM])
+getTreeData [] xs = do
+    return xs
+getTreeData (p:ps) xs = do
+    x <- (getProgram p)
+    getTreeData ps (x:xs)
+
+getProgram :: String -> IO (PROGRAM)
+getProgram p = do return$head$rights [(parse programP "Program" p)]
+
+
 parseProgramsOUT :: [String] -> IO ()
 parseProgramsOUT [] = do
     putStrLn "PARSER: END"
@@ -66,7 +82,7 @@ parseProgramOUT p = do
     putStr "PARSER: "
     print (parse programP "Program" p)
     putStr "\n"
-    print (head$rights [(parse programP "Program" p)])
+    --print (head$rights [(parse programP "Program" p)])
     --return$head$rights [(parse programP "Program" p)]
 --COMMENT OUT LAST LINE^^^ FOR IO () VERSION!!!
 

@@ -10,22 +10,14 @@ treePROGRAM :: PROGRAM -> [Token] -> Tree String
 treePROGRAM p@(Program b) ts = Node "Program" [(treeBLOCK b (init ts))]
 
 treeBLOCK :: BLOCK -> [Token] -> Tree String
-treeBLOCK b@(Block sl) ts = Node "Block" [(treeSTMTlist sl (tail (init ts)))]
+treeBLOCK b@(Block sl) ts = Node "Block" (treeSTMTlist sl (tail (init ts)) [])
 
-treeSTMTlist :: [STMTlist] -> [Token] -> Tree String
-treeSTMTlist sl ts = undefined
-                        --Node "Statement List" (treeSTMTloop sl ts [])
+treeSTMTlist :: [STMTlist] -> [Token] -> Forest String -> Forest String
+treeSTMTlist ((s@(STMTlistNode stmt)):sl) ts fr = treeSTMT stmt sl ts fr
 
---treeSTMTlist (s:[]) ts = treeSTMT 
---treeSTMTlist (s:sl) ts = Node "Statement List" ( (treeSTMT s):(treeSTMTlist sl ts) )
+treeSTMT :: STMT -> [STMTlist] -> [Token] -> Forest String -> Forest String
+treeSTMT s@(PrintSTMT e) sl ts fr = undefined
 
-
---treeSTMTloop :: [STMTlist] -> [Token] -> Forest String -> Forest String
---treeSTMTloop [] ts fr = fr 
---treeSTMTloop ((s@(STMTlistNode stmt)):sl) ts fr = treeSTMT stmt sl ts fr
-
---treeSTMT :: STMT -> [STMTlist] -> [Token] -> Forest String -> Forest String
---treeSTMT (stmt@(PrintSTMT e)) sl ts fr = (treeSTMT):
 
 
 

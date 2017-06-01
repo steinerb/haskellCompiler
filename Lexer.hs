@@ -13,9 +13,9 @@ getKey (k, p) = k
 getPair :: (Int, Char) -> Char
 getPair (k, p) = p
 getSymbols :: Int -> [Char]
-getSymbols k = map (getPair) (filter ((==k).getKey) symbolTable)
+getSymbols k = map (getPair) (filter ((==k).getKey) progressions)
 getNum :: Char -> Int
-getNum s = getKey (head (filter ((==s).getPair) symbolTable))
+getNum s = getKey (head (filter ((==s).getPair) progressions))
 
 --makes a blank state with input [to be tokenized].
 newState :: String -> State
@@ -72,7 +72,7 @@ processState s@(State i b t n l c) =
     else if (b == "\n")
         then (State i "" t n (l+1) 0)
     --nothing to be processed
-    else if ((True) `elem` (map (==(last b)) (map (getPair) symbolTable)))
+    else if ((True) `elem` (map (==(last b)) (map (getPair) progressions)))
         then s
     --unexpected token error for unrecognized input
     else error ("\nLEXER: unexpected token: \""++b++"\" at line "++(show l)++" character "++(show c))

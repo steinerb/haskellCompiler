@@ -57,8 +57,8 @@ data State = State String String [Token] Int Int Int deriving (Show)
 
 
 --CONDITION: cannot have multiple characters per number
-symbolTable :: [(Int, Char)]
-symbolTable =
+progressions :: [(Int, Char)]
+progressions =
     [
         (1,  '{'),
         (2,  '}'),

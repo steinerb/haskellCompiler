@@ -2,7 +2,7 @@ import LanguageData
 import Lexer
 import Parser
 import Grammar
---import AST
+import AST
 import Text.Parsec (parse)
 import Control.Monad (join)
 import Data.Either (rights)
@@ -24,15 +24,15 @@ main = do
     parseProgramsOUT parsablePrograms
 
     --print (head$rights [(parse programP "Program" (head parsablePrograms))])
-    --treeDataForPrograms <- (getTreeData parsablePrograms [])
-    --print treeDataForPrograms
+    treeDataForPrograms <- (getTreeData parsablePrograms [])
+    print treeDataForPrograms
 
     putStrLn("\nSEMANTIC ANALYSIS: REACHED!")
 
     --NEED TO REMOVE T_space TOKENS FROM tokensForPrograms!!!
-    --treeEx <- return (treePROGRAM (head treeDataForPrograms) [])
+    treeEx <- return (treePROGRAM (head treeDataForPrograms) [])
     --print treeEx
-    --putStrLn $ drawTree treeEx
+    putStrLn $ drawTree treeEx
  
     
     

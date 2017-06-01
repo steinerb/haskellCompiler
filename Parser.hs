@@ -30,6 +30,8 @@ parseIfTEST = (parse programP "If Statement test" "{iftrue{print5}}$")
 
 
 
+
+
 -------PARSER START-------
 
 --testP :: Parser (Tree String)
@@ -51,7 +53,7 @@ stmtListP = many (STMTlistNode <$> stmtP)
 
 --WARNING: make sure AssignSTMT is last!!! idP/charP will pick up any char.
 stmtP :: Parser STMT
-stmtP = (( (string "print") *> skipSpaces *> (PrintSTMT <$> exprP) )                        <* skipSpaces)
+stmtP = (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )   <* skipSpaces)
     <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> booleanExprLitP <*> blockP) )   <* skipSpaces)
     <|> (( VarDeclSTMT <$> typeP <*> idP )                                                  <* skipSpaces)
     <|> (( (string "if") *> skipSpaces *> (IfSTMT <$> booleanExprLitP <*> blockP) )         <* skipSpaces)
@@ -178,40 +180,9 @@ skipSpaces = (skipMany (string " "))
 
 
 
---TREE METHODS
-stringifyTokenTree :: (Tree Token) -> (Tree String)
-stringifyTokenTree t = fmap show t 
-
-
-makeChild :: Tree String -> Tree String -> Tree String
-makeChild p@(Node n lst) c = Node n (c:lst)
 
 
 
---TREE EXAMPLES!!!
-
-programTree :: Tree String
-programTree = Node "Program" []
-
-tokenTree :: Tree Token
-tokenTree = Node T_LBrace []
-
-
-
-myTree :: Tree String
-myTree = Node "rootNode" 
-         [
-            Node "BranchA-0" 
-            [
-                Node "BranchB-0" [],
-                Node "BranchB-1" []
-            ],
-            Node "BranchA-1" 
-            [
-                Node "BranchC-0" [],
-                Node "BranchC-1" []
-            ]
-         ]
 
 
 

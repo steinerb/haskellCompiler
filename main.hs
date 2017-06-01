@@ -2,9 +2,12 @@ import LanguageData
 import Lexer
 import Parser
 import Grammar
+import AST
 import Text.Parsec (parse)
 import Control.Monad (join)
 import Data.Either (rights)
+
+import Data.Tree
 
 --RUNS the I/O show. gets called
 main :: IO ()
@@ -25,8 +28,12 @@ main = do
     print treeDataForPrograms
 
     putStrLn("\nSEMANTIC ANALYSIS: REACHED!")
+
+    --NEED TO REMOVE T_space TOKENS FROM tokensForPrograms!!!
+    treeEx <- return (treePROGRAM (head treeDataForPrograms) [])
+    print treeEx
+    putStrLn $ drawTree treeEx
  
-    --parseProgramOUT (head tokensForPrograms)
     
     
 
@@ -47,14 +54,6 @@ splitByEOP i lst = splitByEOP (dropWhile (/='$') i) (lst++[(takeWhile (/='$') i)
 appendEOPs :: [[Token]] -> [[Token]]
 appendEOPs pgmTokens = map (++[T_EOP]) pgmTokens
 
---PARSER OUTPUT
---parseProgramsOUT :: [String] -> [IO (PROGRAM)] -> IO ([IO (PROGRAM)])
---parseProgramsOUT [] xs = do
---    putStrLn "PARSER: END"
---    return xs
---parseProgramsOUT (p:ps) xs = do
---    x <- return (parseProgramOUT p)
---    (parseProgramsOUT ps (x:xs))
 
 
 getTreeData :: [String] -> [PROGRAM] -> IO ([PROGRAM])
@@ -99,7 +98,7 @@ lexProgramOUT :: [Token] -> Int -> IO ()
 lexProgramOUT [] _ = do 
     putStrLn "\nLEXER: Program Completed Successfully!\n"
 lexProgramOUT p 0 = do
-    putStrLn ("Lexing Program...\n")
+    putStrLn ("LEXER: Lexing Program...\n")
     (lexProgramOUT p 1)
 lexProgramOUT (t:ts) n = do
     putStrLn ("LEXER: token found:\t"++(makeTerminal t))

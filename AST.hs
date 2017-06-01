@@ -3,6 +3,35 @@ module AST where
 import LanguageData
 import Grammar
 import Data.Tree
+import Data.List
+
+--"delete" function in Data.List
+
+
+--tcPROGRAM :: Program 
+
+
+data SymbolTable = SymbolTable [IDRow]
+
+data IDRow = IDRow ID TYPE ENV
+
+data ENV = ENV String [ID]
+
+addRow :: SymbolTable -> IDRow -> SymbolTable
+addRow s@(SymbolTable idrows) row = (SymbolTable (row:idrows))
+
+makeTable :: String -> SymbolTable
+makeTable s = tableHelp s 0 (SymbolTable [])
+
+tableHelp :: String -> Int -> SymbolTable -> SymbolTable
+tableHelp input envNum table = undefined
+--                     if ("Block" `isPrefixOf` input) 
+--                        then (tableHelp (drop 5 input) (envNum+1) table)
+--                else if ("")
+
+
+
+
 
 
 
@@ -20,7 +49,6 @@ treeSTMT s@(PrintSTMT e) sl ts fr = undefined
 
 
 
---tcPROGRAM :: Program 
 
 
 

@@ -54,9 +54,9 @@ stmtListP = many (STMTlistNode <$> stmtP)
 --WARNING: make sure AssignSTMT is last!!! idP/charP will pick up any char.
 stmtP :: Parser STMT
 stmtP = (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )   <* skipSpaces)
-    <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> booleanExprLitP <*> blockP) )   <* skipSpaces)
+    <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )   <* skipSpaces)
     <|> (( VarDeclSTMT <$> typeP <*> idP )                                                  <* skipSpaces)
-    <|> (( (string "if") *> skipSpaces *> (IfSTMT <$> booleanExprLitP <*> blockP) )         <* skipSpaces)
+    <|> (( (string "if") *> skipSpaces *> (IfSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )         <* skipSpaces)
     <|> (( AssignSTMT <$> (idP <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )     <* skipSpaces)
 --
 

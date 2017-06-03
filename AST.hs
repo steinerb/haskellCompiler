@@ -34,9 +34,12 @@ data Input = Ib  BLOCK
            | Isl [STMTlist]
            | Is  STMT
            | Ie  EXPR
+           | EMPTY
+                deriving (Eq, Show)
 
 
 data State = State Input [Token] [STMTlist] (Tree String)
+                deriving (Eq, Show)
 
 
 --------------------------------AST CREATION FUNCTION AND HELPERS----------------------------------
@@ -48,18 +51,20 @@ makeAST p@(Program b@(Block ((n@(STMTlistNode stmt)):stmtLst))) ts =
 
 --Initial Input in State is a STMT, BLOCK #0 disected in makeAST
 astLoop :: State -> Tree String
+--If no tokens are left, return the tree
 astLoop state@(State _ [] _ tr) = tr
 
-astLoop state@( State i@(Is stmt@(VarDeclSTMT t id)) ts ((n@(STMTlistNode s)):sl) tr) = 
-    astLoop (State 
-                (Is s) 
-                (drop 2 ts) 
-                sl 
-                ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (idToStr id) [])]) )
-            )
+--VarDecl
+--statements to go
+astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
+    ( State (Is s) (drop 2 ts) sl ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
+--last statement
+astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts [] tr) = astLoop 
+    ( State (EMPTY) (drop 2 ts) [] ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
 
 
-astLoop state@(State i ts sl tr) = Node "ERROR: PATTERN NOT MATCHED!" []
+
+astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
 
 
 --make a condition for BLOCK!!! just because the first one is handled, doesn't mean if and while statements won't require this.

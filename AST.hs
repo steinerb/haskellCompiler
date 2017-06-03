@@ -8,7 +8,11 @@ import Data.List
 --"delete" function in Data.List
 
 
+makeChild :: Tree String -> Tree String -> Tree String
+makeChild p@(Node n lst) c = Node n (c:lst)
 
+makeChildren :: Tree String -> Forest String -> Tree String
+makeChildren p@(Node n lst) cs = Node n (cs++lst)
 
 
 data SymbolTable = SymbolTable [IDRow]
@@ -40,28 +44,25 @@ data State = State Input [Token] [STMTlist] (Tree String)
 
 makeAST :: PROGRAM -> [Token] -> Tree String
 makeAST p@(Program b@(Block ((n@(STMTlistNode stmt)):stmtLst))) ts = 
-    astLoop (State (Is stmt) ((drop 1) $ init $ init ts) (stmtLst) (Node "BLOCK" []))
+    astLoop (State (Is stmt) ((drop 1) $ init $ init ts) (stmtLst) (Node "<BLOCK>" []))
 
 --Initial Input in State is a STMT, BLOCK #0 disected in makeAST
 astLoop :: State -> Tree String
---if no tokens left, return tree
 astLoop state@(State _ [] _ tr) = tr
 
---make a condition for BLOCK!!! just because the first one is handled, doesn't mean if and while statements won't require this.
---STMT: VarDecl
 astLoop state@( State i@(Is stmt@(VarDeclSTMT t id)) ts ((n@(STMTlistNode s)):sl) tr) = 
     astLoop (State 
                 (Is s) 
                 (drop 2 ts) 
                 sl 
-                ( tr `makeChildren` [ (Node (show t) []), (Node (idToStr id) []) ] )
+                ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (idToStr id) [])]) )
             )
 
 
 astLoop state@(State i ts sl tr) = Node "ERROR: PATTERN NOT MATCHED!" []
 
 
-
+--make a condition for BLOCK!!! just because the first one is handled, doesn't mean if and while statements won't require this.
 
 
 
@@ -144,16 +145,9 @@ astLoopS _ _ _ = error "PrintSTMT pattern not reached!!!"
 
 
 
---TREE METHODS
-stringifyTokenTree :: (Tree Token) -> (Tree String)
-stringifyTokenTree t = fmap show t 
 
 
-makeChild :: Tree String -> Tree String -> Tree String
-makeChild p@(Node n lst) c = Node n (c:lst)
 
-makeChildren :: Tree String -> Forest String -> Tree String
-makeChildren p@(Node n lst) cs = Node n (cs++lst)
 
 
 

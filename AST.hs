@@ -54,11 +54,11 @@ astLoop state@( State i@(Is stmt@(VarDeclSTMT t id)) ts ((n@(STMTlistNode s)):sl
                 (Is s) 
                 (drop 2 ts) 
                 sl 
-                ( tr `makeChildren` ([ (Node (show t) []), (Node (show id) []) ]) )
+                ( tr `makeChildren` [ (Node (show t) []), (Node (idToStr id) []) ] )
             )
 
 
-astLoop state@(State _ _ _ tr) = tr
+astLoop state@(State i ts sl tr) = Node "ERROR: PATTERN NOT MATCHED!" []
 
 
 

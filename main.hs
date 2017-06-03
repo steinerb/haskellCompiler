@@ -34,9 +34,9 @@ main = do
     putStrLn("AST-------------------------------------------------------------------\n")
     --NEED TO REMOVE T_space TOKENS FROM tokensForPrograms!!!
     treeEx <- return (makeAST (head treeDataForPrograms) (head tokensForPrograms))
-    putStr "Raw Tree Object:"
+    putStrLn "Raw Tree Object:"
     print treeEx
-    putStr "Tree:"
+    putStrLn "Tree:"
     putStrLn $ drawTree treeEx
  
     

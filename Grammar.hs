@@ -116,7 +116,8 @@ idToStr id@(Id c) = show c
 
 --remove this for more accurate show at the cost of Stack Overflow
 instance Show CHARlist where
-    show c = "VALID_CHAR"
+    show cl@(CHARlistNodeS _) = " "
+    show cl@(CHARlistNodeC c) = show c
 
 --remove this for more accurate show at the cost of Stack Overflow
 instance Show ID where

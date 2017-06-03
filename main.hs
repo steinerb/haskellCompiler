@@ -31,7 +31,7 @@ main = do
 
     putStrLn("\nSEMANTIC ANALYSIS: REACHED!\n\n")
 
-
+    putStrLn("AST-------------------------------------------------------------------\n")
     --NEED TO REMOVE T_space TOKENS FROM tokensForPrograms!!!
     treeEx <- return (makeAST (head treeDataForPrograms) (head tokensForPrograms))
     print treeEx
@@ -80,7 +80,7 @@ parseProgramsOUT (p:ps) = do
 parseProgramOUT :: String -> IO ()
 parseProgramOUT p = do
     putStrLn "PARSER: Parsing Program...\n"
-    putStrLn "PARSER: Right = Success and CST as a Linked List." 
+    putStrLn "PARSER: Right = Success, returning CST as a Linked List." 
     putStrLn "PARSER: Left  = Failure"
     putStr "PARSER: "
     print (parse programP "Program" p)

@@ -120,7 +120,7 @@ instance Show CHARlist where
 
 --remove this for more accurate show at the cost of Stack Overflow
 instance Show ID where
-    show id@(Id a) = "VALID_ID"
+    show id@(Id a) = (show a)
 
 instance Show TYPE where 
     show s 
@@ -129,7 +129,40 @@ instance Show TYPE where
             | s == BOOLEAN = "boolean"
 
 instance Show CHAR where
-    show c = show $ toLower $ head $ show c
+    --show c = show $ toLower $ head $ show c
+    show c
+            | c == A = "a"
+            | c == B = "b"
+            | c == C = "c"
+            | c == D = "d"
+            | c == E = "e"
+            | c == F = "f"
+            | c == G = "g"
+            | c == H = "h"
+            | c == I = "i"
+            | c == J = "j"
+            | c == K = "k"
+            | c == L = "l"
+            | c == M = "m"
+            | c == N = "n"
+            | c == O = "o"
+            | c == P = "p"
+            | c == Q = "q"
+            | c == R = "r"
+            | c == S = "s"
+            | c == T = "t"
+            | c == U = "u"
+            | c == V = "v"
+            | c == W = "w"
+            | c == X = "x"
+            | c == Y = "y"
+            | c == Z = "z"
+
+
+
+
+
+
 
 instance Show SPACE where
     show s = show " "

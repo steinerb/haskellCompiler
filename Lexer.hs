@@ -6,7 +6,7 @@ import Data.Maybe
 import Data.Char
 
 
-
+data State = State String String [Token] Int Int Int deriving (Show)
 
 getKey :: (Int, Char) -> Int
 getKey (k, p) = k

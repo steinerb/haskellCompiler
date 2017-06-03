@@ -53,7 +53,7 @@ instance Show Token where
         | t == T_EOP = "$" 
         | t == Invalid = error "CANNOT SHOW AN INVALID TOKEN!!!"
 
-data State = State String String [Token] Int Int Int deriving (Show)
+
 
 
 --CONDITION: cannot have multiple characters per number

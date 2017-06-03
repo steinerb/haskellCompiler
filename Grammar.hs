@@ -111,6 +111,8 @@ data BOOLVAL = TRUE
 
 data INTOP = INTOP                                  deriving (Eq)
 
+idToStr :: ID -> String
+idToStr id@(Id c) = show c
 
 --remove this for more accurate show at the cost of Stack Overflow
 instance Show CHARlist where

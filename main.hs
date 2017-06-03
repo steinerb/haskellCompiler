@@ -22,16 +22,20 @@ main = do
     --print (parsablePrograms)
     putStrLn "\nPARSER: BEGIN\n" 
     parseProgramsOUT parsablePrograms
+    --remove space tokens
+    tokensForPrograms <- return$map (filter (/=T_space)) tokensForPrograms
 
     --print (head$rights [(parse programP "Program" (head parsablePrograms))])
     treeDataForPrograms <- (getTreeData parsablePrograms [])
     print treeDataForPrograms
 
-    putStrLn("\nSEMANTIC ANALYSIS: REACHED!")
+    putStrLn("\nSEMANTIC ANALYSIS: REACHED!\n\n")
+
+    print tokensForPrograms
 
     --NEED TO REMOVE T_space TOKENS FROM tokensForPrograms!!!
-    treeEx <- return (treePROGRAM (head treeDataForPrograms) [])
-    --print treeEx
+    treeEx <- return (makeAST (head treeDataForPrograms) (head tokensForPrograms))
+    print treeEx
     putStrLn $ drawTree treeEx
  
     

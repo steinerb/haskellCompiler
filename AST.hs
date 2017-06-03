@@ -9,10 +9,10 @@ import Data.List
 
 
 makeChild :: Tree String -> Tree String -> Tree String
-makeChild p@(Node n lst) c = Node n (c:lst)
+makeChild p@(Node n lst) c = Node n (lst++[c])
 
 makeChildren :: Tree String -> Forest String -> Tree String
-makeChildren p@(Node n lst) cs = Node n (cs++lst)
+makeChildren p@(Node n lst) cs = Node n (lst++cs)
 
 
 data SymbolTable = SymbolTable [IDRow]
@@ -51,17 +51,23 @@ makeAST p@(Program b@(Block ((n@(STMTlistNode stmt)):stmtLst))) ts =
 
 --Initial Input in State is a STMT, BLOCK #0 disected in makeAST
 astLoop :: State -> Tree String
---If no tokens are left, return the tree
+--BASE CASE: If no tokens are left, return the tree
 astLoop state@(State _ [] _ tr) = tr
 
+--STMT
 --VarDecl
---statements to go
-astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
-    ( State (Is s) (drop 2 ts) sl ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
 --last statement
 astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts [] tr) = astLoop 
     ( State (EMPTY) (drop 2 ts) [] ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
+--statements to go
+astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
+    ( State (Is s) (drop 2 ts) sl ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
 
+
+--Assign Statement
+--statements to go
+--astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
+--    ( State (EMPTY) (drop 2 $)  )
 
 
 astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []

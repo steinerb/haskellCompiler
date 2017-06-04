@@ -62,14 +62,13 @@ astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts [] tr) = astLoop
 --statements to go
 astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
     ( State (Is s) (drop 2 ts) sl ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
-
-
 --AssignStatement
 --last statement
 astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) = 
     --if id equal to another id
     if ( ((validIdToken (ts!!2)) == True ) ) 
-        then astLoop ( State (EMPTY) (drop 3 ts) [] (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
+        then astLoop ( State (EMPTY) (drop 3 ts) [] 
+                            (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (drop 1 $ init $ show (ts!!2)) [])])) )
     --make more conditions here!!!
     else
              astLoop ( State (EMPTY) (drop 3 ts) [] tr)
@@ -91,96 +90,10 @@ astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
 validIdToken :: Token -> Bool
 validIdToken id@(T_id c) = if ( (c == "a") || (c == "b") || (c == "c") || (c == "d") || (c == "e") || (c == "f") || (c == "g") || (c == "h") || (c == "i") || (c == "j") || (c == "k") || (c == "l") || (c == "m") || (c == "n") || (c == "o") || (c == "p") || (c == "q") || (c == "r") || (c == "s") || (c == "t") || (c == "u") || (c == "v") || (c == "w") || (c == "x") || (c == "y") || (c == "z") )
                              then True else False
+--tokenToID :: Token -> ID
+--tokenToID t@(T_id s) = 
+
 ----------------------------------------------------------------------------------------------------
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
---TREE EXAMPLES!!!
-
-programTree :: Tree String
-programTree = Node "Program" []
-
-tokenTree :: Tree Token
-tokenTree = Node T_LBrace []
-
-
-
-myTree :: Tree String
-myTree = Node "rootNode" 
-         [
-            Node "BranchA-0" 
-            [
-                Node "BranchB-0" [],
-                Node "BranchB-1" []
-            ],
-            Node "BranchA-1" 
-            [
-                Node "BranchC-0" [],
-                Node "BranchC-1" []
-            ]
-         ]
-
---unfoldTree examples
-t1 = unfoldTree (\x -> (x,[])) "a"
-t2 = unfoldTree (\x -> case x of "a" -> (x, ["b","c"]); _ -> (x,[])) "a"

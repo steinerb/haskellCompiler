@@ -1,5 +1,8 @@
 module LanguageData where
 
+
+import Grammar
+
 data BoolOp = BoolOp {isEq :: Bool} deriving (Eq, Show)
 
 

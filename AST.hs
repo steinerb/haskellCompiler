@@ -64,10 +64,18 @@ astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts ((n@(STMTlistNode s))
     ( State (Is s) (drop 2 ts) sl ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
 
 
---Assign Statement
---statements to go
---astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
---    ( State (EMPTY) (drop 2 $)  )
+--AssignStatement
+--last statement
+astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) = 
+    --if id equal to another id
+    if ( ((validIdToken (ts!!2)) == True ) ) 
+        then astLoop ( State (EMPTY) (drop 3 ts) [] (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
+    --make more conditions here!!!
+    else
+             astLoop ( State (EMPTY) (drop 3 ts) [] tr)
+
+    --        else error "only compiling!"
+    --astLoop ( State (EMPTY) (drop 2 $)  )
 
 
 astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
@@ -80,23 +88,9 @@ astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
 
 
 
-
-
-
-astLoopB :: BLOCK -> [Token] -> Tree String
-astLoopB b@(Block ((n@(STMTlistNode stmt)):stmtLst)) ts = 
-                Node "Block" [Node "StatementList" (astLoopSL stmt (tail$init ts) stmtLst)]
-
-astLoopSL :: STMT -> [Token] -> [STMTlist] -> Forest String
-astLoopSL stmt ts sl = (astLoopS stmt ts sl)
-
-astLoopS :: STMT -> [Token] -> [STMTlist] -> Forest String
-astLoopS stmt@(PrintSTMT expr) ts (s:sl) = undefined
-
-
-astLoopS _ _ _ = error "PrintSTMT pattern not reached!!!"
-
-
+validIdToken :: Token -> Bool
+validIdToken id@(T_id c) = if ( (c == "a") || (c == "b") || (c == "c") || (c == "d") || (c == "e") || (c == "f") || (c == "g") || (c == "h") || (c == "i") || (c == "j") || (c == "k") || (c == "l") || (c == "m") || (c == "n") || (c == "o") || (c == "p") || (c == "q") || (c == "r") || (c == "s") || (c == "t") || (c == "u") || (c == "v") || (c == "w") || (c == "x") || (c == "y") || (c == "z") )
+                             then True else False
 ----------------------------------------------------------------------------------------------------
 
 

@@ -27,7 +27,7 @@ main = do
 
     --print (head$rights [(parse programP "Program" (head parsablePrograms))])
     treeDataForPrograms <- (getTreeData parsablePrograms [])
-    print treeDataForPrograms
+    --print treeDataForPrograms
 
     putStrLn("\nSEMANTIC ANALYSIS: REACHED!\n\n")
 

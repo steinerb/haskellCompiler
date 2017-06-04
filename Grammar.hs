@@ -1,7 +1,7 @@
 module Grammar where
 
 
-import LanguageData
+--import LanguageData
 import Lexer
 import Data.Char (toLower)
 

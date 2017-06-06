@@ -85,11 +85,10 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) =
     else if (validIntSToken (ts!!2))
         then astLoop ( State (EMPTY) (drop 3 ts) [] 
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (drop 1 $ init $ show (ts!!2)) [])])) )
-
-
-    --else if ( ((show (ts!!2)) == "true") || ((show (ts!!2)) == "false") )
-    --    then astLoop ( State (EMPTY) (drop 3 ts) [] 
-    --                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
+    --if id equal to Boolean Expr M
+    else if ((ts!!2) == T_LParen)
+        then astLoop ( State (EMPTY) (dropUntilP (drop 2 ts)) []
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeUntilP (drop 2 ts))) [])])) )
     --make more conditions here!!!
     else
              astLoop ( State (EMPTY) (drop 3 ts) [] tr)
@@ -126,6 +125,22 @@ validIntM :: Token -> Bool
 validIntM t@(T_int c) = True
 validIntM t@(T_intOp) = True
 validIntM t = False
+
+takeUntilP :: [Token] -> [Token]
+takeUntilP ts = untilP ts 0 []
+    where
+        untilP ((t@(T_LParen)):ts) i rts = untilP ts (i+1) (rts++[t])
+        untilP ((t@(T_RParen)):ts) i rts = untilP ts (i-1) (rts++[t])
+        untilP _ 0 rts = rts
+        untilP (t:ts) i rts = untilP ts i (rts++[t])
+
+dropUntilP :: [Token] -> [Token]
+dropUntilP ts = untilP ts 0
+    where
+        untilP ((t@(T_LParen)):ts) i = untilP ts (i+1)
+        untilP ((t@(T_RParen)):ts) i = untilP ts (i-1)
+        untilP ts 0 = ts
+        untilP (t:ts) i = untilP ts i
 
 ----------------------------------------------------------------------------------------------------
 

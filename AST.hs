@@ -55,7 +55,7 @@ astLoop :: State -> Tree String
 astLoop state@(State _ [] _ tr) = tr
 
 --STMT
---VarDecl
+--VarDecl1
 --last statement
 astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts [] tr) = astLoop 
     ( State (EMPTY) (drop 2 ts) [] ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
@@ -69,6 +69,16 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) =
     if ( ((validIdToken (ts!!2)) == True ) ) 
         then astLoop ( State (EMPTY) (drop 3 ts) [] 
                             (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (drop 1 $ init $ show (ts!!2)) [])])) )
+    --if id equal to BoolVal
+    else if (((ts!!2) == T_true) || ((ts!!2) == T_false))
+        then astLoop ( State (EMPTY) (drop 3 ts) [] 
+                            (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
+
+
+
+    --else if ( ((show (ts!!2)) == "true") || ((show (ts!!2)) == "false") )
+    --    then astLoop ( State (EMPTY) (drop 3 ts) [] 
+    --                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
     --make more conditions here!!!
     else
              astLoop ( State (EMPTY) (drop 3 ts) [] tr)
@@ -89,7 +99,9 @@ astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
 
 validIdToken :: Token -> Bool
 validIdToken id@(T_id c) = if ( (c == "a") || (c == "b") || (c == "c") || (c == "d") || (c == "e") || (c == "f") || (c == "g") || (c == "h") || (c == "i") || (c == "j") || (c == "k") || (c == "l") || (c == "m") || (c == "n") || (c == "o") || (c == "p") || (c == "q") || (c == "r") || (c == "s") || (c == "t") || (c == "u") || (c == "v") || (c == "w") || (c == "x") || (c == "y") || (c == "z") )
-                             then True else False
+                             then True 
+                            else False
+validIdToken id = False
 --tokenToID :: Token -> ID
 --tokenToID t@(T_id s) = 
 

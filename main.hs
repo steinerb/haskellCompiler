@@ -18,13 +18,13 @@ main = do
     tokensForPrograms <- return $ appendEOPs (map (tokenize) (splitByEOP userInput []))
     putStrLn "\nLEXER: BEGIN\n" 
     lexProgramsOUT tokensForPrograms
-    --print tokensForPrograms
+    
     --print (parsablePrograms)
     putStrLn "\nPARSER: BEGIN\n" 
     parseProgramsOUT parsablePrograms
     --remove space tokens
     tokensForPrograms <- return$map (filter (/=T_space)) tokensForPrograms
-
+    print tokensForPrograms
     --print (head$rights [(parse programP "Program" (head parsablePrograms))])
     treeDataForPrograms <- (getTreeData parsablePrograms [])
     --print treeDataForPrograms

@@ -103,6 +103,13 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts ((n@(STMTlistNode s
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
     --error
     else error "AssignSTMT falsely identified in astLoop!!!"
+--PrintStatement
+--last statement
+astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts [] tr) = astLoop 
+    (State (EMPTY) (dropUntilP (drop 1 ts)) [] 
+                        (tr `makeChild` (Node "<Print Statement>" [(Node (show $ drop 1 $ init $ (takeUntilP (drop 1 ts))) [])])) )
+
+
 
 astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
 

@@ -60,6 +60,7 @@ stmtP = (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (Prin
     <|> (( AssignSTMT <$> (idP <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )     <* skipSpaces)
 --
 
+--BOOLEAN EXPRESSION WAS FIRST
 exprP :: Parser EXPR
 exprP = ( (BooleanEXPR <$> booleanExprLitP) <* skipSpaces)
     <|> ( (StringEXPR <$> stringExprLitP)   <* skipSpaces)

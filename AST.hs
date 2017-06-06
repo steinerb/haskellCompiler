@@ -68,12 +68,19 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) =
     --if id equal to another id
     if ( ((validIdToken (ts!!2)) == True ) ) 
         then astLoop ( State (EMPTY) (drop 3 ts) [] 
-                            (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (drop 1 $ init $ show (ts!!2)) [])])) )
-    --if id equal to BoolVal
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (drop 1 $ init $ show (ts!!2)) [])])) )
+    --if id equal to singular BoolVal   [SAME]
     else if (((ts!!2) == T_true) || ((ts!!2) == T_false))
         then astLoop ( State (EMPTY) (drop 3 ts) [] 
-                            (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
-
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
+    --if id equal to string lit         [SAME]
+    else if (validStrLitToken (ts!!2) == True)
+        then astLoop ( State (EMPTY) (drop 3 ts) [] 
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
+    --if id equal to int let M    
+    else if ((validIntSToken (ts!!2)) && (length ts >= 4) && ((ts!!3) == T_intOp))
+        then astLoop ( State (EMPTY) (dropWhile (validIntM) (drop 2 ts)) [] 
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeWhile (validIntM) (drop 2 ts))) [])])) )
 
 
     --else if ( ((show (ts!!2)) == "true") || ((show (ts!!2)) == "false") )
@@ -102,8 +109,19 @@ validIdToken id@(T_id c) = if ( (c == "a") || (c == "b") || (c == "c") || (c == 
                              then True 
                             else False
 validIdToken id = False
---tokenToID :: Token -> ID
---tokenToID t@(T_id s) = 
+
+validStrLitToken :: Token -> Bool
+validStrLitToken t@(T_string _) = True
+validStrLitToken t = False
+
+validIntSToken :: Token -> Bool
+validIntSToken t@(T_int c) = True
+validIntSToken t = False
+
+validIntM :: Token -> Bool
+validIntM t@(T_int c) = True
+validIntM t@(T_intOp) = True
+validIntM t = False
 
 ----------------------------------------------------------------------------------------------------
 

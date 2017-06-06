@@ -55,7 +55,7 @@ astLoop :: State -> Tree String
 astLoop state@(State _ [] _ tr) = tr
 
 --STMT
---VarDecl1
+--VarDecl
 --last statement
 astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts [] tr) = astLoop 
     ( State (EMPTY) (drop 2 ts) [] ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
@@ -69,32 +69,20 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) =
     if ( ((validIdToken (ts!!2)) == True ) ) 
         then astLoop ( State (EMPTY) (drop 3 ts) [] 
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (drop 1 $ init $ show (ts!!2)) [])])) )
-    --if id equal to singular BoolVal   [SAME]
-    else if (((ts!!2) == T_true) || ((ts!!2) == T_false))
-        then astLoop ( State (EMPTY) (drop 3 ts) [] 
-                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
-    --if id equal to string literal     [SAME]
-    else if (validStrLitToken (ts!!2) == True)
-        then astLoop ( State (EMPTY) (drop 3 ts) [] 
-                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
-    --if id equal to int literal M (must go BEFORE int literal S)
-    else if ((validIntSToken (ts!!2)) && (length ts >= 4) && ((ts!!3) == T_intOp))
-        then astLoop ( State (EMPTY) (dropWhile (validIntM) (drop 2 ts)) [] 
-                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeWhile (validIntM) (drop 2 ts))) [])])) )
-    --if id equal to int literal S      [SAME]
-    else if (validIntSToken (ts!!2))
-        then astLoop ( State (EMPTY) (drop 3 ts) [] 
-                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (drop 1 $ init $ show (ts!!2)) [])])) )
     --if id equal to Boolean Expr M
     else if ((ts!!2) == T_LParen)
         then astLoop ( State (EMPTY) (dropUntilP (drop 2 ts)) []
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeUntilP (drop 2 ts))) [])])) )
-    --make more conditions here!!!
-    else
-             astLoop ( State (EMPTY) (drop 3 ts) [] tr)
-
-    --        else error "only compiling!"
-    --astLoop ( State (EMPTY) (drop 2 $)  )
+    --if id equal to int literal M (must go BEFORE int literal S)
+    else if ((validIntSToken (ts!!2)) && (length ts >= 4) && ((ts!!3) == T_intOp))
+        then astLoop ( State (EMPTY) (dropWhile (validIntM) (drop 2 ts)) [] 
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeWhile (validIntM) (drop 2 ts))) [])])) )
+    --if id equal to BoolValS, string literal, or int literal S 
+    else if ( ((ts!!2) == T_true) || ((ts!!2) == T_false) || (validStrLitToken (ts!!2) == True) || (validIntSToken (ts!!2)))
+        then astLoop ( State (EMPTY) (drop 3 ts) [] 
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
+    --error
+    else error "AssignSTMT falsely identified in astLoop!!!"
 
 
 astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []

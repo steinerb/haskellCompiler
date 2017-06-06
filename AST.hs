@@ -108,9 +108,7 @@ astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
 
 
 validIdToken :: Token -> Bool
-validIdToken id@(T_id c) = if ( (c == "a") || (c == "b") || (c == "c") || (c == "d") || (c == "e") || (c == "f") || (c == "g") || (c == "h") || (c == "i") || (c == "j") || (c == "k") || (c == "l") || (c == "m") || (c == "n") || (c == "o") || (c == "p") || (c == "q") || (c == "r") || (c == "s") || (c == "t") || (c == "u") || (c == "v") || (c == "w") || (c == "x") || (c == "y") || (c == "z") )
-                             then True 
-                            else False
+validIdToken id@(T_id c) = True 
 validIdToken id = False
 
 validStrLitToken :: Token -> Bool
@@ -141,6 +139,23 @@ dropUntilP ts = untilP ts 0
         untilP ((t@(T_RParen)):ts) i = untilP ts (i-1)
         untilP ts 0 = ts
         untilP (t:ts) i = untilP ts i
+
+
+takeUntilB :: [Token] -> [Token]
+takeUntilB ts = untilB ts 0 []
+    where
+        untilB ((t@(T_LBrace)):ts) i rts = untilB ts (i+1) (rts++[t])
+        untilB ((t@(T_RBrace)):ts) i rts = untilB ts (i-1) (rts++[t])
+        untilB _ 0 rts = rts
+        untilB (t:ts) i rts = untilB ts i (rts++[t])
+
+dropUntilB :: [Token] -> [Token]
+dropUntilB ts = untilB ts 0
+    where
+        untilB ((t@(T_LBrace)):ts) i = untilB ts (i+1)
+        untilB ((t@(T_RBrace)):ts) i = untilB ts (i-1)
+        untilB ts 0 = ts
+        untilB (t:ts) i = untilB ts i
 
 ----------------------------------------------------------------------------------------------------
 

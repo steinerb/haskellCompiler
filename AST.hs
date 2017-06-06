@@ -83,7 +83,26 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) =
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
     --error
     else error "AssignSTMT falsely identified in astLoop!!!"
-
+--statements to go
+astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts ((n@(STMTlistNode s)):sl) tr) = 
+    --if id equal to another id
+    if ( ((validIdToken (ts!!2)) == True ) ) 
+        then astLoop ( State (Is s) (drop 3 ts) sl 
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (drop 1 $ init $ show (ts!!2)) [])])) )
+    --if id equal to Boolean Expr M
+    else if ((ts!!2) == T_LParen)
+        then astLoop ( State (Is s) (dropUntilP (drop 2 ts)) sl
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeUntilP (drop 2 ts))) [])])) )
+    --if id equal to int literal M (must go BEFORE int literal S)
+    else if ((validIntSToken (ts!!2)) && (length ts >= 4) && ((ts!!3) == T_intOp))
+        then astLoop ( State (Is s) (dropWhile (validIntM) (drop 2 ts)) sl 
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeWhile (validIntM) (drop 2 ts))) [])])) )
+    --if id equal to BoolValS, string literal, or int literal S 
+    else if ( ((ts!!2) == T_true) || ((ts!!2) == T_false) || (validStrLitToken (ts!!2) == True) || (validIntSToken (ts!!2)))
+        then astLoop ( State (Is s) (drop 3 ts) sl 
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
+    --error
+    else error "AssignSTMT falsely identified in astLoop!!!"
 
 astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
 

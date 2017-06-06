@@ -73,14 +73,18 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) =
     else if (((ts!!2) == T_true) || ((ts!!2) == T_false))
         then astLoop ( State (EMPTY) (drop 3 ts) [] 
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
-    --if id equal to string lit         [SAME]
+    --if id equal to string literal     [SAME]
     else if (validStrLitToken (ts!!2) == True)
         then astLoop ( State (EMPTY) (drop 3 ts) [] 
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
-    --if id equal to int let M    
+    --if id equal to int literal M (must go BEFORE int literal S)
     else if ((validIntSToken (ts!!2)) && (length ts >= 4) && ((ts!!3) == T_intOp))
         then astLoop ( State (EMPTY) (dropWhile (validIntM) (drop 2 ts)) [] 
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeWhile (validIntM) (drop 2 ts))) [])])) )
+    --if id equal to int literal S      [SAME]
+    else if (validIntSToken (ts!!2))
+        then astLoop ( State (EMPTY) (drop 3 ts) [] 
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (drop 1 $ init $ show (ts!!2)) [])])) )
 
 
     --else if ( ((show (ts!!2)) == "true") || ((show (ts!!2)) == "false") )

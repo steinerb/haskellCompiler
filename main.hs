@@ -9,6 +9,8 @@ import Data.Either (rights)
 
 import Data.Tree
 
+
+
 --RUNS the I/O show. gets called
 main :: IO ()
 main = do 
@@ -32,12 +34,13 @@ main = do
     putStrLn("\nSEMANTIC ANALYSIS: REACHED!\n\n")
 
     putStrLn("AST-------------------------------------------------------------------\n")
-    --NEED TO REMOVE T_space TOKENS FROM tokensForPrograms!!!
-    treeEx <- return (makeAST (head treeDataForPrograms) (head tokensForPrograms))
+
+    treeExample <- return (makeAST (head treeDataForPrograms) (head tokensForPrograms))
+    
     putStrLn "\nRaw Tree Object:\n"
-    print treeEx
+    print treeExample
     putStrLn "\nTree:\n"
-    putStrLn $ drawTree treeEx
+    putStrLn $ drawTree treeExample
  
     
     
@@ -112,8 +115,13 @@ lexProgramOUT (t:ts) n = do
 
 
 
---alternative test function ran through gchi.
+stripQuotesFromNode :: Tree String -> Tree String
+stripQuotesFromNode n@(Node str cs) = Node (filter (/='\"') str) cs
+
+
+
+--alternative test function ran through gchi. (lexer only)
 test :: IO()
 test = do
-    putStrLn "INPUT: {}${{{{{{}}}}}}${{{{{{}}}}}}}${int @}$"
-    lexProgramsOUT (map (tokenize) (splitByEOP "{}${{{{{{}}}}}}${{{{{{}}}}}}}${int @}$" []))
+    putStrLn "INPUT: {int a a = 5 if (a==5) {print(a) int b b = 4} a = b}$"
+    lexProgramsOUT (map (tokenize) (splitByEOP "{int a a = 5 if (a==5) {print(a) int b b = 4} a = b}$" []))

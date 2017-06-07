@@ -234,12 +234,14 @@ data IDRow = IDRow NAME TYPE SCOPE              deriving (Eq, Show)
 type NAME = String
 type SCOPE = Int
 
+
 addRow :: SymbolTable -> IDRow -> SymbolTable
 addRow s@(SymbolTable idrows) row = (SymbolTable (idrows++[row]))
 
 
-
 makeTable :: Tree String -> SymbolTable
-makeTable = undefined
+makeTable tr = tableHelp tr
 
+tableHelp :: Tree String -> SymbolTable
+tableHelp tr = undefined
 

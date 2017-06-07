@@ -187,9 +187,6 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode
 
 
 
-
-
-
 --Statement can't be recognized
 astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
 

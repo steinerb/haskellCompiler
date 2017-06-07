@@ -6,6 +6,7 @@ import Data.Tree
 
 
 import Text.ParserCombinators.Parsec hiding ((<|>), many, optional)
+import Text.ParserCombinators.ReadP (look)
 import Text.Parsec (parse)
 
 import Control.Applicative
@@ -56,12 +57,24 @@ stmtListP = many (STMTlistNode <$> stmtP)
 
 
 stmtP :: Parser STMT
-stmtP = (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )   <* skipSpaces)
+stmtP = (string "i") *> (
+                                (string "f" *> skipSpaces *> (IfSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP)) 
+                            <|> (string "nt" *> skipSpaces *> ( VarDeclSTMT <$> (pure INT) <*> idP ))
+                            <|> ( AssignSTMT <$> ((Id<$>(pure I)) <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )
+                        ) <* skipSpaces
+    <|> (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )   <* skipSpaces)
     <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )   <* skipSpaces)
     <|> (( VarDeclSTMT <$> typeP <*> idP )    <* skipSpaces)
-    <|> (( (string "if") *> skipSpaces *> (IfSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )         <* skipSpaces)
     <|> (( AssignSTMT <$> (idP <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )     <* skipSpaces)
 --
+
+--working version:
+--stmtP :: Parser STMT
+--stmtP = (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )   <* skipSpaces)
+--w    <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )   <* skipSpaces)
+--w    <|> (( VarDeclSTMT <$> typeP <*> idP )    <* skipSpaces)
+--w    <|> (( (string "if") *> skipSpaces *> (IfSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )         <* skipSpaces)
+--w    <|> (( AssignSTMT <$> (idP <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )     <* skipSpaces)
 
 --BOOLEAN EXPRESSION WAS FIRST
 exprP :: Parser EXPR

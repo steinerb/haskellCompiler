@@ -63,14 +63,23 @@ stmtP = ((string "i") *> (
     <|> ((string "b") *> (
                                 (string "oolean" *> skipSpaces *> ( VarDeclSTMT <$> (pure BOOLEAN) <*> idP ))
                             <|> ( AssignSTMT <$> ((Id<$>(pure B)) <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )
+                         ) <* skipSpaces )
+    <|> ((string "s") *> (
+                                (string "tring" *> skipSpaces *> ( VarDeclSTMT <$> (pure STRING) <*> idP ))
+                            <|> ( AssignSTMT <$> ((Id<$>(pure S)) <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )
+                         ) <* skipSpaces )
+    <|> ((string "p") *> (
+                                (string "rint" *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )
+                            <|> ( AssignSTMT <$> ((Id<$>(pure P)) <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )
                          ) <* skipSpaces)
-    <|> (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )   <* skipSpaces)
-    <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )   <* skipSpaces)
-    <|> (( VarDeclSTMT <$> typeP <*> idP )    <* skipSpaces)
+    <|> ((string "w") *> (
+                                (string "hile" *> skipSpaces *> (WhileSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )
+                            <|> ( AssignSTMT <$> ((Id<$>(pure W)) <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )
+                         ) <* skipSpaces)
     <|> (( AssignSTMT <$> (idP <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )     <* skipSpaces)
 --
 
---working version:
+--old, broken version:
 --stmtP :: Parser STMT
 --stmtP = (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )   <* skipSpaces)
 --w    <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )   <* skipSpaces)

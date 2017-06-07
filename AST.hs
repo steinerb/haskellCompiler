@@ -128,9 +128,7 @@ astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts ((n@(STMTlistNode s)):s
 --last statement
 astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts [] tr) = astLoop 
     (State 
-        (EMPTY) 
-        (dropUntilB $ dropUntilP (drop 1 ts)) 
-        [] 
+        (EMPTY) (dropUntilB $ dropUntilP (drop 1 ts)) [] 
         (tr `makeChild` (astLoop 
                             (State 
                                 (Is subStmt) 
@@ -141,19 +139,34 @@ astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistN
                         )
         ) 
     )
---statements to go
+--statements to go!!!!!!!!!!!!!!!
+astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) 
+                ts 
+                ((n@(STMTlistNode s)):sl) 
+                tr
+              ) = astLoop 
+    (State 
+        (Is s) (dropUntilB $ dropUntilP (drop 1 ts)) sl 
+        (tr `makeChild` (astLoop 
+                            (State 
+                                (Is subStmt) 
+                                ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
+                                (subStmtLst) 
+                                (Node "<BLOCK>" [])
+                            )
+                        )
+        ) 
+    )
 
 
 
 
 
 
-
-
+--Statement can't be recognized
 astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
 
 
---make a condition for BLOCK!!! just because the first one is handled, doesn't mean if and while statements won't require this.
 
 
 

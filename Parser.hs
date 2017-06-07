@@ -52,18 +52,19 @@ stmtListP = many (STMTlistNode <$> stmtP)
 --
 
 --WARNING: make sure AssignSTMT is last!!! idP/charP will pick up any char.
+--ERROR: if the first character in the string function is detected, that route is chosen!!
 stmtP :: Parser STMT
 stmtP = (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )   <* skipSpaces)
     <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )   <* skipSpaces)
-    <|> (( VarDeclSTMT <$> typeP <*> idP )                                                  <* skipSpaces)
+    <|> (( VarDeclSTMT <$> typeP <*> idP )    <* skipSpaces)
     <|> (( (string "if") *> skipSpaces *> (IfSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )         <* skipSpaces)
     <|> (( AssignSTMT <$> (idP <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )     <* skipSpaces)
 --
 
 --BOOLEAN EXPRESSION WAS FIRST
 exprP :: Parser EXPR
-exprP = ( (BooleanEXPR <$> booleanExprLitP) <* skipSpaces)
-    <|> ( (StringEXPR <$> stringExprLitP)   <* skipSpaces)
+exprP = ( (StringEXPR <$> stringExprLitP)   <* skipSpaces)
+    <|> ( (BooleanEXPR <$> booleanExprLitP) <* skipSpaces)
     <|> ( (IntEXPR <$> intExprLitP)         <* skipSpaces)
     <|> ( (IDEXPR <$> idP)                  <* skipSpaces)
 --

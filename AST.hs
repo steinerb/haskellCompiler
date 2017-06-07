@@ -56,13 +56,6 @@ astLoop :: State -> Tree String
 --BASE CASE: If no tokens are left, return the tree
 astLoop state@(State _ [] _  tr) = tr
 
---BLOCK
---astLoop state@(State 
---                    (i@(Ib (b@(Block ((n@(STMTlistNode stmt)):stmtLst) ))))
---                    ts
---                    (s:sl)
---              )
-
 --STMT
 --VarDecl
 --last statement
@@ -139,8 +132,42 @@ astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistN
                         )
         ) 
     )
---statements to go!!!!!!!!!!!!!!!
+--statements to go
 astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) 
+                ts 
+                ((n@(STMTlistNode s)):sl) 
+                tr
+              ) = astLoop 
+    (State 
+        (Is s) (dropUntilB $ dropUntilP (drop 1 ts)) sl 
+        (tr `makeChild` (astLoop 
+                            (State 
+                                (Is subStmt) 
+                                ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
+                                (subStmtLst) 
+                                (Node "<BLOCK>" [])
+                            )
+                        )
+        ) 
+    )
+
+--IfStatement
+--last statement
+astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts [] tr) = astLoop 
+    (State 
+        (EMPTY) (dropUntilB $ dropUntilP (drop 1 ts)) [] 
+        (tr `makeChild` (astLoop 
+                            (State 
+                                (Is subStmt) 
+                                ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
+                                (subStmtLst) 
+                                (Node "<BLOCK>" [])
+                            )
+                        )
+        ) 
+    )
+--statements to go
+astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) 
                 ts 
                 ((n@(STMTlistNode s)):sl) 
                 tr

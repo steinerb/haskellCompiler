@@ -227,9 +227,9 @@ dropUntilB ts = untilB ts 0
 
 ----------------------------------------------------------------------------------------------------
 
-data SymbolTable = SymbolTable [IDRow]
+data SymbolTable = SymbolTable [IDRow]          deriving (Eq, Show)
 
-data IDRow = IDRow NAME TYPE SCOPE
+data IDRow = IDRow NAME TYPE SCOPE              deriving (Eq, Show)
 
 type NAME = String
 type SCOPE = Int
@@ -237,5 +237,9 @@ type SCOPE = Int
 addRow :: SymbolTable -> IDRow -> SymbolTable
 addRow s@(SymbolTable idrows) row = (SymbolTable (idrows++[row]))
 
+
+
+makeTable :: Tree String -> SymbolTable
+makeTable = undefined
 
 

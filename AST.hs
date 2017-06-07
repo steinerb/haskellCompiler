@@ -15,21 +15,6 @@ makeChildren :: Tree String -> Forest String -> Tree String
 makeChildren p@(Node n lst) cs = Node n (lst++cs)
 
 
-data SymbolTable = SymbolTable [IDRow]
-
-data IDRow = IDRow ID TYPE ENV
-
-data ENV = ENV String [ID]
-
-addRow :: SymbolTable -> IDRow -> SymbolTable
-addRow s@(SymbolTable idrows) row = (SymbolTable (row:idrows))
-
-makeTable :: String -> SymbolTable
-makeTable s = tableHelp s 0 (SymbolTable [])
-
-tableHelp :: String -> Int -> SymbolTable -> SymbolTable
-tableHelp input envNum table = undefined
-
 data Input = Ib  BLOCK
            | Isl [STMTlist]
            | Is  STMT
@@ -185,15 +170,8 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode
         ) 
     )
 
-
-
 --Statement can't be recognized
 astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
-
-
-
-
-
 
 
 
@@ -248,6 +226,16 @@ dropUntilB ts = untilB ts 0
         untilB (t:ts) i = untilB ts i
 
 ----------------------------------------------------------------------------------------------------
+
+data SymbolTable = SymbolTable [IDRow]
+
+data IDRow = IDRow NAME TYPE SCOPE
+
+type NAME = String
+type SCOPE = Int
+
+addRow :: SymbolTable -> IDRow -> SymbolTable
+addRow s@(SymbolTable idrows) row = (SymbolTable (idrows++[row]))
 
 
 

@@ -53,6 +53,8 @@ stmtListP = many (STMTlistNode <$> stmtP)
 
 --WARNING: make sure AssignSTMT is last!!! idP/charP will pick up any char.
 --ERROR: if the first character in the string function is detected, that route is chosen!!
+
+
 stmtP :: Parser STMT
 stmtP = (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )   <* skipSpaces)
     <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )   <* skipSpaces)
@@ -80,13 +82,6 @@ stringExprLitP = ( ((char '"') *> (StringLit <$> charListP) <* (char '"'))      
              <|> ( ((string "\"") *> (StringLit <$> charListP) <* (string "\""))    <* skipSpaces)
 
 --
-
---OLD WORKING VERSION WITHOUT <*>!!
---booleanExprLitP :: Parser BooleanEXPRlit
---booleanExprLitP = ((string "(") *> (exprP) *> (boolOpP) *> (exprP) *> (string ")") *> (pass) )
---t              <|> ( BooleanLitS <$> boolValP ) 
---t                    where
---t                        pass = pure (BooleanLitS TRUE)
 
 booleanExprLitP :: Parser BooleanEXPRlit
 booleanExprLitP = ((string "(") *> skipSpaces *> (BooleanLitM <$> exprP <*> boolOpP <*> exprP) <* skipSpaces <* (string ")") )

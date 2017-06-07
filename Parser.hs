@@ -53,15 +53,17 @@ stmtListP = many (STMTlistNode <$> stmtP)
 --
 
 --WARNING: make sure AssignSTMT is last!!! idP/charP will pick up any char.
---ERROR: if the first character in the string function is detected, that route is chosen!!
-
 
 stmtP :: Parser STMT
-stmtP = (string "i") *> (
+stmtP = ((string "i") *> (
                                 (string "f" *> skipSpaces *> (IfSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP)) 
                             <|> (string "nt" *> skipSpaces *> ( VarDeclSTMT <$> (pure INT) <*> idP ))
                             <|> ( AssignSTMT <$> ((Id<$>(pure I)) <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )
-                        ) <* skipSpaces
+                         ) <* skipSpaces)
+    <|> ((string "b") *> (
+                                (string "oolean" *> skipSpaces *> ( VarDeclSTMT <$> (pure BOOLEAN) <*> idP ))
+                            <|> ( AssignSTMT <$> ((Id<$>(pure B)) <* skipSpaces <* (string "=") <* skipSpaces) <*> exprP )
+                         ) <* skipSpaces)
     <|> (( (string "print") *> skipSpaces *> (string "(") *> skipSpaces *> (PrintSTMT <$> exprP) <* skipSpaces <* (string ")") )   <* skipSpaces)
     <|> (( (string "while") *> skipSpaces *> (WhileSTMT <$> (booleanExprLitP <*skipSpaces) <*> blockP) )   <* skipSpaces)
     <|> (( VarDeclSTMT <$> typeP <*> idP )    <* skipSpaces)

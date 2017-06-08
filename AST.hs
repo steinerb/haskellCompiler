@@ -104,7 +104,7 @@ astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts ((n@(STMTlistNode s)):s
 
 --WhileStatement
 --last statement
---[(Node "<While Condition>" [(Node (show $ takeWhile ((((/="==")||(/="!=")).show)) $ drop 1 $ takeUntilP (drop 1 ts)) []), 
+--[(Node "<While Condition>" [(Node (show $ takeWhile ((("="`isInfixOf`).show)) $ drop 1 $ takeUntilP (drop 1 ts)) []), 
 --                                                    (Node (show $ head $ drop 1 $ takeUntilP (drop 1 ts)) []), 
 --                                                    (Node (show $ head $ drop 1 $ takeUntilP (drop 1 ts)) [])]),
 astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts [] tr) = astLoop 
@@ -256,3 +256,6 @@ makeTable tr = tableHelp tr
 tableHelp :: Tree String -> SymbolTable
 tableHelp tr = undefined
 
+
+removeQuotes :: Tree String -> Tree String
+removeQuotes tr@(Node name children) = (Node (filter (/='\"') name) (fmap removeQuotes children))

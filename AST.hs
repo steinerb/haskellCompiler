@@ -7,11 +7,11 @@ import Data.List
 
 --"delete" function in Data.List
 
-getName :: Tree String -> String
-getName n@(Node name children) = name
+getVal :: Tree String -> String
+getVal n@(Node val children) = val
 
 getChildren :: Tree String -> [Tree String]
-getChildren n@(Node name children) = children
+getChildren n@(Node val children) = children
 
 makeChild :: Tree String -> Tree String -> Tree String
 makeChild p@(Node n lst) c = Node n (lst++[c])
@@ -20,7 +20,7 @@ makeChildren :: Tree String -> Forest String -> Tree String
 makeChildren p@(Node n lst) cs = Node n (lst++cs)
 
 removeQuotes :: Tree String -> Tree String
-removeQuotes tr@(Node name children) = (Node (filter (/='\"') name) (fmap removeQuotes children))
+removeQuotes tr@(Node val children) = (Node (filter (/='\"') val) (fmap removeQuotes children))
 
 
 data Input = Ib  BLOCK
@@ -248,14 +248,14 @@ dropUntilB ts = untilB ts 0
 
 data SymbolTable = SymbolTable [IDRow]          deriving (Eq)
 
-data IDRow = IDRow NAME DTYPE SCOPE              deriving (Eq)
+data IDRow = IDRow {getName :: NAME, getType :: DTYPE, getScope :: SCOPE}              deriving (Eq)
 
 instance Show SymbolTable where
     show table@(SymbolTable rows) = 
         (
             " ------------------------------------------------\n"++
             " |Name\t\t|Type\t\t|Scope\t\t|\n"++
-            " ------------------------------------------------\n"++
+            " |--------------+---------------+---------------|\n"++
             (show rows)
         )
 
@@ -272,17 +272,25 @@ type SCOPE = Int
 addRow :: SymbolTable -> IDRow -> SymbolTable
 addRow s@(SymbolTable idrows) row = (SymbolTable (idrows++[row]))
 
+isElem :: NAME -> SymbolTable -> Bool
+isElem n st@(SymbolTable rows) = n `elem` (map getName rows)
+
 
 makeTable :: Tree String -> SymbolTable
-makeTable tr@(Node name@("<BLOCK>") children) = processKids children 0 0 (SymbolTable [])
+makeTable tr@(Node val@("<BLOCK>") children) = processKids children 0 0 (SymbolTable [])
+makeTable tr = error "ERROR: Invalid tree as input in makeTable!!!"
 
 processKids :: [Tree String] -> Int -> Int -> SymbolTable -> SymbolTable
 --BASE CASE
 processKids [] _ _ table = table
---VARDECL
+--VarDecl
 processKids (kid@(Node "<Variable Declaration>" subKids):kids) scope hiScope table =
-    processKids kids scope hiScope (table `addRow` (IDRow (getName (subKids!!1)) (getName (subKids!!0)) scope))
+    processKids kids scope hiScope (table `addRow` (IDRow (getVal (subKids!!1)) (getVal (subKids!!0)) scope))
+--AssignStatement
+processKids (kid@(Node "<Assign Statement>" subKids):kids) scope hiScope table = undefined
 
+
+--PATTERN NOT REACHED
 processKids _ _ _ _ = error "ERROR: Pattern not reached in processKids!!!"
 
 

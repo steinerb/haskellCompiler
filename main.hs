@@ -116,7 +116,7 @@ lexProgramOUT (t:ts) n = do
 
 
 stripQuotesFromNode :: Tree String -> Tree String
-stripQuotesFromNode n@(Node str cs) = Node (filter (/='\"') str) cs
+stripQuotesFromNode n@(Node str cs) = Node (filter (/='\"') str) (fmap stripQuotesFromNode cs)
 
 
 

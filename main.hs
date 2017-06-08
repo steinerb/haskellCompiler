@@ -36,11 +36,14 @@ main = do
     putStrLn("AST-------------------------------------------------------------------\n")
 
     treeExample <- return (removeQuotes (makeAST (head treeDataForPrograms) (head tokensForPrograms)))
+    symbolTableExample <- return (makeTable treeExample)
     
     putStrLn "\nRaw Tree Object:\n"
     print treeExample
     putStrLn "\nTree:\n"
     putStrLn $ drawTree treeExample
+    putStrLn "\nSymbol Table:\n"
+    print symbolTableExample
  
     
     
@@ -115,8 +118,6 @@ lexProgramOUT (t:ts) n = do
 
 
 
-stripQuotesFromNode :: Tree String -> Tree String
-stripQuotesFromNode n@(Node str cs) = Node (filter (/='\"') str) (fmap stripQuotesFromNode cs)
 
 
 

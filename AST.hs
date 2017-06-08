@@ -7,12 +7,20 @@ import Data.List
 
 --"delete" function in Data.List
 
+getName :: Tree String -> String
+getName n@(Node name children) = name
+
+getChildren :: Tree String -> [Tree String]
+getChildren n@(Node name children) = children
 
 makeChild :: Tree String -> Tree String -> Tree String
 makeChild p@(Node n lst) c = Node n (lst++[c])
 
 makeChildren :: Tree String -> Forest String -> Tree String
 makeChildren p@(Node n lst) cs = Node n (lst++cs)
+
+removeQuotes :: Tree String -> Tree String
+removeQuotes tr@(Node name children) = (Node (filter (/='\"') name) (fmap removeQuotes children))
 
 
 data Input = Ib  BLOCK
@@ -238,11 +246,26 @@ dropUntilB ts = untilB ts 0
 
 ----------------------------------------------------------------------------------------------------
 
-data SymbolTable = SymbolTable [IDRow]          deriving (Eq, Show)
+data SymbolTable = SymbolTable [IDRow]          deriving (Eq)
 
-data IDRow = IDRow NAME TYPE SCOPE              deriving (Eq, Show)
+data IDRow = IDRow NAME DTYPE SCOPE              deriving (Eq)
+
+instance Show SymbolTable where
+    show table@(SymbolTable rows) = 
+        (
+            " ------------------------------------------------\n"++
+            " |Name\t\t|Type\t\t|Scope\t\t|\n"++
+            " ------------------------------------------------\n"++
+            (show rows)
+        )
+
+instance Show IDRow where
+    show row@(IDRow n t@("boolean") s) = ("|"++n++"\t\t|"++t++"\t|"++(show s)++"\t\t|\n")
+    show row@(IDRow n t s) = ("|"++n++"\t\t|"++t++"\t\t|"++(show s)++"\t\t|\n")
+    
 
 type NAME = String
+type DTYPE = String
 type SCOPE = Int
 
 
@@ -251,11 +274,32 @@ addRow s@(SymbolTable idrows) row = (SymbolTable (idrows++[row]))
 
 
 makeTable :: Tree String -> SymbolTable
-makeTable tr = tableHelp tr
+makeTable tr@(Node name@("<BLOCK>") children) = processKids children 0 0 (SymbolTable [])
 
-tableHelp :: Tree String -> SymbolTable
-tableHelp tr = undefined
+processKids :: [Tree String] -> Int -> Int -> SymbolTable -> SymbolTable
+--BASE CASE
+processKids [] _ _ table = table
+--VARDECL
+processKids (kid@(Node "<Variable Declaration>" subKids):kids) scope hiScope table =
+    processKids kids scope hiScope (table `addRow` (IDRow (getName (subKids!!1)) (getName (subKids!!0)) scope))
+
+processKids _ _ _ _ = error "ERROR: Pattern not reached in processKids!!!"
 
 
-removeQuotes :: Tree String -> Tree String
-removeQuotes tr@(Node name children) = (Node (filter (/='\"') name) (fmap removeQuotes children))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -26,7 +26,7 @@ main = do
     parseProgramsOUT parsablePrograms
     --remove space tokens
     tokensForPrograms <- return$map (filter (/=T_space)) tokensForPrograms
-    print tokensForPrograms
+    --print tokensForPrograms
     --print (head$rights [(parse programP "Program" (head parsablePrograms))])
     treeDataForPrograms <- (getTreeData parsablePrograms [])
     --print treeDataForPrograms
@@ -42,7 +42,7 @@ main = do
     print treeExample
     putStrLn "\nTree:\n"
     putStrLn $ drawTree treeExample
-    putStrLn "\nSymbol Table:\n"
+    putStrLn "Symbol Table:\n"
     print symbolTableExample
  
     

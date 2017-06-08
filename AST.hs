@@ -104,17 +104,22 @@ astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts ((n@(STMTlistNode s)):s
 
 --WhileStatement
 --last statement
+--[(Node "<While Condition>" [(Node (show $ takeWhile ((((/="==")||(/="!=")).show)) $ drop 1 $ takeUntilP (drop 1 ts)) []), 
+--                                                    (Node (show $ head $ drop 1 $ takeUntilP (drop 1 ts)) []), 
+--                                                    (Node (show $ head $ drop 1 $ takeUntilP (drop 1 ts)) [])]),
 astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts [] tr) = astLoop 
     (State 
         (EMPTY) (dropUntilB $ dropUntilP (drop 1 ts)) [] 
-        (tr `makeChild` (astLoop 
+        (tr `makeChildren` 
+                        [(Node "<While Condition>" [Node (show boolExpr) []]), 
+                        (astLoop 
                             (State 
                                 (Is subStmt) 
                                 ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
                                 (subStmtLst) 
                                 (Node "<BLOCK>" [])
                             )
-                        )
+                        )]
         ) 
     )
 --statements to go
@@ -125,14 +130,16 @@ astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistN
               ) = astLoop 
     (State 
         (Is s) (dropUntilB $ dropUntilP (drop 1 ts)) sl 
-        (tr `makeChild` (astLoop 
+        (tr `makeChildren` 
+                        [(Node "<While Condition>" [Node (show boolExpr) []]), 
+                        (astLoop 
                             (State 
                                 (Is subStmt) 
                                 ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
                                 (subStmtLst) 
                                 (Node "<BLOCK>" [])
                             )
-                        )
+                        )]
         ) 
     )
 
@@ -141,14 +148,16 @@ astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistN
 astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts [] tr) = astLoop 
     (State 
         (EMPTY) (dropUntilB $ dropUntilP (drop 1 ts)) [] 
-        (tr `makeChild` (astLoop 
+        (tr `makeChildren` 
+                        [(Node "<If Condition>" [Node (show boolExpr) []]), 
+                        (astLoop 
                             (State 
                                 (Is subStmt) 
                                 ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
                                 (subStmtLst) 
                                 (Node "<BLOCK>" [])
                             )
-                        )
+                        )]
         ) 
     )
 --statements to go
@@ -159,14 +168,16 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode
               ) = astLoop 
     (State 
         (Is s) (dropUntilB $ dropUntilP (drop 1 ts)) sl 
-        (tr `makeChild` (astLoop 
+        (tr `makeChildren` 
+                        [(Node "<If Condition>" [Node (show boolExpr) []]), 
+                        (astLoop 
                             (State 
                                 (Is subStmt) 
                                 ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
                                 (subStmtLst) 
                                 (Node "<BLOCK>" [])
                             )
-                        )
+                        )]
         ) 
     )
 

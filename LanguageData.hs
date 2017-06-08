@@ -3,7 +3,7 @@ module LanguageData where
 
 import Grammar
 
-data BoolOp = BoolOp {isEq :: Bool} deriving (Eq, Show)
+data BoolOp = BoolOp {isEq :: Bool} deriving (Eq)
 
 
 data Type = TypeInt
@@ -33,6 +33,9 @@ data Token = T_id String
            | Invalid
                 deriving (Eq)
 
+instance Show BoolOp where
+    show b@(BoolOp True) = "=="
+    show b = "!="
 
 instance Show Token where
     show t@(T_id s) = show s

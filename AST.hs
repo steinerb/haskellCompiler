@@ -111,11 +111,18 @@ astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts ((n@(STMTlistNode s)):s
     (State (Is s) (dropUntilP (drop 1 ts)) sl 
                         (tr `makeChild` (Node "<Print Statement>" [(Node (show $ drop 1 $ init $ (takeUntilP (drop 1 ts))) [])])) )
 
---WhileStatement
---last statement
+
+--attempt 1:
 --[(Node "<While Condition>" [(Node (show $ takeWhile ((("="`isInfixOf`).show)) $ drop 1 $ takeUntilP (drop 1 ts)) []), 
 --                                                    (Node (show $ head $ drop 1 $ takeUntilP (drop 1 ts)) []), 
 --                                                    (Node (show $ head $ drop 1 $ takeUntilP (drop 1 ts)) [])]),
+--attempt 3:
+--[(Node "<While Condition>" [(Node (show (takeWhile ((/=(show op)).show) (drop 2 ts))) []), 
+--                                        (Node (show op) []), 
+--                                        ( Node ( show$drop 1$init (takeUntilP (T_LParen:(drop 1 (dropWhile ((/=(show op)).show) (drop 2 ts))))) ) [] )]),
+-----------------------------------------------
+--WhileStatement [ONLY WITH MULTIPLE BOOLEXPR!]
+--last statement w/ MULTIPLE boolExpr
 astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts [] tr) = astLoop 
     (State 
         (EMPTY) (dropUntilB $ dropUntilP (drop 1 ts)) [] 
@@ -124,7 +131,7 @@ astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistN
             (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )
---statements to go
+--statements to go w/ MULTIPLE boolExpr
 astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts ((n@(STMTlistNode s)):sl) tr) = 
     astLoop 
     (State 
@@ -135,8 +142,9 @@ astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistN
         ) 
     )
 
---IfStatement
---last statement
+--------------------------------------------
+--IfStatement [ONLY WITH MULTIPLE BOOLEXPR!]
+--last statement w/ MULTIPLE boolExpr
 astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts [] tr) = astLoop 
     (State 
         (EMPTY) (dropUntilB $ dropUntilP (drop 1 ts)) [] 
@@ -145,7 +153,7 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode
             (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )
---statements to go
+--statements to go w/ MULTIPLE boolExpr
 astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts ((n@(STMTlistNode s)):sl) tr) = 
     astLoop 
     (State 
@@ -156,8 +164,10 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode
         ) 
     )
 
+
 --Statement can't be recognized
 astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
+
 
 
 

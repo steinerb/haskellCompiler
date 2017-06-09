@@ -7,6 +7,7 @@ import Data.List
 
 --"delete" function in Data.List
 
+--Tree Helper Functions
 getVal :: Tree String -> String
 getVal n@(Node val children) = val
 
@@ -246,6 +247,7 @@ dropUntilB ts = untilB ts 0
 
 ----------------------------------------------------------------------------------------------------
 
+--Table Types
 data SymbolTable = SymbolTable [IDRow]          deriving (Eq)
 
 data IDRow = IDRow {pullName :: NAME, pullDType :: DTYPE, pullScope :: SCOPE}              deriving (Eq)
@@ -268,7 +270,7 @@ type NAME = String
 type DTYPE = String
 type SCOPE = Int
 
-
+--Table Helper Functions
 addRow :: SymbolTable -> IDRow -> SymbolTable
 addRow s@(SymbolTable idrows) row = (SymbolTable (idrows++[row]))
 
@@ -284,7 +286,7 @@ getType n st = pullDType (getRow n st)
 getScope :: NAME -> SymbolTable -> SCOPE
 getScope n st = pullScope (getRow n st)
 
-
+--Type Checking Functions
 compareType :: String -> String -> SymbolTable -> Bool
 compareType a b st = 
     if ((decideType a st) == (decideType b st)) then True
@@ -311,7 +313,7 @@ decideString a st =
 
 
 
-
+--Table creation function and helpers
 makeTable :: Tree String -> SymbolTable
 makeTable tr@(Node val@("<BLOCK>") children) = processKids children 0 0 (SymbolTable [])
 makeTable tr = error "ERROR: Invalid tree as input in makeTable!!!"
@@ -336,6 +338,7 @@ processKids (kid@(Node "<Assign Statement>" subKids):kids) scope hiScope table =
 processKids _ _ _ _ = error "ERROR: Pattern not reached in processKids!!!"
 
 
+--creates a sample table
 testTable :: SymbolTable
 testTable = SymbolTable [(IDRow "a" "int" 0), (IDRow "b" "boolean" 0), (IDRow "c" "string" 0)]
 

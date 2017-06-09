@@ -44,6 +44,8 @@ main = do
     putStrLn $ drawTree treeExample
     putStrLn "Symbol Table:\n"
     print symbolTableExample
+    --putStrLn "\nType of a:\n"
+    --print ("a" `getType` symbolTableExample)
  
     
     

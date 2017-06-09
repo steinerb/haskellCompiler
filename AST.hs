@@ -120,35 +120,18 @@ astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistN
     (State 
         (EMPTY) (dropUntilB $ dropUntilP (drop 1 ts)) [] 
         (tr `makeChildren` 
-                        [(Node "<While Condition>" [Node (show boolExpr) []]), 
-                        (astLoop 
-                            (State 
-                                (Is subStmt) 
-                                ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
-                                (subStmtLst) 
-                                (Node "<BLOCK>" [])
-                            )
-                        )]
+            [(Node "<While Condition>" [Node (show boolExpr) []]), 
+            (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )
 --statements to go
-astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) 
-                ts 
-                ((n@(STMTlistNode s)):sl) 
-                tr
-              ) = astLoop 
+astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts ((n@(STMTlistNode s)):sl) tr) = 
+    astLoop 
     (State 
         (Is s) (dropUntilB $ dropUntilP (drop 1 ts)) sl 
         (tr `makeChildren` 
-                        [(Node "<While Condition>" [Node (show boolExpr) []]), 
-                        (astLoop 
-                            (State 
-                                (Is subStmt) 
-                                ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
-                                (subStmtLst) 
-                                (Node "<BLOCK>" [])
-                            )
-                        )]
+            [(Node "<While Condition>" [Node (show boolExpr) []]), 
+            (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )
 
@@ -158,35 +141,18 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode
     (State 
         (EMPTY) (dropUntilB $ dropUntilP (drop 1 ts)) [] 
         (tr `makeChildren` 
-                        [(Node "<If Condition>" [Node (show boolExpr) []]), 
-                        (astLoop 
-                            (State 
-                                (Is subStmt) 
-                                ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
-                                (subStmtLst) 
-                                (Node "<BLOCK>" [])
-                            )
-                        )]
+            [(Node "<If Condition>" [Node (show boolExpr) []]), 
+            (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )
 --statements to go
-astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) 
-                ts 
-                ((n@(STMTlistNode s)):sl) 
-                tr
-              ) = astLoop 
+astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts ((n@(STMTlistNode s)):sl) tr) = 
+    astLoop 
     (State 
         (Is s) (dropUntilB $ dropUntilP (drop 1 ts)) sl 
         (tr `makeChildren` 
-                        [(Node "<If Condition>" [Node (show boolExpr) []]), 
-                        (astLoop 
-                            (State 
-                                (Is subStmt) 
-                                ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) 
-                                (subStmtLst) 
-                                (Node "<BLOCK>" [])
-                            )
-                        )]
+            [(Node "<If Condition>" [Node (show boolExpr) []]), 
+            (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )
 
@@ -332,6 +298,7 @@ processKids (kid@(Node "<Assign Statement>" subKids):kids) scope hiScope table =
         then error ("ERROR: TYPECHECK FAILED: "++(getVal (subKids!!0))++" and "++(getVal (subKids!!1))++" are of different types!")
     else
         processKids kids scope hiScope table
+
 
 
 --PATTERN NOT REACHED

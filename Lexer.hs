@@ -121,8 +121,6 @@ makeToken s@(State i b t n l c) =
     else if (b=="int") then                                 T_type TypeInt
     else if (b=="string") then                              T_type TypeStr
     else if (b=="boolean") then                             T_type TypeBool
-    --T_int OLD
-    --else if ( (b=="0") || (b=="1") || (b=="2") || (b=="3") || (b=="4") || (b=="5") || (b=="6") || (b=="7") || (b=="8") || (b=="9") ) then (T_int b)
     --T_int
     else if (b `elem` validDigitsS) then (T_int b)
     --T_string

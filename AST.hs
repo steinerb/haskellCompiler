@@ -23,6 +23,12 @@ makeChildren p@(Node n lst) cs = Node n (lst++cs)
 removeQuotes :: Tree String -> Tree String
 removeQuotes tr@(Node val children) = (Node (filter (/='\"') val) (fmap removeQuotes children))
 
+removeLB :: Tree String -> Tree String
+removeLB tr@(Node val children) = (Node (filter (/='[') val) (fmap removeLB children))
+
+removeRB :: Tree String -> Tree String
+removeRB tr@(Node val children) = (Node (filter (/=']') val) (fmap removeRB children))
+
 
 data Input = Ib  BLOCK
            | Isl [STMTlist]

@@ -35,7 +35,7 @@ main = do
 
     putStrLn("AST-------------------------------------------------------------------\n")
 
-    treeExample <- return (removeQuotes (makeAST (head treeDataForPrograms) (head tokensForPrograms)))
+    treeExample <- return (removeLB $ removeRB $ removeQuotes (makeAST (head treeDataForPrograms) (head tokensForPrograms)))
     symbolTableExample <- return (makeTable treeExample)
     
     putStrLn "\nRaw Tree Object:\n"

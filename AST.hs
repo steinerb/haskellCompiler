@@ -4,7 +4,6 @@ import LanguageData
 import Grammar
 import Data.Tree
 import Data.List
-import Data.Typeable
 
 --"delete" function in Data.List
 
@@ -292,23 +291,23 @@ compareType a b st =
 
 decideType :: (Show a) => a -> SymbolTable -> String
 decideType a st = 
-    if ((decideInt a st) == True) then "int"
+    if ( (show a) `isElem` st ) then (getType (show a) st)
+    else if ((decideInt a st) == True) then "int"
     else if ((decideString a st) == True) then "string"
     else "boolean"
 
 --CONDITION: MUST RUN BEFORE decideString TO PICK UP NUMBERS BEFORE LENGTH IS COUNTED!!!
 decideInt :: (Show a) => a -> SymbolTable -> Bool
 decideInt a st = 
-    if ( ((show a) `isElem` st) && ((getType (show a) st) == "int" ) ) then True
-    else if ((True `notElem` (map (=='(') (show a))) && (("0" `isInfixOf` (show a)) || ("1" `isInfixOf` (show a)) || ("2" `isInfixOf` (show a)) || ("3" `isInfixOf` (show a)) || ("4" `isInfixOf` (show a)) || ("5" `isInfixOf` (show a)) || ("6" `isInfixOf` (show a)) || ("7" `isInfixOf` (show a)) || ("8" `isInfixOf` (show a)) || ("9" `isInfixOf` (show a))) )
+    if ((True `notElem` (map (=='(') (show a))) && (("0" `isInfixOf` (show a)) || ("1" `isInfixOf` (show a)) || ("2" `isInfixOf` (show a)) || ("3" `isInfixOf` (show a)) || ("4" `isInfixOf` (show a)) || ("5" `isInfixOf` (show a)) || ("6" `isInfixOf` (show a)) || ("7" `isInfixOf` (show a)) || ("8" `isInfixOf` (show a)) || ("9" `isInfixOf` (show a))) )
         then True 
     else False
 
 --may need to switch the if and else if
 decideString :: (Show a) => a -> SymbolTable -> Bool
 decideString a st = 
-    if ( ((show a) `isElem` st) && ((getType (show a) st) == "string" ) ) then True
-    else if ( ((length (show a)) > 1) && ((show a) /= "true") && ((show a) /= "false") && (True `notElem` (map (=='(') (show a))) ) then True
+    if ( ((length (show a)) > 1) && ((show a) /= "true") && ((show a) /= "false") && (True `notElem` (map (=='(') (show a))) ) 
+        then True
     else False
 
 
@@ -325,12 +324,21 @@ processKids [] _ _ table = table
 processKids (kid@(Node "<Variable Declaration>" subKids):kids) scope hiScope table =
     processKids kids scope hiScope (table `addRow` (IDRow (getVal (subKids!!1)) (getVal (subKids!!0)) scope))
 --AssignStatement
---processKids (kid@(Node "<Assign Statement>" subKids):kids) scope hiScope table = if
---    ( ((getVal (subKids!!0)) `isElem` table) &&
+processKids (kid@(Node "<Assign Statement>" subKids):kids) scope hiScope table = 
+    --MAKE A SCOPE CHECK CONDITION HERE!!!
+    --TYPECHECK ERROR
+    if ( (compareType (getVal (subKids!!0)) (getVal (subKids!!1)) table) == False )
+        then error ("ERROR: TYPECHECK FAILED: "++(getVal (subKids!!0))++" and "++(getVal (subKids!!1))++" are of different types!")
+    else
+        processKids kids scope hiScope table
 
 
 --PATTERN NOT REACHED
 processKids _ _ _ _ = error "ERROR: Pattern not reached in processKids!!!"
+
+
+testTable :: SymbolTable
+testTable = SymbolTable [(IDRow "a" "int" 0), (IDRow "b" "boolean" 0), (IDRow "c" "string" 0)]
 
 
 

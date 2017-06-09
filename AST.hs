@@ -248,7 +248,7 @@ dropUntilB ts = untilB ts 0
 
 data SymbolTable = SymbolTable [IDRow]          deriving (Eq)
 
-data IDRow = IDRow {getName :: NAME, getDType :: DTYPE, getScope :: SCOPE}              deriving (Eq)
+data IDRow = IDRow {pullName :: NAME, pullDType :: DTYPE, pullScope :: SCOPE}              deriving (Eq)
 
 instance Show SymbolTable where
     show table@(SymbolTable rows) = 
@@ -273,13 +273,16 @@ addRow :: SymbolTable -> IDRow -> SymbolTable
 addRow s@(SymbolTable idrows) row = (SymbolTable (idrows++[row]))
 
 isElem :: NAME -> SymbolTable -> Bool
-isElem n st@(SymbolTable rows) = n `elem` (map getName rows)
+isElem n st@(SymbolTable rows) = n `elem` (map pullName rows)
 
 getRow :: NAME -> SymbolTable -> IDRow
-getRow n st@(SymbolTable rows) = head (filter ((==n).getName) rows)
+getRow n st@(SymbolTable rows) = head (filter ((==n).pullName) rows)
 
 getType :: NAME -> SymbolTable -> DTYPE
-getType n st = getDType (getRow n st)
+getType n st = pullDType (getRow n st)
+
+getScope :: NAME -> SymbolTable -> SCOPE
+getScope n st = pullScope (getRow n st)
 
 
 

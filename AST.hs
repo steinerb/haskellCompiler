@@ -284,29 +284,28 @@ getType n st = pullDType (getRow n st)
 getScope :: NAME -> SymbolTable -> SCOPE
 getScope n st = pullScope (getRow n st)
 
-compareType :: (Show a, Show b) => a -> b -> SymbolTable -> Bool
+
+compareType :: String -> String -> SymbolTable -> Bool
 compareType a b st = 
     if ((decideType a st) == (decideType b st)) then True
     else False
 
-decideType :: (Show a) => a -> SymbolTable -> String
+decideType :: String -> SymbolTable -> String
 decideType a st = 
-    if ( (show a) `isElem` st ) then (getType (show a) st)
+    if ( a `isElem` st ) then (getType a st)
     else if ((decideInt a st) == True) then "int"
     else if ((decideString a st) == True) then "string"
     else "boolean"
-
 --CONDITION: MUST RUN BEFORE decideString TO PICK UP NUMBERS BEFORE LENGTH IS COUNTED!!!
-decideInt :: (Show a) => a -> SymbolTable -> Bool
+decideInt :: String -> SymbolTable -> Bool
 decideInt a st = 
-    if ((True `notElem` (map (=='(') (show a))) && (("0" `isInfixOf` (show a)) || ("1" `isInfixOf` (show a)) || ("2" `isInfixOf` (show a)) || ("3" `isInfixOf` (show a)) || ("4" `isInfixOf` (show a)) || ("5" `isInfixOf` (show a)) || ("6" `isInfixOf` (show a)) || ("7" `isInfixOf` (show a)) || ("8" `isInfixOf` (show a)) || ("9" `isInfixOf` (show a))) )
+    if ((True `notElem` (map (=='(') a)) && (("0" `isInfixOf` a) || ("1" `isInfixOf` a) || ("2" `isInfixOf` a) || ("3" `isInfixOf` a) || ("4" `isInfixOf` a) || ("5" `isInfixOf` a) || ("6" `isInfixOf` a) || ("7" `isInfixOf` a) || ("8" `isInfixOf` a) || ("9" `isInfixOf` a)) )
         then True 
     else False
 
---may need to switch the if and else if
-decideString :: (Show a) => a -> SymbolTable -> Bool
+decideString :: String -> SymbolTable -> Bool
 decideString a st = 
-    if ( ((length (show a)) > 1) && ((show a) /= "true") && ((show a) /= "false") && (True `notElem` (map (=='(') (show a))) ) 
+    if ( ((length a) > 1) && (a /= "true") && (a /= "false") && (True `notElem` (map (=='(') a)) ) 
         then True
     else False
 

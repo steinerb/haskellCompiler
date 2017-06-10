@@ -270,7 +270,7 @@ dropUntilB ts = untilB ts 0
 --Table Types
 data SymbolTable = SymbolTable [IDRow]          deriving (Eq)
 
-data IDRow = IDRow {pullName :: NAME, pullDType :: DTYPE, pullScope :: SCOPE}              deriving (Eq)
+data IDRow = IDRow {pullName :: NAME, pullDType :: DTYPE, pullCurrentScope :: Int}              deriving (Eq)
 
 instance Show SymbolTable where
     show table@(SymbolTable rows) = 
@@ -288,7 +288,16 @@ instance Show IDRow where
 
 type NAME = String
 type DTYPE = String
-type SCOPE = Int
+
+--Scope Type
+data SCOPE = SCOPE {current :: Int, scopeKids :: [SCOPE]} deriving (Eq, Show)
+
+--Scope Helper Functions
+hasScope :: SCOPE -> SCOPE -> Bool
+hasScope big@(SCOPE curB [])    _      = False
+hasScope big@(SCOPE curB kidsB) little = if ( (current little) `elem` (map current kidsB) ) then True
+                                    else if ( True `elem` (map (`hasScope` little) kidsB) ) then True
+                                    else    False
 
 --Table Helper Functions
 addRow :: SymbolTable -> IDRow -> SymbolTable
@@ -303,8 +312,10 @@ getRow n st@(SymbolTable rows) = head (filter ((==n).pullName) rows)
 getType :: NAME -> SymbolTable -> DTYPE
 getType n st = pullDType (getRow n st)
 
-getScope :: NAME -> SymbolTable -> SCOPE
-getScope n st = pullScope (getRow n st)
+getScope :: NAME -> SymbolTable -> Int
+getScope n st = pullCurrentScope (getRow n st)
+
+
 
 --Type Checking Functions
 compareType :: String -> String -> SymbolTable -> Bool
@@ -333,6 +344,7 @@ decideString a st =
 
 
 
+
 --Table creation function and helpers
 makeTable :: Tree String -> SymbolTable
 makeTable tr@(Node val@("<BLOCK>") children) = processKids children 0 0 (SymbolTable [])
@@ -342,16 +354,16 @@ processKids :: [Tree String] -> Int -> Int -> SymbolTable -> SymbolTable
 --BASE CASE
 processKids [] _ _ table = table
 --VarDecl
-processKids (kid@(Node "<Variable Declaration>" subKids):kids) scope hiScope table =
-    processKids kids scope hiScope (table `addRow` (IDRow (getVal (subKids!!1)) (getVal (subKids!!0)) scope))
+processKids (kid@(Node "<Variable Declaration>" subKids):kids) curScope hiScope table =
+    processKids kids curScope hiScope (table `addRow` (IDRow (getVal (subKids!!1)) (getVal (subKids!!0)) curScope))
 --AssignStatement
-processKids (kid@(Node "<Assign Statement>" subKids):kids) scope hiScope table = 
+processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope table = 
     --MAKE A SCOPE CHECK CONDITION HERE!!!
     --TYPECHECK ERROR
     if ( (compareType (getVal (subKids!!0)) (getVal (subKids!!1)) table) == False )
         then error ("ERROR: TYPECHECK FAILED: "++(getVal (subKids!!0))++" and "++(getVal (subKids!!1))++" are of different types!")
     else
-        processKids kids scope hiScope table
+        processKids kids curScope hiScope table
 
 
 
@@ -361,8 +373,21 @@ processKids _ _ _ _ = error "ERROR: Pattern not reached in processKids!!!"
 
 --creates a sample table
 testTable :: SymbolTable
-testTable = SymbolTable [(IDRow "a" "int" 0), (IDRow "b" "boolean" 0), (IDRow "c" "string" 0)]
+testTable = SymbolTable [ 
+                            (IDRow "a" "int"        0), 
+                            (IDRow "b" "boolean"    0), 
+                            (IDRow "c" "string"     1),
+                            (IDRow "d" "int"        2) 
+                        ]
 
+testScope0 :: SCOPE
+testScope0 = (SCOPE 0 [(SCOPE 1 [(SCOPE 2 [])])])
+
+testScope1 :: SCOPE
+testScope1 = (SCOPE 1 [(SCOPE 2 [])])
+
+testScope2 :: SCOPE
+testScope2 = (SCOPE 2 [])
 
 
 

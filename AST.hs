@@ -383,9 +383,21 @@ processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope scop
     --SCOPECHECK ERROR FOR ID (LHS)
     if ( ((getVal (subKids!!0)) `isNotElem` table) || ( ((getScope (getVal (subKids!!0)) table) `inScope` (curScope `fromScope` scopeMap)) == False ) )
         then error ("ERROR: SCOPECHECK FAILED: "++(getVal (subKids!!0))++" is not in scope!!!")
+    --SCOPECHECK ERROR FOR RHS IF ID
+    else if ( 
+                (isValidId (getVal (subKids!!1))) && 
+                ( 
+                    ((getVal (subKids!!1)) `isNotElem` table) || 
+                    ( ((getScope (getVal (subKids!!1)) table) `inScope` (curScope `fromScope` scopeMap)) == False ) 
+                ) 
+            )
+        then error ("ERROR: SCOPECHECK FAILED: "++(getVal (subKids!!1))++" is not in scope!!!")
+    --SCOPECHECK ERROR FOR RHS IF BOOLEAN LIT MULTIPLE
+    
     --TYPECHECK ERROR FOR BOTH
     else if ( (compareType (getVal (subKids!!0)) (getVal (subKids!!1)) table) == False )
         then error  ("ERROR: TYPECHECK FAILED: "++(getVal (subKids!!0))++" and "++(getVal (subKids!!1))++" are of different types!")
+    --PASSED SCOPECHECK AND TYPECHECK
     else
         processKids kids curScope hiScope scopeMap table
 
@@ -394,6 +406,13 @@ processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope scop
 --PATTERN NOT REACHED
 processKids _ _ _ _ _ = error "ERROR: Pattern not reached in processKids!!!"
 
+
+
+
+isValidId :: String -> Bool
+isValidId id = if ( (id == "a") || (id == "b") || (id == "c") || (id == "d") || (id == "e") || (id == "f") || (id == "g") || (id == "h") || (id == "i") || (id == "j") || (id == "k") || (id == "l") || (id == "m") || (id == "n") || (id == "o") || (id == "p") || (id == "q") || (id == "r") || (id == "s") || (id == "t") || (id == "u") || (id == "v") || (id == "w") || (id == "x") || (id == "y") || (id == "z") )
+                    then True
+               else False
 
 --creates a sample table
 testTable :: SymbolTable

@@ -293,23 +293,22 @@ type DTYPE = String
 data SCOPE = SCOPE {current :: Int, scopeKids :: [SCOPE]} deriving (Eq, Show)
 
 --Scope Helper Functions
---hasScope :: SCOPE -> SCOPE -> Bool
---hasScope big@(SCOPE curB [])    _      = False
---hasScope big@(SCOPE curB kidsB) little = if ( (current little) `elem` (map current kidsB) ) then True
---                                    else if ( True `elem` (map (`hasScope` little) kidsB) ) then True
---                                    else    False
-
 inScope :: Int -> SCOPE -> Bool
 inScope _ big@(SCOPE curB [])            = False
 inScope littleNum big@(SCOPE curB kidsB) = if ( littleNum `elem` (map current kidsB) ) then True
                                     else if ( True `elem` (map (inScope littleNum) kidsB) ) then True
                                     else    False
 
---fromMap :: Int -> SCOPE -> SCOPE
---fromMap toFind
---fromMap toFind map@(SCOPE cur kids) = if (toFind == cur) then map
---                                      else if ( (toFind) `elem` (map current kids)  ) then ( head (filter ((==toFind).current)) )
---                                      else (toFind `fromMap` (head ( filter (hasScope) )) )
+fromScope :: Int -> SCOPE -> SCOPE
+fromScope toFind scopeMap@(SCOPE cur kids) = if (toFind == cur) then scopeMap
+                                      else if ( (toFind) `elem` (map current kids)  ) then ( head (filter ((==toFind).current) kids) )
+                                      else toFind `fromScope` ( head (filter (inScope toFind) kids) )
+
+--hasScope :: SCOPE -> SCOPE -> Bool
+--hasScope big@(SCOPE curB [])    _      = False
+--hasScope big@(SCOPE curB kidsB) little = if ( (current little) `elem` (map current kidsB) ) then True
+--                                    else if ( True `elem` (map (`hasScope` little) kidsB) ) then True
+--                                    else    False
 
 
 --Table Helper Functions

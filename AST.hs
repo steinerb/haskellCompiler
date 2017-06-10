@@ -304,6 +304,10 @@ fromScope toFind scopeMap@(SCOPE cur kids) = if (toFind == cur) then scopeMap
                                       else if ( (toFind) `elem` (map current kids)  ) then ( head (filter ((==toFind).current) kids) )
                                       else toFind `fromScope` ( head (filter (inScope toFind) kids) )
 
+addChildScope :: SCOPE -> SCOPE -> SCOPE
+addChildScope parent@(SCOPE current children) child = SCOPE current (children++[child])
+
+
 --hasScope :: SCOPE -> SCOPE -> Bool
 --hasScope big@(SCOPE curB [])    _      = False
 --hasScope big@(SCOPE curB kidsB) little = if ( (current little) `elem` (map current kidsB) ) then True

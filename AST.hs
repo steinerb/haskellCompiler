@@ -294,15 +294,16 @@ data SCOPE = SCOPE {current :: Int, scopeKids :: [SCOPE]} deriving (Eq, Show)
 
 --Scope Helper Functions
 inScope :: Int -> SCOPE -> Bool
-inScope _ big@(SCOPE curB [])            = False
-inScope littleNum big@(SCOPE curB kidsB) = if ( littleNum `elem` (map current kidsB) ) then True
-                                    else if ( True `elem` (map (inScope littleNum) kidsB) ) then True
-                                    else    False
+inScope littleNum big@(SCOPE curB kidsB) = if ( littleNum == curB )                             then True
+                                      else if ( littleNum `elem` (map current kidsB) )          then True
+                                      else if ( True `elem` (map (inScope littleNum) kidsB) )   then True
+                                      else    False
 
+--PRECONDITION: toFind `inScope` scopemap == True
 fromScope :: Int -> SCOPE -> SCOPE
-fromScope toFind scopeMap@(SCOPE cur kids) = if (toFind == cur) then scopeMap
-                                      else if ( (toFind) `elem` (map current kids)  ) then ( head (filter ((==toFind).current) kids) )
-                                      else toFind `fromScope` ( head (filter (inScope toFind) kids) )
+fromScope toFind scopeMap@(SCOPE cur kids) = if ( toFind == cur) then scopeMap
+                                        else if ( (toFind) `elem` (map current kids)  ) then ( head (filter ((==toFind).current) kids) )
+                                        else      toFind `fromScope` ( head (filter (inScope toFind) kids) )
 
 addChildScope :: SCOPE -> SCOPE -> SCOPE
 addChildScope parent@(SCOPE current children) child = SCOPE current (children++[child])
@@ -321,6 +322,9 @@ addRow s@(SymbolTable idrows) row = (SymbolTable (idrows++[row]))
 
 isElem :: NAME -> SymbolTable -> Bool
 isElem n st@(SymbolTable rows) = n `elem` (map pullName rows)
+
+isNotElem :: NAME -> SymbolTable -> Bool
+isNotElem n st@(SymbolTable rows) = n `notElem` (map pullName rows)
 
 getRow :: NAME -> SymbolTable -> IDRow
 getRow n st@(SymbolTable rows) = head (filter ((==n).pullName) rows)
@@ -369,15 +373,19 @@ makeTable tr = error "ERROR: Invalid tree as input in makeTable!!!"
 processKids :: [Tree String] -> Int -> Int -> SCOPE -> SymbolTable -> SymbolTable
 --BASE CASE
 processKids [] _ _ _ table = table
---VarDecl
+
+--VarDecl                   [adds a row to the table]
 processKids (kid@(Node "<Variable Declaration>" subKids):kids) curScope hiScope scopeMap table =
     processKids kids curScope hiScope scopeMap (table `addRow` (IDRow (getVal (subKids!!1)) (getVal (subKids!!0)) curScope))
---AssignStatement
+
+--AssignStatement           [checks:    scope, type]
 processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope scopeMap table = 
-    --MAKE A SCOPE CHECK CONDITION HERE!!!
-    --TYPECHECK ERROR
-    if ( (compareType (getVal (subKids!!0)) (getVal (subKids!!1)) table) == False )
-        then error ("ERROR: TYPECHECK FAILED: "++(getVal (subKids!!0))++" and "++(getVal (subKids!!1))++" are of different types!")
+    --SCOPECHECK ERROR FOR ID (LHS)
+    if ( ((getVal (subKids!!0)) `isNotElem` table) || ( ((getScope (getVal (subKids!!0)) table) `inScope` (curScope `fromScope` scopeMap)) == False ) )
+        then error ("ERROR: SCOPECHECK FAILED: "++(getVal (subKids!!0))++" is not in scope!!!")
+    --TYPECHECK ERROR FOR BOTH
+    else if ( (compareType (getVal (subKids!!0)) (getVal (subKids!!1)) table) == False )
+        then error  ("ERROR: TYPECHECK FAILED: "++(getVal (subKids!!0))++" and "++(getVal (subKids!!1))++" are of different types!")
     else
         processKids kids curScope hiScope scopeMap table
 

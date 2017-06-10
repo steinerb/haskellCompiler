@@ -38,8 +38,6 @@ main = do
     treeExample <- return (removeLB $ removeRB $ removeQuotes (makeAST (head treeDataForPrograms) (head tokensForPrograms)))
     symbolTableExample <- return (makeTable treeExample)
     
-    putStrLn "\nRaw Tree Object:\n"
-    print treeExample
     putStrLn "\nTree:\n"
     putStrLn $ drawTree treeExample
     putStrLn "Symbol Table:\n"

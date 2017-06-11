@@ -65,7 +65,7 @@ astLoop state@(State _ [] _  tr) = tr
 
 --EXPR
 --BooleanExprM
-
+--no statements to go? or doesn't matter?
 --Both expr1 and expr2 are BooleanExpr Multiples
 astLoop state@(State i@(Ie e@(BooleanEXPR lit@(BooleanLitM expr1@(BooleanEXPR subLit1@(BooleanLitM _ _ _)) op expr2@(BooleanEXPR subLit2@(BooleanLitM _ _ _))))) ts sl tr) = astLoop
     ( State (EMPTY) (dropUntilP ts) sl 
@@ -134,15 +134,15 @@ astLoop state@(State i@(Ie e@(BooleanEXPR lit@(BooleanLitM expr1 op expr2))) ts 
 
 --STMT
 --VarDecl
---last statement
+--LAST STATEMENT
 astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts [] tr) = astLoop 
     ( State (EMPTY) (drop 2 ts) [] ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
---statements to go
+--STATEMENTS TO GO
 astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
     ( State  (Is s) (drop 2 ts) sl ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
 
 --AssignStatement
---last statement
+--LAST STATEMENT
 astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) = 
     --if id equal to another id
     if ( ((validIdToken (ts!!2)) == True ) ) 
@@ -178,7 +178,7 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) =
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (ts!!2)) [])])) )
     --error
     else error "AssignSTMT falsely identified in astLoop!!!"
---statements to go
+--STATEMENTS TO GO
 astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts ((n@(STMTlistNode s)):sl) tr) = 
     --if id equal to another id
     if ( ((validIdToken (ts!!2)) == True ) ) 
@@ -186,8 +186,20 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts ((n@(STMTlistNode s
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (drop 1 $ init $ show (ts!!2)) [])])) )
     --if id equal to Boolean Expr Multiple
     else if ((ts!!2) == T_LParen)
-        then astLoop ( State (Is s) (dropUntilP (drop 2 ts)) sl
-                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeUntilP (drop 2 ts))) [])])) )
+        then astLoop ( State (Is s) (dropUntilP (drop 2 ts)) []
+                        (tr `makeChild` (Node 
+                                                "<Assign Statement>" 
+                                                ([(Node (show id) [])]++[(astLoop (State 
+                                                                                    (Ie expr)
+                                                                                    (takeUntilP (drop 2 ts))
+                                                                                    []
+                                                                                    (Node "<Boolean Expression>" [])
+                                                                                  ) 
+                                                                        )]
+                                                )                                            
+                                        )
+                        )
+                     )
     --if id equal to int literal Multiple (must go BEFORE int literal Single)
     else if ((validIntSToken (ts!!2)) && (length ts >= 4) && ((ts!!3) == T_intOp))
         then astLoop ( State (Is s) (dropWhile (validIntM) (drop 2 ts)) sl 
@@ -200,11 +212,11 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts ((n@(STMTlistNode s
     else error "AssignSTMT falsely identified in astLoop!!!"
 
 --PrintStatement
---last statement
+--LAST STATEMENT
 astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts [] tr) = astLoop 
     (State (EMPTY) (dropUntilP (drop 1 ts)) [] 
                         (tr `makeChild` (Node "<Print Statement>" [(Node (show $ drop 1 $ init $ (takeUntilP (drop 1 ts))) [])])) )
---statements to go
+--STATEMENTS TO GO
 astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
     (State (Is s) (dropUntilP (drop 1 ts)) sl 
                         (tr `makeChild` (Node "<Print Statement>" [(Node (show $ drop 1 $ init $ (takeUntilP (drop 1 ts))) [])])) )
@@ -302,7 +314,7 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode
 
 
 --Statement can't be recognized
-astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
+astLoop state@(State i ts sl tr) = Node "ERROR: (astLoop) pattern not reached!" []
 
 
 
@@ -500,8 +512,7 @@ passScopeCheck curScope scopeMap table toCheck =
 
 --Table creation function and helpers
 makeTable :: Tree String -> SymbolTable
-makeTable tr@(Node val@("<BLOCK>") children) = processKids children 0 0 (SCOPE 0 []) (SymbolTable [])
-makeTable tr = error "ERROR: TYPECHECK FAILED: Most likely a misuse of an Int Expression."
+makeTable tr@(Node val children) = processKids children 0 0 (SCOPE 0 []) (SymbolTable [])
 
 --makeTable main helper function. uses conditionals to scope and type check while generating the table
 processKids :: [Tree String] -> Int -> Int -> SCOPE -> SymbolTable -> SymbolTable

@@ -73,7 +73,7 @@ astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts [] tr) = astLoop
     ( State (EMPTY) (drop 2 ts) [] ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
 --statements to go
 astLoop state@(State (i@(Is (stmt@(VarDeclSTMT t id)))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
-    ( State (Is s) (drop 2 ts) sl ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
+    ( State  (Is s) (drop 2 ts) sl ( tr `makeChild` (Node "<Variable Declaration>" [(Node (show t) []), (Node (show id) [])]) ) )
 
 --AssignStatement
 --last statement
@@ -89,7 +89,7 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) =
     --OLD: --if id equal to Boolean Expr Multiple
     --else if ((ts!!2) == T_LParen)
         --then astLoop ( State (EMPTY) (dropUntilP (drop 2 ts)) []
-                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeUntilP (drop 2 ts))) [])])) )
+                        --(tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeUntilP (drop 2 ts))) [])])) )
     --if id equal to int literal Multiple (must go BEFORE int literal Single)
     else if ((validIntSToken (ts!!2)) && (length ts >= 4) && ((ts!!3) == T_intOp))
         then astLoop ( State (EMPTY) (dropWhile (validIntM) (drop 2 ts)) [] 

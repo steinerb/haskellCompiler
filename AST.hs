@@ -341,13 +341,13 @@ getScope n st = pullCurrentScope (getRow n st)
 
 
 --Type Checking Functions
-compareType :: String -> String -> SymbolTable -> Bool
-compareType a b st = 
-    if ((decideType a st) == (decideType b st)) then True
+compareType :: SymbolTable -> String -> String -> Bool
+compareType st a b = 
+    if ((decideType st a) == (decideType st b)) then True
     else False
 
-decideType :: String -> SymbolTable -> String
-decideType a st = 
+decideType :: SymbolTable -> String -> String
+decideType st a = 
     if ( a `isElem` st ) then (getType a st)
     else if ((decideInt a st) == True) then "int"
     else if ((decideString a st) == True) then "string"
@@ -405,9 +405,15 @@ processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope scop
                 ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!1)))) ) 
             ) 
         then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached, passScopeCheck used instead]"
-    --TYPECHECK ERROR FOR BOTH
-    else if ( (compareType (getVal (subKids!!0)) (getVal (subKids!!1)) table) == False )
+    --TYPECHECK ERROR FOR BOTH LHS&RHS
+    else if ( (compareType table (getVal (subKids!!0)) (getVal (subKids!!1))) == False )
         then error  ("ERROR: TYPECHECK FAILED: "++(getVal (subKids!!0))++" and "++(getVal (subKids!!1))++" are of different types!")
+    --TYPECHECK ERROR FOR RHS: IF ID IN RHS ISN'T SAME TIME AS RHS ITSELF
+    else if (
+                (containsValidId (getVal (subKids!!1))) &&
+                (False `elem` (map (compareType table (getVal (subKids!!1))) (retrieveValidIds (getVal (subKids!!1)))))
+            )
+        then error ("ERROR: TYPECHECK FAILED: Type of an ID in the right hand side isn't of proper type!")
     --PASSED SCOPECHECK AND TYPECHECK
     else
         processKids kids curScope hiScope scopeMap table

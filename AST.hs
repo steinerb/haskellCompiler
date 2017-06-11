@@ -61,7 +61,10 @@ astLoop :: State -> Tree String
 --BASE CASE: If no tokens are left, return the tree
 astLoop state@(State _ [] _  tr) = tr
 
+--EXPR
 
+--need to `makeChildren` THREE children!!
+--astLoop state@(State i@(Ie e@(BoolExpr expr@(Boolean))) )
 
 --STMT
 --VarDecl
@@ -82,6 +85,10 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) =
     --if id equal to Boolean Expr Multiple
     else if ((ts!!2) == T_LParen)
         then astLoop ( State (EMPTY) (dropUntilP (drop 2 ts)) []
+                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeUntilP (drop 2 ts))) [])])) )
+    --OLD: --if id equal to Boolean Expr Multiple
+    --else if ((ts!!2) == T_LParen)
+        --then astLoop ( State (EMPTY) (dropUntilP (drop 2 ts)) []
                         (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeUntilP (drop 2 ts))) [])])) )
     --if id equal to int literal Multiple (must go BEFORE int literal Single)
     else if ((validIntSToken (ts!!2)) && (length ts >= 4) && ((ts!!3) == T_intOp))
@@ -222,6 +229,7 @@ astLoop state@(State i ts sl tr) = Node "ERROR: pattern not reached!" []
 
 
 
+
 validIdToken :: Token -> Bool
 validIdToken id@(T_id c) = True 
 validIdToken id = False
@@ -240,6 +248,10 @@ validIntM t@(T_intOp) = True
 validIntM t@(T_id s) = True 
 validIntM t = False
 
+
+
+
+
 takeUntilP :: [Token] -> [Token]
 takeUntilP ts = untilP ts 0 []
     where
@@ -247,6 +259,14 @@ takeUntilP ts = untilP ts 0 []
         untilP ((t@(T_RParen)):ts) i rts = untilP ts (i-1) (rts++[t])
         untilP _ 0 rts = rts
         untilP (t:ts) i rts = untilP ts i (rts++[t])
+
+takeUntilPStrLst :: [String] -> [String]
+takeUntilPStrLst ss = untilP ss 0 []
+    where
+        untilP ((s@("(")):ss) i rss = untilP ss (i+1) (rss++[s])
+        untilP ((s@(")")):ss) i rss = untilP ss (i-1) (rss++[s])
+        untilP _ 0 rss = rss
+        untilP (s:ss) i rss = untilP ss i (rss++[s])
 
 dropUntilP :: [Token] -> [Token]
 dropUntilP ts = untilP ts 0
@@ -256,6 +276,13 @@ dropUntilP ts = untilP ts 0
         untilP ts 0 = ts
         untilP (t:ts) i = untilP ts i
 
+dropUntilPStrLst :: [String] -> [String]
+dropUntilPStrLst ss = untilP ss 0
+    where
+        untilP ((s@("(")):ss) i = untilP ss (i+1)
+        untilP ((s@(")")):ss) i = untilP ss (i-1)
+        untilP ss 0 = ss
+        untilP (s:ss) i = untilP ss i
 
 takeUntilB :: [Token] -> [Token]
 takeUntilB ts = untilB ts 0 []
@@ -265,6 +292,14 @@ takeUntilB ts = untilB ts 0 []
         untilB _ 0 rts = rts
         untilB (t:ts) i rts = untilB ts i (rts++[t])
 
+takeUntilBStrLst :: [String] -> [String]
+takeUntilBStrLst ss = untilB ss 0 []
+    where
+        untilB ((s@("{")):ss) i rss = untilB ss (i+1) (rss++[s])
+        untilB ((s@("}")):ss) i rss = untilB ss (i-1) (rss++[s])
+        untilB _ 0 rss = rss
+        untilB (s:ss) i rss = untilB ss i (rss++[s])
+
 dropUntilB :: [Token] -> [Token]
 dropUntilB ts = untilB ts 0
     where
@@ -272,6 +307,14 @@ dropUntilB ts = untilB ts 0
         untilB ((t@(T_RBrace)):ts) i = untilB ts (i-1)
         untilB ts 0 = ts
         untilB (t:ts) i = untilB ts i
+
+dropUntilBStrLst :: [String] -> [String]
+dropUntilBStrLst ss = untilB ss 0
+    where
+        untilB ((s@("{")):ss) i = untilB ss (i+1)
+        untilB ((s@("}")):ss) i = untilB ss (i-1)
+        untilB ss 0 = ss
+        untilB (s:ss) i = untilB ss i
 
 ----------------------------------------------------------------------------------------------------
 
@@ -380,7 +423,7 @@ passScopeCheck curScope scopeMap table toCheck =
 --Table creation function and helpers
 makeTable :: Tree String -> SymbolTable
 makeTable tr@(Node val@("<BLOCK>") children) = processKids children 0 0 (SCOPE 0 []) (SymbolTable [])
-makeTable tr = error "ERROR: Invalid tree as input in makeTable!!!"
+makeTable tr = error "ERROR: TYPECHECK FAILED: Most likely a misuse of an Int Expression."
 
 --makeTable main helper function. uses conditionals to scope and type check while generating the table
 processKids :: [Tree String] -> Int -> Int -> SCOPE -> SymbolTable -> SymbolTable
@@ -434,18 +477,19 @@ processKids _ _ _ _ _ = error "ERROR: Pattern not reached in processKids!!!"
 
 
 
+
+
+
+--Id Identification helpers
 isValidId :: String -> Bool
 isValidId id = if ( (id == "a") || (id == "b") || (id == "c") || (id == "d") || (id == "e") || (id == "f") || (id == "g") || (id == "h") || (id == "i") || (id == "j") || (id == "k") || (id == "l") || (id == "m") || (id == "n") || (id == "o") || (id == "p") || (id == "q") || (id == "r") || (id == "s") || (id == "t") || (id == "u") || (id == "v") || (id == "w") || (id == "x") || (id == "y") || (id == "z") )
                     then True
                else False
 
-
-
 containsValidId :: String -> Bool
 containsValidId s = 
     if ( True `elem` (map (isValidId.unpack) (splitOn (pack ",") (pack s))) ) then True
     else False
-
 
 retrieveValidIds :: String -> [String]
 retrieveValidIds s = filter (isValidId) (map (unpack) (splitOn (pack ",") (pack s)))
@@ -453,7 +497,7 @@ retrieveValidIds s = filter (isValidId) (map (unpack) (splitOn (pack ",") (pack 
 
 
 
---for dated code. didn't have the heart to get rid of it.
+--for and from dated code. didn't have the heart to get rid of it.
 removeAll :: String -> String -> String
 removeAll s toReturn = 
     if (s `isInfixOf` toReturn) 

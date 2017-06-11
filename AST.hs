@@ -362,14 +362,19 @@ decideString a st =
         then True
     else False
 
-
-
+--Scope Checking Function (for when needed)
+passScopeCheck :: Int -> SCOPE -> SymbolTable -> String -> Bool
+passScopeCheck curScope scopeMap table toCheck = 
+    if ( (toCheck `isNotElem` table) || ( ((getScope toCheck table) `inScope` (curScope `fromScope` scopeMap)) == False ) )
+        then error ("ERROR: SCOPECHECK FAILED: "++toCheck++" is not in scope!!!")
+    else True
 
 --Table creation function and helpers
 makeTable :: Tree String -> SymbolTable
 makeTable tr@(Node val@("<BLOCK>") children) = processKids children 0 0 (SCOPE 0 []) (SymbolTable [])
 makeTable tr = error "ERROR: Invalid tree as input in makeTable!!!"
 
+--makeTable main helper function. uses conditionals to scope and type check while generating the table
 processKids :: [Tree String] -> Int -> Int -> SCOPE -> SymbolTable -> SymbolTable
 --BASE CASE
 processKids [] _ _ _ table = table
@@ -380,20 +385,23 @@ processKids (kid@(Node "<Variable Declaration>" subKids):kids) curScope hiScope 
 
 --AssignStatement           [checks:    scope, type]
 processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope scopeMap table = 
-    --SCOPECHECK ERROR FOR ID (LHS)
-    if ( ((getVal (subKids!!0)) `isNotElem` table) || ( ((getScope (getVal (subKids!!0)) table) `inScope` (curScope `fromScope` scopeMap)) == False ) )
-        then error ("ERROR: SCOPECHECK FAILED: "++(getVal (subKids!!0))++" is not in scope!!!")
+    --SCOPECHECK ERROR FOR LHS
+    if ( not (passScopeCheck curScope scopeMap table (getVal (subKids!!0))) ) 
+        then error "ERROR: SCOPE FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
     --SCOPECHECK ERROR FOR RHS IF ID
-    else if ( 
-                (isValidId (getVal (subKids!!1))) && 
+    else if ( (isValidId (getVal (subKids!!1))) && 
                 ( 
                     ((getVal (subKids!!1)) `isNotElem` table) || 
                     ( ((getScope (getVal (subKids!!1)) table) `inScope` (curScope `fromScope` scopeMap)) == False ) 
                 ) 
             )
         then error ("ERROR: SCOPECHECK FAILED: "++(getVal (subKids!!1))++" is not in scope!!!")
-    --SCOPECHECK ERROR FOR RHS IF BOOLEAN LIT MULTIPLE
-    
+    --NEEDS TO BE TESTED!!!: SCOPECHECK ERROR FOR RHS IF CONTAINS AN ID (BoolExpr Multiple and possibly others)
+    else if ( 
+                (containsValidId (getVal (subKids!!1))) && 
+                ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!1)))) ) 
+            ) 
+        then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached, passScopeCheck used instead]"
     --TYPECHECK ERROR FOR BOTH
     else if ( (compareType (getVal (subKids!!0)) (getVal (subKids!!1)) table) == False )
         then error  ("ERROR: TYPECHECK FAILED: "++(getVal (subKids!!0))++" and "++(getVal (subKids!!1))++" are of different types!")
@@ -413,6 +421,81 @@ isValidId :: String -> Bool
 isValidId id = if ( (id == "a") || (id == "b") || (id == "c") || (id == "d") || (id == "e") || (id == "f") || (id == "g") || (id == "h") || (id == "i") || (id == "j") || (id == "k") || (id == "l") || (id == "m") || (id == "n") || (id == "o") || (id == "p") || (id == "q") || (id == "r") || (id == "s") || (id == "t") || (id == "u") || (id == "v") || (id == "w") || (id == "x") || (id == "y") || (id == "z") )
                     then True
                else False
+
+containsValidId :: String -> Bool 
+containsValidId s = if ( (",a," `isInfixOf` s) || 
+                         (",b," `isInfixOf` s) || 
+                         (",c," `isInfixOf` s) || 
+                         (",d," `isInfixOf` s) || 
+                         (",e," `isInfixOf` s) || 
+                         (",f," `isInfixOf` s) || 
+                         (",g," `isInfixOf` s) ||  
+                         (",h," `isInfixOf` s) || 
+                         (",i," `isInfixOf` s) || 
+                         (",j," `isInfixOf` s) || 
+                         (",k," `isInfixOf` s) || 
+                         (",l," `isInfixOf` s) || 
+                         (",m," `isInfixOf` s) || 
+                         (",n," `isInfixOf` s) || 
+                         (",o," `isInfixOf` s) || 
+                         (",p," `isInfixOf` s) || 
+                         (",q," `isInfixOf` s) || 
+                         (",r," `isInfixOf` s) || 
+                         (",s," `isInfixOf` s) || 
+                         (",t," `isInfixOf` s) || 
+                         (",u," `isInfixOf` s) || 
+                         (",v," `isInfixOf` s) || 
+                         (",w," `isInfixOf` s) || 
+                         (",x," `isInfixOf` s) || 
+                         (",y," `isInfixOf` s) || 
+                         (",z," `isInfixOf` s) ) then True 
+                    else False
+
+retrieveValidIds :: String -> [String]
+retrieveValidIds s = retrieveHelp s [] where
+    retrieveHelp s ids =
+        if (not (containsValidId s)) then ids
+        else if (",a," `isInfixOf` s) then retrieveHelp (removeAll ",a," s) (ids++["a"])
+        else if (",b," `isInfixOf` s) then retrieveHelp (removeAll ",b," s) (ids++["b"])
+        else if (",c," `isInfixOf` s) then retrieveHelp (removeAll ",c," s) (ids++["c"])
+        else if (",d," `isInfixOf` s) then retrieveHelp (removeAll ",d," s) (ids++["d"])
+        else if (",e," `isInfixOf` s) then retrieveHelp (removeAll ",e," s) (ids++["e"])
+        else if (",f," `isInfixOf` s) then retrieveHelp (removeAll ",f," s) (ids++["f"])
+        else if (",g," `isInfixOf` s) then retrieveHelp (removeAll ",g," s) (ids++["g"])
+        else if (",h," `isInfixOf` s) then retrieveHelp (removeAll ",h," s) (ids++["h"])
+        else if (",i," `isInfixOf` s) then retrieveHelp (removeAll ",i," s) (ids++["i"])
+        else if (",j," `isInfixOf` s) then retrieveHelp (removeAll ",j," s) (ids++["j"])
+        else if (",k," `isInfixOf` s) then retrieveHelp (removeAll ",k," s) (ids++["k"])
+        else if (",l," `isInfixOf` s) then retrieveHelp (removeAll ",l," s) (ids++["l"])
+        else if (",m," `isInfixOf` s) then retrieveHelp (removeAll ",m," s) (ids++["m"])
+        else if (",n," `isInfixOf` s) then retrieveHelp (removeAll ",n," s) (ids++["n"])
+        else if (",o," `isInfixOf` s) then retrieveHelp (removeAll ",o," s) (ids++["o"])
+        else if (",p," `isInfixOf` s) then retrieveHelp (removeAll ",p," s) (ids++["p"])
+        else if (",q," `isInfixOf` s) then retrieveHelp (removeAll ",q," s) (ids++["q"])
+        else if (",r," `isInfixOf` s) then retrieveHelp (removeAll ",r," s) (ids++["r"])
+        else if (",s," `isInfixOf` s) then retrieveHelp (removeAll ",s," s) (ids++["s"])
+        else if (",t," `isInfixOf` s) then retrieveHelp (removeAll ",t," s) (ids++["t"])
+        else if (",u," `isInfixOf` s) then retrieveHelp (removeAll ",u," s) (ids++["u"])
+        else if (",v," `isInfixOf` s) then retrieveHelp (removeAll ",v," s) (ids++["v"])
+        else if (",w," `isInfixOf` s) then retrieveHelp (removeAll ",w," s) (ids++["w"])
+        else if (",x," `isInfixOf` s) then retrieveHelp (removeAll ",x," s) (ids++["x"])
+        else if (",y," `isInfixOf` s) then retrieveHelp (removeAll ",y," s) (ids++["y"])
+        else if (",z," `isInfixOf` s) then retrieveHelp (removeAll ",z," s) (ids++["z"])
+        else error "retrieveValidIds used or made incorrectly!"
+
+
+removeAll :: String -> String -> String
+removeAll s toReturn = 
+    if (s `isInfixOf` toReturn) 
+        then removeAll s (toReturn\\s)
+    else 
+        toReturn
+
+    
+
+
+
+
 
 --creates a sample table
 testTable :: SymbolTable

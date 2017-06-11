@@ -61,10 +61,56 @@ astLoop :: State -> Tree String
 --BASE CASE: If no tokens are left, return the tree
 astLoop state@(State _ [] _  tr) = tr
 
---EXPR
 
---need to `makeChildren` THREE children!!
---astLoop state@(State i@(Ie e@(BoolExpr expr@(Boolean))) )
+
+--EXPR
+--BooleanExprM
+
+--Both expr1 and expr2 are BooleanExpr Multiples
+
+--expr2 is BooleanExpr Multiple and expr1 is not
+astLoop state@(State i@(Ie e@(BooleanEXPR lit@(BooleanLitM expr1 op expr2@(BooleanEXPR subLit@(BooleanLitM _ _ _))))) ts sl tr) = astLoop
+    ( State (EMPTY) (dropUntilP ts) sl 
+        (tr `makeChildren` [
+                                 (Node (show (takeWhile ((/=(show op)).show) (drop 1 ts))) []),
+                                 (Node (show op) []),
+                                 (astLoop (State 
+                                                (Ie expr2)
+                                                (takeUntilP $ drop 1 $ (dropWhile ((/=(show op)).show) (init ts)))
+                                                []
+                                                (Node "<Boolean Expression>" [])
+                                 ))
+                           ]
+        ) 
+    )
+
+--expr1 is BooleanExpr Multiple and expr2 is not
+astLoop state@(State i@(Ie e@(BooleanEXPR lit@(BooleanLitM expr1@(BooleanEXPR subLit@(BooleanLitM _ _ _)) op expr2))) ts sl tr) = astLoop
+    ( State (EMPTY) (dropUntilP ts) sl 
+        (tr `makeChildren` [
+                                 (astLoop (State 
+                                                (Ie expr1)
+                                                (takeUntilP (drop 1 ts))
+                                                sl
+                                                (Node "<Boolean Expression>" [])
+                                          ) 
+                                 ),
+                                 (Node (show op) []),
+                                 (Node (show ( takeWhile ((/=")").show) $ drop 1 $ dropUntilP $ (drop 1 ts) )) [])
+                           ]
+        ) 
+    )
+
+--neither expr1 or expr2 are BooleanExpr Multiple
+astLoop state@(State i@(Ie e@(BooleanEXPR lit@(BooleanLitM expr1 op expr2))) ts sl tr) = astLoop
+    ( State (EMPTY) (dropUntilP ts) sl 
+        (tr `makeChildren` [
+                                 (Node (show (takeWhile ((/=(show op)).show) (drop 1 ts))) []),
+                                 (Node (show op) []),
+                                 (Node (show ( takeWhile ((/=")").show) ((drop 1) $ (dropWhile ((/=(show op)).show) ts)) )) [])
+                           ]
+        ) 
+    ) 
 
 --STMT
 --VarDecl
@@ -85,7 +131,19 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts [] tr) =
     --if id equal to Boolean Expr Multiple
     else if ((ts!!2) == T_LParen)
         then astLoop ( State (EMPTY) (dropUntilP (drop 2 ts)) []
-                        (tr `makeChild` (Node "<Assign Statement>" [(Node (show id) []), (Node (show (takeUntilP (drop 2 ts))) [])])) )
+                        (tr `makeChild` (Node 
+                                                "<Assign Statement>" 
+                                                ([(Node (show id) [])]++[(astLoop (State 
+                                                                                    (Ie expr)
+                                                                                    (takeUntilP (drop 2 ts))
+                                                                                    []
+                                                                                    (Node "<Boolean Expression>" [])
+                                                                                  ) 
+                                                                        )]
+                                                )                                            
+                                        )
+                        )
+                     )
     --OLD: --if id equal to Boolean Expr Multiple
     --else if ((ts!!2) == T_LParen)
         --then astLoop ( State (EMPTY) (dropUntilP (drop 2 ts)) []
@@ -409,7 +467,7 @@ decideInt a st =
 
 decideString :: String -> SymbolTable -> Bool
 decideString a st = 
-    if ( ((length a) > 1) && (a /= "true") && (a /= "false") && (True `notElem` (map (=='(') a)) ) 
+    if ( ((length a) > 1) && (a /= "true") && (a /= "false") && (True `notElem` (map (=='(') a)) && (True `notElem` (map (=='<') a)) ) 
         then True
     else False
 

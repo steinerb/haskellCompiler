@@ -67,6 +67,26 @@ astLoop state@(State _ [] _  tr) = tr
 --BooleanExprM
 
 --Both expr1 and expr2 are BooleanExpr Multiples
+astLoop state@(State i@(Ie e@(BooleanEXPR lit@(BooleanLitM expr1@(BooleanEXPR subLit1@(BooleanLitM _ _ _)) op expr2@(BooleanEXPR subLit2@(BooleanLitM _ _ _))))) ts sl tr) = astLoop
+    ( State (EMPTY) (dropUntilP ts) sl 
+        (tr `makeChildren` [
+                                 (astLoop (State 
+                                                (Ie expr1)
+                                                (takeUntilP (drop 1 ts))
+                                                []
+                                                (Node "<Boolean Expression>" [])
+                                 )),
+                                 (Node (show op) []),
+                                 (astLoop (State 
+                                                (Ie expr2)
+                                                (takeUntilP $ drop 1 $ dropUntilP $ drop 1 $ (init ts))
+                                                []
+                                                (Node "<Boolean Expression>" [])
+                                 ))
+                           ]
+        )
+    ) 
+
 
 --expr2 is BooleanExpr Multiple and expr1 is not
 astLoop state@(State i@(Ie e@(BooleanEXPR lit@(BooleanLitM expr1 op expr2@(BooleanEXPR subLit@(BooleanLitM _ _ _))))) ts sl tr) = astLoop

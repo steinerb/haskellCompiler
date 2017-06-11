@@ -23,7 +23,10 @@ makeChildren :: Tree String -> Forest String -> Tree String
 makeChildren p@(Node n lst) cs = Node n (lst++cs)
 
 removeQuotes :: Tree String -> Tree String
-removeQuotes tr@(Node val children) = (Node (filter (/='\"') val) (fmap removeQuotes children))
+removeQuotes tr@(Node val children) = 
+    --if ( (val == "<Assign Statement>") && () )
+    --else
+        (Node (filter (/='\"') val) (fmap removeQuotes children))
 
 removeLB :: Tree String -> Tree String
 removeLB tr@(Node val children) = (Node (filter (/='[') val) (fmap removeLB children))
@@ -57,6 +60,8 @@ astLoop :: State -> Tree String
 
 --BASE CASE: If no tokens are left, return the tree
 astLoop state@(State _ [] _  tr) = tr
+
+
 
 --STMT
 --VarDecl
@@ -129,7 +134,7 @@ astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts ((n@(STMTlistNode s)):s
 --                                        (Node (show op) []), 
 --                                        ( Node ( show$drop 1$init (takeUntilP (T_LParen:(drop 1 (dropWhile ((/=(show op)).show) (drop 2 ts))))) ) [] )]),
 -----------------------------------------------
---WhileStatement [ONLY WITH MULTIPLE BOOLEXPR!]
+--WhileStatement
 --LAST STATEMENT w/ MULTIPLE boolExpr
 astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr@(BooleanLitM _ op _) b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts [] tr) = astLoop 
     (State 
@@ -170,7 +175,7 @@ astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistN
     )
 
 --------------------------------------------
---IfStatement [ONLY WITH MULTIPLE BOOLEXPR!]
+--IfStatement
 --LAST STATEMENT w/ MULTIPLE boolExpr
 astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr@(BooleanLitM _ op _) b@(Block ((subN@(STMTlistNode subStmt)):subStmtLst)))))) ts [] tr) = astLoop 
     (State 
@@ -390,7 +395,7 @@ processKids (kid@(Node "<Variable Declaration>" subKids):kids) curScope hiScope 
 processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope scopeMap table = 
     --SCOPECHECK ERROR FOR LHS
     if ( not (passScopeCheck curScope scopeMap table (getVal (subKids!!0))) ) 
-        then error "ERROR: SCOPE FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
+        then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
     --SCOPECHECK ERROR FOR RHS IF ID
     else if ( (isValidId (getVal (subKids!!1))) && 
                 ( 

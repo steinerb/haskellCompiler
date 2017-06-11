@@ -4,6 +4,8 @@ import LanguageData
 import Grammar
 import Data.Tree
 import Data.List
+import Data.Text (splitOn, pack, unpack)
+
 
 --"delete" function in Data.List
 
@@ -230,6 +232,7 @@ validIntSToken t = False
 validIntM :: Token -> Bool
 validIntM t@(T_int c) = True
 validIntM t@(T_intOp) = True
+validIntM t@(T_id s) = True 
 validIntM t = False
 
 takeUntilP :: [Token] -> [Token]
@@ -396,7 +399,7 @@ processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope scop
                 ) 
             )
         then error ("ERROR: SCOPECHECK FAILED: "++(getVal (subKids!!1))++" is not in scope!!!")
-    --NEEDS TO BE TESTED!!!: SCOPECHECK ERROR FOR RHS IF CONTAINS AN ID (BoolExpr Multiple and possibly others)
+    --SCOPECHECK ERROR FOR RHS IF CONTAINS AN ID (BoolExpr Multiple and possibly others)
     else if ( 
                 (containsValidId (getVal (subKids!!1))) && 
                 ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!1)))) ) 
@@ -408,6 +411,9 @@ processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope scop
     --PASSED SCOPECHECK AND TYPECHECK
     else
         processKids kids curScope hiScope scopeMap table
+
+--PrintStatement
+--processKids (kid@(Node "<Print Statement>" subKids):kids) curScope hiScope scopeMap table
 
 
 
@@ -422,68 +428,21 @@ isValidId id = if ( (id == "a") || (id == "b") || (id == "c") || (id == "d") || 
                     then True
                else False
 
-containsValidId :: String -> Bool 
-containsValidId s = if ( (",a," `isInfixOf` s) || 
-                         (",b," `isInfixOf` s) || 
-                         (",c," `isInfixOf` s) || 
-                         (",d," `isInfixOf` s) || 
-                         (",e," `isInfixOf` s) || 
-                         (",f," `isInfixOf` s) || 
-                         (",g," `isInfixOf` s) ||  
-                         (",h," `isInfixOf` s) || 
-                         (",i," `isInfixOf` s) || 
-                         (",j," `isInfixOf` s) || 
-                         (",k," `isInfixOf` s) || 
-                         (",l," `isInfixOf` s) || 
-                         (",m," `isInfixOf` s) || 
-                         (",n," `isInfixOf` s) || 
-                         (",o," `isInfixOf` s) || 
-                         (",p," `isInfixOf` s) || 
-                         (",q," `isInfixOf` s) || 
-                         (",r," `isInfixOf` s) || 
-                         (",s," `isInfixOf` s) || 
-                         (",t," `isInfixOf` s) || 
-                         (",u," `isInfixOf` s) || 
-                         (",v," `isInfixOf` s) || 
-                         (",w," `isInfixOf` s) || 
-                         (",x," `isInfixOf` s) || 
-                         (",y," `isInfixOf` s) || 
-                         (",z," `isInfixOf` s) ) then True 
-                    else False
+
+
+containsValidId :: String -> Bool
+containsValidId s = 
+    if ( True `elem` (map (isValidId.unpack) (splitOn (pack ",") (pack s))) ) then True
+    else False
+
 
 retrieveValidIds :: String -> [String]
-retrieveValidIds s = retrieveHelp s [] where
-    retrieveHelp s ids =
-        if (not (containsValidId s)) then ids
-        else if (",a," `isInfixOf` s) then retrieveHelp (removeAll ",a," s) (ids++["a"])
-        else if (",b," `isInfixOf` s) then retrieveHelp (removeAll ",b," s) (ids++["b"])
-        else if (",c," `isInfixOf` s) then retrieveHelp (removeAll ",c," s) (ids++["c"])
-        else if (",d," `isInfixOf` s) then retrieveHelp (removeAll ",d," s) (ids++["d"])
-        else if (",e," `isInfixOf` s) then retrieveHelp (removeAll ",e," s) (ids++["e"])
-        else if (",f," `isInfixOf` s) then retrieveHelp (removeAll ",f," s) (ids++["f"])
-        else if (",g," `isInfixOf` s) then retrieveHelp (removeAll ",g," s) (ids++["g"])
-        else if (",h," `isInfixOf` s) then retrieveHelp (removeAll ",h," s) (ids++["h"])
-        else if (",i," `isInfixOf` s) then retrieveHelp (removeAll ",i," s) (ids++["i"])
-        else if (",j," `isInfixOf` s) then retrieveHelp (removeAll ",j," s) (ids++["j"])
-        else if (",k," `isInfixOf` s) then retrieveHelp (removeAll ",k," s) (ids++["k"])
-        else if (",l," `isInfixOf` s) then retrieveHelp (removeAll ",l," s) (ids++["l"])
-        else if (",m," `isInfixOf` s) then retrieveHelp (removeAll ",m," s) (ids++["m"])
-        else if (",n," `isInfixOf` s) then retrieveHelp (removeAll ",n," s) (ids++["n"])
-        else if (",o," `isInfixOf` s) then retrieveHelp (removeAll ",o," s) (ids++["o"])
-        else if (",p," `isInfixOf` s) then retrieveHelp (removeAll ",p," s) (ids++["p"])
-        else if (",q," `isInfixOf` s) then retrieveHelp (removeAll ",q," s) (ids++["q"])
-        else if (",r," `isInfixOf` s) then retrieveHelp (removeAll ",r," s) (ids++["r"])
-        else if (",s," `isInfixOf` s) then retrieveHelp (removeAll ",s," s) (ids++["s"])
-        else if (",t," `isInfixOf` s) then retrieveHelp (removeAll ",t," s) (ids++["t"])
-        else if (",u," `isInfixOf` s) then retrieveHelp (removeAll ",u," s) (ids++["u"])
-        else if (",v," `isInfixOf` s) then retrieveHelp (removeAll ",v," s) (ids++["v"])
-        else if (",w," `isInfixOf` s) then retrieveHelp (removeAll ",w," s) (ids++["w"])
-        else if (",x," `isInfixOf` s) then retrieveHelp (removeAll ",x," s) (ids++["x"])
-        else if (",y," `isInfixOf` s) then retrieveHelp (removeAll ",y," s) (ids++["y"])
-        else if (",z," `isInfixOf` s) then retrieveHelp (removeAll ",z," s) (ids++["z"])
-        else error "retrieveValidIds used or made incorrectly!"
+retrieveValidIds s = filter (isValidId) (map (unpack) (splitOn (pack ",") (pack s)))
 
 
+
+
+--for dated code. didn't have the heart to get rid of it.
 removeAll :: String -> String -> String
 removeAll s toReturn = 
     if (s `isInfixOf` toReturn) 

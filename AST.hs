@@ -270,7 +270,7 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr@(BooleanLitM _ op _) b@(Block
     (State 
         (EMPTY) (dropUntilB $ dropUntilP (drop 1 ts)) [] 
         (tr `makeChildren` 
-            [(Node "<If Condition>" [Node (show boolExpr) []]), 
+            [(astLoop (State (Ie (BooleanEXPR boolExpr)) (takeUntilP (drop 1 ts)) [] (Node "<If Boolean Expression>" []))), 
             (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )
@@ -279,7 +279,7 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode
     (State 
         (EMPTY) (dropUntilB $ drop 1 (drop 1 ts)) [] 
         (tr `makeChildren` 
-            [(Node "<If Condition>" [Node (show boolExpr) []]), 
+            [(Node "<If Boolean Expression>" [Node (last (words (show boolExpr))) []]), 
             (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (drop 1 (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )
@@ -289,7 +289,7 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr@(BooleanLitM _ op _) b@(Block
     (State 
         (Is s) (dropUntilB $ dropUntilP (drop 1 ts)) sl 
         (tr `makeChildren` 
-            [(Node "<If Condition>" [Node (show boolExpr) []]), 
+            [(astLoop (State (Ie (BooleanEXPR boolExpr)) (takeUntilP (drop 1 ts)) [] (Node "<If Boolean Expression>" []))), 
             (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )
@@ -299,7 +299,7 @@ astLoop state@(State (i@(Is (stmt@(IfSTMT boolExpr b@(Block ((subN@(STMTlistNode
     (State 
         (Is s) (dropUntilB $ drop 1 (drop 1 ts)) sl 
         (tr `makeChildren` 
-            [(Node "<If Condition>" [Node (show boolExpr) []]), 
+            [(Node "<If Boolean Expression>" [Node (last (words (show boolExpr))) []]), 
             (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (drop 1 (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )

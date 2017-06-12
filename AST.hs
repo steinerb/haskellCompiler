@@ -238,7 +238,7 @@ astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr b@(Block ((subN@(STMTlistN
     (State 
         (EMPTY) (dropUntilB $ drop 1 (drop 1 ts)) [] 
         (tr `makeChildren` 
-            [(Node "<While Condition>" [Node (show boolExpr) []]), 
+            [(Node "<While Boolean Expression>" [Node (last (words (show boolExpr))) []]), 
             (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (drop 1 (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )

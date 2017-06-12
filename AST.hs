@@ -222,14 +222,6 @@ astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts ((n@(STMTlistNode s)):s
                         (tr `makeChild` (Node "<Print Statement>" [(Node (show $ drop 1 $ init $ (takeUntilP (drop 1 ts))) [])])) )
 
 
---attempt 1:
---[(Node "<While Condition>" [(Node (show $ takeWhile ((("="`isInfixOf`).show)) $ drop 1 $ takeUntilP (drop 1 ts)) []), 
---                                                    (Node (show $ head $ drop 1 $ takeUntilP (drop 1 ts)) []), 
---                                                    (Node (show $ head $ drop 1 $ takeUntilP (drop 1 ts)) [])]),
---attempt 3:
---[(Node "<While Condition>" [(Node (show (takeWhile ((/=(show op)).show) (drop 2 ts))) []), 
---                                        (Node (show op) []), 
---                                        ( Node ( show$drop 1$init (takeUntilP (T_LParen:(drop 1 (dropWhile ((/=(show op)).show) (drop 2 ts))))) ) [] )]),
 -----------------------------------------------
 --WhileStatement
 --LAST STATEMENT w/ MULTIPLE boolExpr
@@ -237,7 +229,7 @@ astLoop state@(State (i@(Is (stmt@(WhileSTMT boolExpr@(BooleanLitM _ op _) b@(Bl
     (State 
         (EMPTY) (dropUntilB $ dropUntilP (drop 1 ts)) [] 
         (tr `makeChildren` 
-            [(Node "<While Condition>" [Node (show boolExpr) []]), 
+            [(astLoop (State (Ie (BooleanEXPR boolExpr)) (takeUntilP (drop 1 ts)) [] (Node "<While Boolean Expression>" []))), 
             (astLoop (State (Is subStmt) ((drop 1) $ init $ (takeUntilB $ (dropUntilP (drop 1 ts)))) (subStmtLst) (Node "<BLOCK>" [])))]
         ) 
     )

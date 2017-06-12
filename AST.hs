@@ -212,10 +212,20 @@ astLoop state@(State (i@(Is (stmt@(AssignSTMT id expr)))) ts ((n@(STMTlistNode s
     else error "AssignSTMT falsely identified in astLoop!!!"
 
 --PrintStatement
+--LAST STATEMENT w/ MULTIPLE boolExpr
+astLoop state@(State (i@(Is (stmt@(PrintSTMT expr@(BooleanEXPR lit@(BooleanLitM _ op _)))))) ts [] tr) = astLoop 
+    (State (EMPTY) (dropUntilP (drop 1 ts)) [] 
+                        (tr `makeChild` (Node "<Print Statement>" 
+                            [(astLoop (State (Ie expr) (takeUntilP (drop 2 (init ts))) [] (Node "<Boolean Expression>" [])))])) )
 --LAST STATEMENT
 astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts [] tr) = astLoop 
     (State (EMPTY) (dropUntilP (drop 1 ts)) [] 
                         (tr `makeChild` (Node "<Print Statement>" [(Node (show $ drop 1 $ init $ (takeUntilP (drop 1 ts))) [])])) )
+--STATEMENTS TO GO w/ MULTIPLE boolExpr
+astLoop state@(State (i@(Is (stmt@(PrintSTMT expr@(BooleanEXPR lit@(BooleanLitM _ op _)))))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
+    (State (Is s) (dropUntilP (drop 1 ts)) sl 
+                        (tr `makeChild` (Node "<Print Statement>" 
+                            [(astLoop (State (Ie expr) (init $ tail $ (takeUntilP (drop 1 ts))) [] (Node "<Boolean Expression>" [])))])) )
 --STATEMENTS TO GO
 astLoop state@(State (i@(Is (stmt@(PrintSTMT expr)))) ts ((n@(STMTlistNode s)):sl) tr) = astLoop 
     (State (Is s) (dropUntilP (drop 1 ts)) sl 

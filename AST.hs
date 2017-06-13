@@ -637,63 +637,73 @@ processKids (kid@(Node "<Print Statement>" subKids):kids) curScope hiScope scope
 
 --IfStatement Condition
 processKids (kid@(Node "<If Boolean Expression>" subKids):kids) curScope hiScope scopeMap table = 
-    --SCOPECHECK IF ID'S IN LHS OF COMPARISON
-    if ( 
-            (containsValidId (getVal (subKids!!0))) && 
-            ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!0)))) )
-       ) 
-        then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
-    --SCOPECHECK IF ID'S IN RHS OF COMPARISON
-    else if ( 
-                (containsValidId (getVal (subKids!!2))) && 
-                ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!2)))) )
-            ) 
-        then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
-    --TYPECHECK ERROR: IF ID ISN'T SAME TYPE AS LHS ITSELF [just for IntExpr Multiples at the moment]
-    else if (
-                (containsValidId (getVal (subKids!!0))) &&
-                (False `elem` (map (compareType table (getVal (subKids!!0))) (retrieveValidIds (getVal (subKids!!0)))))
-            )
-        then error ("ERROR: TYPECHECK FAILED: ID isn't of proper type!")
-    --TYPECHECK ERROR: IF ID ISN'T SAME TYPE AS RHS ITSELF [just for IntExpr Multiples at the moment]
-    else if (
-                (containsValidId (getVal (subKids!!2))) &&
-                (False `elem` (map (compareType table (getVal (subKids!!2))) (retrieveValidIds (getVal (subKids!!2)))))
-            )
-        then error ("ERROR: TYPECHECK FAILED: ID isn't of proper type!") 
-    --PASSED SCOPECHECK AND TYPECHECK
+    if (length subKids > 1) then
+    --MULTIPLE
+        --SCOPECHECK IF ID'S IN LHS OF COMPARISON
+        if ( 
+                (containsValidId (getVal (subKids!!0))) && 
+                ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!0)))) )
+           ) 
+            then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
+        --SCOPECHECK IF ID'S IN RHS OF COMPARISON
+        else if ( 
+                    (containsValidId (getVal (subKids!!2))) && 
+                    ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!2)))) )
+                ) 
+            then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
+        --TYPECHECK ERROR: IF ID ISN'T SAME TYPE AS LHS ITSELF [just for IntExpr Multiples at the moment]
+        else if (
+                    (containsValidId (getVal (subKids!!0))) &&
+                    (False `elem` (map (compareType table (getVal (subKids!!0))) (retrieveValidIds (getVal (subKids!!0)))))
+                )
+            then error ("ERROR: TYPECHECK FAILED: ID isn't of proper type!")
+        --TYPECHECK ERROR: IF ID ISN'T SAME TYPE AS RHS ITSELF [just for IntExpr Multiples at the moment]
+        else if (
+                    (containsValidId (getVal (subKids!!2))) &&
+                    (False `elem` (map (compareType table (getVal (subKids!!2))) (retrieveValidIds (getVal (subKids!!2)))))
+                )
+            then error ("ERROR: TYPECHECK FAILED: ID isn't of proper type!") 
+        --PASSED SCOPECHECK AND TYPECHECK
+        else
+            processKids kids curScope hiScope scopeMap table
+    --SINGLE 
     else
-        processKids kids curScope hiScope scopeMap table 
+            processKids kids curScope hiScope scopeMap table
 
 --WhileStatement Condition
 processKids (kid@(Node "<While Boolean Expression>" subKids):kids) curScope hiScope scopeMap table = 
-    --SCOPECHECK IF ID'S IN LHS OF COMPARISON
-    if ( 
-            (containsValidId (getVal (subKids!!0))) && 
-            ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!0)))) )
-       ) 
-        then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
-    --SCOPECHECK IF ID'S IN RHS OF COMPARISON
-    else if ( 
-                (containsValidId (getVal (subKids!!2))) && 
-                ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!2)))) )
-            ) 
-        then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
-    --TYPECHECK ERROR: IF ID ISN'T SAME TYPE AS LHS ITSELF [just for IntExpr Multiples at the moment]
-    else if (
-                (containsValidId (getVal (subKids!!0))) &&
-                (False `elem` (map (compareType table (getVal (subKids!!0))) (retrieveValidIds (getVal (subKids!!0)))))
-            )
-        then error ("ERROR: TYPECHECK FAILED: ID isn't of proper type!")
-    --TYPECHECK ERROR: IF ID ISN'T SAME TYPE AS RHS ITSELF [just for IntExpr Multiples at the moment]
-    else if (
-                (containsValidId (getVal (subKids!!2))) &&
-                (False `elem` (map (compareType table (getVal (subKids!!2))) (retrieveValidIds (getVal (subKids!!2)))))
-            )
-        then error ("ERROR: TYPECHECK FAILED: ID isn't of proper type!") 
-    --PASSED SCOPECHECK AND TYPECHECK
+    if (length subKids > 1) then
+    --MULTIPLE
+        --SCOPECHECK IF ID'S IN LHS OF COMPARISON
+        if ( 
+                (containsValidId (getVal (subKids!!0))) && 
+                ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!0)))) )
+           ) 
+            then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
+        --SCOPECHECK IF ID'S IN RHS OF COMPARISON
+        else if ( 
+                    (containsValidId (getVal (subKids!!2))) && 
+                    ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!2)))) )
+                ) 
+            then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
+        --TYPECHECK ERROR: IF ID ISN'T SAME TYPE AS LHS ITSELF [just for IntExpr Multiples at the moment]
+        else if (
+                    (containsValidId (getVal (subKids!!0))) &&
+                    (False `elem` (map (compareType table (getVal (subKids!!0))) (retrieveValidIds (getVal (subKids!!0)))))
+                )
+            then error ("ERROR: TYPECHECK FAILED: ID isn't of proper type!")
+        --TYPECHECK ERROR: IF ID ISN'T SAME TYPE AS RHS ITSELF [just for IntExpr Multiples at the moment]
+        else if (
+                    (containsValidId (getVal (subKids!!2))) &&
+                    (False `elem` (map (compareType table (getVal (subKids!!2))) (retrieveValidIds (getVal (subKids!!2)))))
+                )
+            then error ("ERROR: TYPECHECK FAILED: ID isn't of proper type!") 
+        --PASSED SCOPECHECK AND TYPECHECK
+        else
+            processKids kids curScope hiScope scopeMap table
+    --SINGLE 
     else
-        processKids kids curScope hiScope scopeMap table  
+            processKids kids curScope hiScope scopeMap table 
 
 --BLOCK
 processKids (kid@(Node "<BLOCK>" subKids):kids) curScope hiScope scopeMap table = 

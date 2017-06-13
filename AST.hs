@@ -696,13 +696,13 @@ processKids (kid@(Node "<While Boolean Expression>" subKids):kids) curScope hiSc
         processKids kids curScope hiScope scopeMap table  
 
 --BLOCK
---processKids (kid@(Node "<BLOCK>" subKids):kids) curScope hiScope scopeMap table = 
---    processKids 
---                kids 
---                curScope 
---                (hiScope+1) 
---                (scopeMap `addChildScope` (SCOPE () []))
---                (processKids subKids (curScope+1) (hiScope+1) scopeMap )
+processKids (kid@(Node "<BLOCK>" subKids):kids) curScope hiScope scopeMap table = 
+    processKids 
+                kids 
+                curScope 
+                (highestScope (makeScopeMap subKids (hiScope+1) (hiScope+1) scopeMap))
+                (makeScopeMap subKids (hiScope+1) (hiScope+1) scopeMap)
+                (processKids subKids (hiScope+1) (hiScope+1) scopeMap table)
 
 
 
@@ -712,15 +712,16 @@ processKids (kid@(Node "<While Boolean Expression>" subKids):kids) curScope hiSc
 processKids _ _ _ _ _ = error "ERROR: Pattern not reached in processKids!!!"
 
 
+--HAS NEVER BEEN TESTED!!!
+--for BLOCKs inside BLOCKs
+makeScopeMap :: Forest String -> Int -> Int -> SCOPE -> SCOPE
+makeScopeMap [] cur hi scopeMap = scopeMap
 
---makeScopeMap :: Forest String -> Int -> Int -> SCOPE -> SCOPE
---makeScopeMap [] cur hi scopeMap = scopeMap
+makeScopeMap (kid@(Node "<BLOCK>" subsubKids):subkids) cur hi scopeMap =
+    makeScopeMap subkids cur (highestScope (scopeMap `addChildScope` (makeScopeMap subsubKids (hi+1) (hi+1) (SCOPE (hi+1) []))))
+    (scopeMap `addChildScope` (makeScopeMap subsubKids (hi+1) (hi+1) (SCOPE (hi+1) [])))
 
---makeScopeMap (kid@(Node "<BLOCK>" subKids):kids) cur hi scopeMap =
---    makeScopeMap kids cur (getHiScope (scopeMap `addChildScope` (makeScopeMap subKids (hi+1) (hi+1) (SCOPE (hi+1) [])))) 
---    (scopeMap `addChildScope` (makeScopeMap subKids (hi+1) (hi+1) (SCOPE (hi+1) [])))
-
---makeScopeMap (kid:kids) cur hi scopeMap = makeScopeMap kids cur hi scopeMap 
+makeScopeMap (subkid:subkids) cur hi scopeMap = makeScopeMap subkids cur hi scopeMap 
 
 
 

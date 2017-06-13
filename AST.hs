@@ -710,7 +710,7 @@ processKids (kid@(Node "<BLOCK>" subKids):kids) curScope hiScope scopeMap table 
     processKids 
                 kids 
                 curScope 
-                (highestScope (makeScopeMap subKids (hiScope+1) (hiScope+1) scopeMap))
+                ((highestScope (makeScopeMap subKids (hiScope+1) (hiScope+1) scopeMap))+1)
                 (makeScopeMap subKids (hiScope+1) (hiScope+1) scopeMap)
                 (processKids subKids (hiScope+1) (hiScope+1) scopeMap table)
 
@@ -730,7 +730,7 @@ makeScopeMap (subkid@(Node "<BLOCK>" subsubKids):subkids) cur hi scopeMap =
     makeScopeMap 
         subkids 
         cur
-        (highestScope (scopeMap `addChildScope` (makeScopeMap subsubKids (hi+1) (hi+1) (SCOPE (hi+1) []))))
+        ((highestScope (scopeMap `addChildScope` (makeScopeMap subsubKids (hi+1) (hi+1) (SCOPE (hi+1) []))))+1)
         (scopeMap `addChildScope` (makeScopeMap subsubKids (hi+1) (hi+1) (SCOPE (hi+1) [])))
 
 makeScopeMap (subkid:subkids) cur hi scopeMap = makeScopeMap subkids cur hi scopeMap 

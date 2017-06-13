@@ -411,7 +411,7 @@ dropUntilBStrLst ss = untilB ss 0
 ----------------------------------------------------------------------------------------------------
 
 --Table Types
-data SymbolTable = SymbolTable [IDRow]          deriving (Eq)
+data SymbolTable = SymbolTable {pullRows :: [IDRow]}          deriving (Eq)
 
 data IDRow = IDRow {pullName :: NAME, pullDType :: DTYPE, pullCurrentScope :: Int}              deriving (Eq)
 
@@ -427,10 +427,33 @@ instance Show SymbolTable where
 instance Show IDRow where
     show row@(IDRow n t@("boolean") s) = ("|"++n++"\t\t|"++t++"\t|"++(show s)++"\t\t|\n")
     show row@(IDRow n t s) = ("|"++n++"\t\t|"++t++"\t\t|"++(show s)++"\t\t|\n")
+
+--Table Helper Functions
+addRow :: SymbolTable -> IDRow -> SymbolTable
+addRow s@(SymbolTable idrows) row = (SymbolTable (idrows++[row]))
+
+isElem :: NAME -> SymbolTable -> Bool
+isElem n st@(SymbolTable rows) = n `elem` (map pullName rows)
+
+isNotElem :: NAME -> SymbolTable -> Bool
+isNotElem n st@(SymbolTable rows) = n `notElem` (map pullName rows)
+
+getRow :: NAME -> SymbolTable -> IDRow
+getRow n st@(SymbolTable rows) = head (filter ((==n).pullName) rows)
+
+getType :: NAME -> SymbolTable -> DTYPE
+getType n st = pullDType (getRow n st)
+
+getScope :: NAME -> SymbolTable -> Int
+getScope n st = pullCurrentScope (getRow n st)
+--PRECONDITION: Symbol Table not empty
+getHiScope :: SymbolTable -> Int
+getHiScope st = maximum (map (pullCurrentScope) (pullRows st))
     
 
 type NAME = String
 type DTYPE = String
+
 
 --Scope Type
 data SCOPE = SCOPE {current :: Int, scopeKids :: [SCOPE]} deriving (Eq, Show)
@@ -451,32 +474,14 @@ fromScope toFind scopeMap@(SCOPE cur kids) = if ( toFind == cur) then scopeMap
 addChildScope :: SCOPE -> SCOPE -> SCOPE
 addChildScope parent@(SCOPE current children) child = SCOPE current (children++[child])
 
+highestScope :: SCOPE -> Int
+highestScope s = highestHelp s 0
 
---hasScope :: SCOPE -> SCOPE -> Bool
---hasScope big@(SCOPE curB [])    _      = False
---hasScope big@(SCOPE curB kidsB) little = if ( (current little) `elem` (map current kidsB) ) then True
---                                    else if ( True `elem` (map (`hasScope` little) kidsB) ) then True
---                                    else    False
-
-
---Table Helper Functions
-addRow :: SymbolTable -> IDRow -> SymbolTable
-addRow s@(SymbolTable idrows) row = (SymbolTable (idrows++[row]))
-
-isElem :: NAME -> SymbolTable -> Bool
-isElem n st@(SymbolTable rows) = n `elem` (map pullName rows)
-
-isNotElem :: NAME -> SymbolTable -> Bool
-isNotElem n st@(SymbolTable rows) = n `notElem` (map pullName rows)
-
-getRow :: NAME -> SymbolTable -> IDRow
-getRow n st@(SymbolTable rows) = head (filter ((==n).pullName) rows)
-
-getType :: NAME -> SymbolTable -> DTYPE
-getType n st = pullDType (getRow n st)
-
-getScope :: NAME -> SymbolTable -> Int
-getScope n st = pullCurrentScope (getRow n st)
+highestHelp :: SCOPE -> Int -> Int
+highestHelp scopeMap@(SCOPE cur kids@([])) hi = if (cur > hi) then cur else hi 
+highestHelp scopeMap@(SCOPE cur kids) hi =      if (cur > hi) then highestHelp scopeMap cur 
+                                                 else highestHelp (fromScope (maximum (map (current) kids)) scopeMap) hi
+                                                
 
 
 --if ((tcbmHelp st tr) == "NOTSAME") then False
@@ -690,10 +695,32 @@ processKids (kid@(Node "<While Boolean Expression>" subKids):kids) curScope hiSc
     else
         processKids kids curScope hiScope scopeMap table  
 
+--BLOCK
+--processKids (kid@(Node "<BLOCK>" subKids):kids) curScope hiScope scopeMap table = 
+--    processKids 
+--                kids 
+--                curScope 
+--                (hiScope+1) 
+--                (scopeMap `addChildScope` (SCOPE () []))
+--                (processKids subKids (curScope+1) (hiScope+1) scopeMap )
+
+
+
+
 
 --PATTERN NOT REACHED
 processKids _ _ _ _ _ = error "ERROR: Pattern not reached in processKids!!!"
-    
+
+
+
+--makeScopeMap :: Forest String -> Int -> Int -> SCOPE -> SCOPE
+--makeScopeMap [] cur hi scopeMap = scopeMap
+
+--makeScopeMap (kid@(Node "<BLOCK>" subKids):kids) cur hi scopeMap =
+--    makeScopeMap kids cur (getHiScope (scopeMap `addChildScope` (makeScopeMap subKids (hi+1) (hi+1) (SCOPE (hi+1) [])))) 
+--    (scopeMap `addChildScope` (makeScopeMap subKids (hi+1) (hi+1) (SCOPE (hi+1) [])))
+
+--makeScopeMap (kid:kids) cur hi scopeMap = makeScopeMap kids cur hi scopeMap 
 
 
 

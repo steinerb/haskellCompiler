@@ -715,21 +715,23 @@ processKids (kid@(Node "<BLOCK>" subKids):kids) curScope hiScope scopeMap table 
                 (processKids subKids (hiScope+1) (hiScope+1) scopeMap table)
 
 
-
+--((highestScope scopeMap)+1)
 
 
 --PATTERN NOT REACHED
 processKids _ _ _ _ _ = error "ERROR: Pattern not reached in processKids!!!"
 
 
---HAS NEVER BEEN TESTED!!!
 --for BLOCKs inside BLOCKs
 makeScopeMap :: Forest String -> Int -> Int -> SCOPE -> SCOPE
 makeScopeMap [] cur hi scopeMap = scopeMap
 
-makeScopeMap (kid@(Node "<BLOCK>" subsubKids):subkids) cur hi scopeMap =
-    makeScopeMap subkids cur (highestScope (scopeMap `addChildScope` (makeScopeMap subsubKids (hi+1) (hi+1) (SCOPE (hi+1) []))))
-    (scopeMap `addChildScope` (makeScopeMap subsubKids (hi+1) (hi+1) (SCOPE (hi+1) [])))
+makeScopeMap (subkid@(Node "<BLOCK>" subsubKids):subkids) cur hi scopeMap =
+    makeScopeMap 
+        subkids 
+        cur
+        (highestScope (scopeMap `addChildScope` (makeScopeMap subsubKids (hi+1) (hi+1) (SCOPE (hi+1) []))))
+        (scopeMap `addChildScope` (makeScopeMap subsubKids (hi+1) (hi+1) (SCOPE (hi+1) [])))
 
 makeScopeMap (subkid:subkids) cur hi scopeMap = makeScopeMap subkids cur hi scopeMap 
 

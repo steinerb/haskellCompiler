@@ -620,7 +620,7 @@ processKids (kid@(Node "<Print Statement>" subKids):kids) curScope hiScope scope
             ( False `elem` (map (passScopeCheck curScope scopeMap table) (retrieveValidIds (getVal (subKids!!0)))) )
        ) 
         then error "ERROR: SCOPECHECK FAILED: [this error won't ever be reached. this is a passScopeCheck example.]"
-    --TYPECHECK ERROR FOR RHS: IF ID IN RHS ISN'T SAME TYPE AS RHS ITSELF [just for IntExpr Multiples at the moment]
+    --TYPECHECK ERROR: IF ID ISN'T SAME TYPE AS EXPR ITSELF [just for IntExpr Multiples at the moment]
     else if (
                 (containsValidId (getVal (subKids!!0))) &&
                 (False `elem` (map (compareType table (getVal (subKids!!0))) (retrieveValidIds (getVal (subKids!!0)))))

@@ -4,6 +4,11 @@ A compiler built in haskell
 INTSALL HASKELL: (linux)
   $ sudo apt install ghc
 
+INSTALL LIBRARIES
+	cabal install
+	cabal install Parsec
+	cabal install Hex
+
 TO COMPILE:
   $ ghc main.hs
   
@@ -11,7 +16,4 @@ TO RUN THE MAIN PROGRAM:
   $ ./main
 
 TO RUN THE TEST OR MAIN PROGRAM:
-  $ ghci main
-  		*Main> test
-  		[OR]
-  		*Main> main
+  new tests will be added soon!

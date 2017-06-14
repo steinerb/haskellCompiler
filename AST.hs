@@ -710,11 +710,12 @@ processKids (kid@(Node "<While Boolean Expression>" subKids):kids) curScope hiSc
             processKids kids curScope hiScope scopeMap table 
 
 --BLOCK
+--IF EVER ERRORS, ADD ONE TO THE THIRD PARAMETER OF processKids ((highestScope...
 processKids (kid@(Node "<BLOCK>" subKids):kids) curScope hiScope scopeMap table = 
     processKids 
                 kids 
                 curScope 
-                ((highestScope (makeScopeMap subKids (hiScope+1) (hiScope+1) scopeMap))+1)
+                ((highestScope (makeScopeMap subKids (hiScope+1) (hiScope+1) scopeMap)))
                 (makeScopeMap subKids (hiScope+1) (hiScope+1) scopeMap)
                 (processKids subKids (hiScope+1) (hiScope+1) scopeMap table)
 

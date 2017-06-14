@@ -465,8 +465,10 @@ inScope littleNum big@(SCOPE curB kidsB) = if ( littleNum == curB )             
                                       else if ( True `elem` (map (inScope littleNum) kidsB) )   then True
                                       else    False
 
---PRECONDITION: toFind `inScope` scopemap == True
+--OPTIONAL PRECONDITION: toFind `inScope` scopemap == True
+--returns scope of -1 if desired scope not found
 fromScope :: Int -> SCOPE -> SCOPE
+fromScope toFind scopeMap@(SCOPE cur []) = if ( toFind == cur) then scopeMap else (SCOPE (-1) []) 
 fromScope toFind scopeMap@(SCOPE cur kids) = if ( toFind == cur) then scopeMap
                                         else if ( (toFind) `elem` (map current kids)  ) then ( head (filter ((==toFind).current) kids) )
                                         else      toFind `fromScope` ( head (filter (inScope toFind) kids) )
@@ -562,10 +564,12 @@ decideString a st =
         then True
     else False
 
+
+--if ( (toCheck `isNotElem` table) || ( ((getScope toCheck table) `inScope` (curScope `fromScope` scopeMap)) == False ) )
 --Scope Checking Function (for when needed)
 passScopeCheck :: Int -> SCOPE -> SymbolTable -> String -> Bool
 passScopeCheck curScope scopeMap table toCheck = 
-    if ( (toCheck `isNotElem` table) || ( ((getScope toCheck table) `inScope` (curScope `fromScope` scopeMap)) == False ) )
+    if ( (toCheck `isNotElem` table) || ( ((current (curScope `fromScope` scopeMap)) /= -1) && (((getScope toCheck table) `inScope` (curScope `fromScope` scopeMap)) == False) ) )
         then error ("ERROR: SCOPECHECK FAILED: "++toCheck++" is not in scope!!!")
     else True
 
@@ -582,7 +586,7 @@ processKids [] _ _ _ table = table
 processKids (kid@(Node "<Variable Declaration>" subKids):kids) curScope hiScope scopeMap table =
     processKids kids curScope hiScope scopeMap (table `addRow` (IDRow (getVal (subKids!!1)) (getVal (subKids!!0)) curScope))
 
---AssignStatement           [checks:    scope, type]
+--AssignStatement
 processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope scopeMap table = 
     --SCOPECHECK ERROR FOR LHS
     if ( not (passScopeCheck curScope scopeMap table (getVal (subKids!!0))) ) 
@@ -591,7 +595,7 @@ processKids (kid@(Node "<Assign Statement>" subKids):kids) curScope hiScope scop
     else if ( (isValidId (getVal (subKids!!1))) && 
                 ( 
                     ((getVal (subKids!!1)) `isNotElem` table) || 
-                    ( ((getScope (getVal (subKids!!1)) table) `inScope` (curScope `fromScope` scopeMap)) == False ) 
+                    ( ((current (curScope `fromScope` scopeMap)) /= -1) && (((getScope (getVal (subKids!!1)) table) `inScope` (curScope `fromScope` scopeMap)) == False) ) 
                 ) 
             )
         then error ("ERROR: SCOPECHECK FAILED: "++(getVal (subKids!!1))++" is not in scope!!!")
@@ -713,9 +717,6 @@ processKids (kid@(Node "<BLOCK>" subKids):kids) curScope hiScope scopeMap table 
                 ((highestScope (makeScopeMap subKids (hiScope+1) (hiScope+1) scopeMap))+1)
                 (makeScopeMap subKids (hiScope+1) (hiScope+1) scopeMap)
                 (processKids subKids (hiScope+1) (hiScope+1) scopeMap table)
-
-
---((highestScope scopeMap)+1)
 
 
 --PATTERN NOT REACHED

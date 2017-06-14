@@ -3,6 +3,7 @@ import Lexer
 import Parser
 import Grammar
 import AST
+import CodeGen
 import Text.Parsec (parse)
 import Control.Monad (join)
 import Data.Either (rights)

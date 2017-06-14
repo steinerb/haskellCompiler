@@ -9,27 +9,37 @@ import Data.Maybe
 
 
 
-
+--Conversion helper functions
+hexToDec :: Hex -> Int
+hexToDec hex = foldl' f 0 hex where
+    f n c = 16*n + hexChar c
 hexChar ch = fromMaybe (error $ "illegal char " ++ [ch]) $ 
     elemIndex ch "0123456789ABCDEF"
 
-hexToDec hex = foldl' f 0 hex where
-    f n c = 16*n + hexChar c
-
+decToHex :: Int -> Hex
 decToHex dec = showIntAtBase 16 intToDigit dec ""
 
+--Types
 type Hex = String
 
-data Address = Adr Hex deriving (Eq)
+type Loc = Hex
+type Val = Hex
+
+data Address = Adr {loc :: Loc, val :: Val} deriving (Eq)
+
+data Register = Reg Val deriving (Eq, Show)
+
+data Memory = Memory {addresses :: [Address], xReg :: Register, yReg :: Register, acc :: Register} deriving (Eq, Show)
 
 instance Show Address where
-    show adr@(Adr str@('$':xs)) = str
-    show adr@(Adr str) = '$':(replicate (4 - (length str)) '0')++str
+    show adr@(Adr str@('$':xs) val) = str++":    "++val
+    show adr@(Adr str val) = '$':(replicate (4 - (length str)) '0')++str++":    "++val
 
 instance Ord Address where
-    compare a@(Adr numA) b@(Adr numB) = compare (hexToDec (drop 1 numA)) (hexToDec (drop 1 numB))
+    compare a@(Adr numA _) b@(Adr numB _) = compare (hexToDec (drop 1 numA)) (hexToDec (drop 1 numB))
 
-data Register = Reg Hex
+getLoc :: Address -> Hex
+getLoc adr@(Adr str _) = (replicate (4 - (length str)) '0')++(loc adr)
 
 
 

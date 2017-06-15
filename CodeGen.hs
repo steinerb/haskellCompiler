@@ -118,7 +118,7 @@ generateCode tree@(Node val kids) = genCode (State kids (drop 1 $ flatten tree) 
 genCode :: State -> String
 
 --BASE CASE: NO ELEMENTS LEFT IN FLATTENED TREE
-genCode state@(State _ [] _ _ toReturn) = toReturn
+genCode state@(State _ [] _ _ toReturn) = toReturn++nop++brk
 
 --VAR DECL
 genCode state@(State (kid@(Node val@("<Variable Declaration>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
@@ -134,8 +134,8 @@ genCode state@(State (kid@(Node val@("<Assign Statement>") subKids):kids) flatTr
     genCode (State (kids)
                    (drop (length (flatten kid)) flatTree)
                    (varlocs)
-                   (snd (cgAssign varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0))
-                   (toReturn++(fst (cgAssign varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0)))
+                   (snd (cgAssign varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0 []))
+                   (toReturn++(fst (cgAssign varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0 [])))
             )
 
 
@@ -143,18 +143,18 @@ genCode state@(State (kid@(Node val@("<Assign Statement>") subKids):kids) flatTr
 --ERROR: pattern not matched
 genCode state = error "Pattern not matched in genCode!!!"
 
-
-cgAssign :: [(Var, Loc)] -> Int -> String -> String -> String -> Int -> (String, Int)
-cgAssign varlocs nol lhs []    rtrn count = (rtrn, nol)
-cgAssign varlocs nol lhs input rtrn count =
+--          varlocs         nol    lhs       input     rtrn      count  dtype
+cgAssign :: [(Var, Loc)] -> Int -> String -> String -> String -> Int -> String -> (String, Int)
+cgAssign varlocs nol lhs []    rtrn count dtype = (rtrn, nol)
+cgAssign varlocs nol lhs (i:is) rtrn count dtype =
     --if an ID
-    if ( (count == 0) && ((length input == 1) && (isValidId input)) ) 
-        then ( ( rtrn++(ldaM (getLoc varlocs input))++(sta (getLoc varlocs lhs)) ), nol )
+    if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
+        then ( ( rtrn++(ldaM (getLoc varlocs (i:is)))++(sta (getLoc varlocs lhs)) ), nol )
+    --if an int literal
+    --else if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then cgInt
+
+
     else error "not yet reached!!!"
-
-    --if only been through the loop multiple times and length = 1
-
-    --if ( (decideType input) == "int") then cgInt
     --where
 
 

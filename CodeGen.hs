@@ -57,8 +57,11 @@ lEndian hex = (drop 2 $ show hex)++" "++(take 2 $ show hex)
 
 
 --Load the accumulator with a constant
-lda :: Hex -> String
-lda hex = " "
+ldaC :: Int -> String
+ldaC const = if (const < 10) then "A9 0"++(show const) else "A9 "++(show const)
+
+ldaM :: Hex -> String
+ldaM hex = "A9 "++(lEndian hex)
 
 
 --Types

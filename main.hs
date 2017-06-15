@@ -143,7 +143,7 @@ lexProgramOUT (t:ts) n = do
 specialZip :: [PROGRAM] -> [[Token]] -> [(PROGRAM, [Token])]
 specialZip ps tss = spzHelp ps tss [] where
     spzHelp [] [] rtrn = rtrn
-    spzHelp (p:ps) (ts:tss) rtrn = spzHelp ps tss ((p,ts):rtrn)
+    spzHelp (p:ps) (ts:tss) rtrn = spzHelp ps tss (rtrn++[(p,ts)])
 
 
 printTreesWithTables :: [(Tree String, SymbolTable)] -> IO ()

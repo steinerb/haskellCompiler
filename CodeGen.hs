@@ -204,7 +204,7 @@ cgPrint varlocs nol [] rtrn count dtype = ( (rtrn++
 cgPrint varlocs nol (i:is) rtrn count dtype =
     --i is an ID and i is first
     if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
-        then ( (rtrn++(ldaM (getLoc varlocs (i:is)))), nol )
+        then cgPrint varlocs nol is (rtrn++(ldaM (getLoc varlocs (i:is)))) (count+1) []
 
     --i is an int literal 
     else if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then 

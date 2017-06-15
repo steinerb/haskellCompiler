@@ -157,10 +157,16 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
             then cgAssign varlocs nol lhs is 
                 (rtrn++(ldaC (digitToInt i))++
                        (sta (getLoc varlocs lhs))) (count+1) "int"
-        --second or more int (need adc)
+        --if second or more int (need adc)
         else if ((count > 0) && (i == '0' || i == '1' || i == '2' || i == '3' || i == '4' || i == '5' || i == '6' || i == '7' || i == '8' || i == '9'))
             then cgAssign varlocs nol lhs is 
                 (rtrn++(ldaC (digitToInt i))++
+                       (adc (getLoc varlocs lhs))++
+                       (sta (getLoc varlocs lhs))) (count+1) "int"
+        --if second or more var (need adc, can't have a first var)
+        else if ((count > 0) && (isValidId (i:[])))
+            then cgAssign varlocs nol lhs is 
+                (rtrn++(ldaM (getLoc varlocs (i:[])))++
                        (adc (getLoc varlocs lhs))++
                        (sta (getLoc varlocs lhs))) (count+1) "int"
         else if (i == '+')

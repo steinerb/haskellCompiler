@@ -7,7 +7,6 @@ INTSALL HASKELL: (linux)
 INSTALL LIBRARIES
 	cabal install
 	cabal install Parsec
-	cabal install Hex
 
 TO COMPILE:
   $ ghc main.hs

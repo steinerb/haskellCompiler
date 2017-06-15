@@ -27,10 +27,10 @@ main = do
     parseProgramsOUT parsablePrograms
     --remove space tokens
     tokensForPrograms <- return$map (filter (/=T_space)) tokensForPrograms
-    --print tokensForPrograms
-    --print (head$rights [(parse programP "Program" (head parsablePrograms))])
+    
+    --treeDataForPrograms <- return (map (getProgram) parsablePrograms)
     treeDataForPrograms <- (getTreeData parsablePrograms [])
-    --print treeDataForPrograms
+    print treeDataForPrograms
 
     putStrLn("\nSEMANTIC ANALYSIS: REACHED!\n\n")
 
@@ -45,9 +45,9 @@ main = do
 
     printTreesWithTables treesWithTables
 
-    outputCode <- return  (map (generateCode) trees)
+    outputCodes <- return  (map (generateCode) trees)
 
-    putStrLn (head outputCode)
+    printCodeForPrograms outputCodes
 
 
     --symbolTableExample <- return (makeTable treeExample)
@@ -57,6 +57,16 @@ main = do
     --putStrLn "Symbol Table:\n"
     --print symbolTableExample
     
+
+
+printCodeForPrograms :: [String] -> IO ()
+printCodeForPrograms cs = printCFPHelp cs 0 where
+    printCFPHelp [] _ = putStrLn ""
+    printCFPHelp (c:cs) n = do
+        putStrLn ("Program "++(show n)++":")
+        putStrLn c
+        putStrLn "\n"
+        printCFPHelp cs (n+1)
 
 
 
@@ -79,13 +89,13 @@ appendEOPs :: [[Token]] -> [[Token]]
 appendEOPs pgmTokens = map (++[T_EOP]) pgmTokens
 
 
-
+--ERROR HERE!!!
 getTreeData :: [String] -> [PROGRAM] -> IO ([PROGRAM])
 getTreeData [] xs = do
     return xs
 getTreeData (p:ps) xs = do
     x <- (getProgram p)
-    getTreeData ps (x:xs)
+    getTreeData ps (xs++[x])
 
 getProgram :: String -> IO (PROGRAM)
 getProgram p = do return$head$rights [(parse programP "Program" p)]

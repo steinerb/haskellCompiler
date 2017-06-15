@@ -138,6 +138,8 @@ genCode state@(State (kid@(Node val@("<Assign Statement>") subKids):kids) flatTr
                    (toReturn++(fst (cgAssign varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0 [])))
             )
 
+--PRINT STATEMENT
+
 
 
 --ERROR: pattern not matched
@@ -174,7 +176,8 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
         else if (i == ',')
             then cgAssign varlocs nol lhs is rtrn (count+1) dtype
         else error "not yet reached!!! (but reached int)"
-
+    --if string literal
+    --else if ( (dtype == "int") || ((decideType (i:is)) == "int") )
 
     else error "not yet reached!!!"
     --where

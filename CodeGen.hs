@@ -52,7 +52,8 @@ toInt int = read (show int) :: Int
 
 --Hex Formatting helper functions
 --little-endian
---lEndian :: Hex -> String
+lEndian :: Hex -> String
+lEndian hex = (drop 2 $ show hex)++" "++(take 2 $ show hex)
 
 
 --Load the accumulator with a constant

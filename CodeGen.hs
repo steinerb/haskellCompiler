@@ -5,7 +5,7 @@ import LanguageData
 import Grammar
 import Data.List
 import Numeric (showHex, showIntAtBase)
-import Data.Char (intToDigit, toUpper)
+import Data.Char (intToDigit, toUpper, digitToInt)
 import Data.Maybe
 import Data.Tree
 import Data.Text (splitOn, pack, unpack)
@@ -57,7 +57,7 @@ lEndian hex = (drop 2 $ show hex)++" "++(take 2 $ show hex)++" "
 
 --Load the accumulator with a constant
 ldaC :: Int -> String
-ldaC const = if (const < 10) then "A9 0"++(show const) else "A9 "++(show const)
+ldaC const = if (const < 10) then "A9 0"++(show const)++" " else "A9 "++(show const)++" "
 --Load the accumulator from memory 
 ldaM :: Hex -> String
 ldaM hex = "AD "++(lEndian hex)
@@ -69,13 +69,13 @@ adc :: Hex -> String
 adc hex = "6D "++(lEndian hex)
 --Load the x register with a constant
 ldxC :: Int -> String
-ldxC const = if (const < 10) then "A2 0"++(show const) else "A2 "++(show const)
+ldxC const = if (const < 10) then "A2 0"++(show const)++" " else "A2 "++(show const)++" "
 --Load the x register from memory 
 ldxM :: Hex -> String
 ldxM hex = "AE "++(lEndian hex)
 --Load the y register with a constant
 ldyC :: Int -> String
-ldyC const = if (const < 10) then "A0 0"++(show const) else "A0 "++(show const)
+ldyC const = if (const < 10) then "A0 0"++(show const)++" " else "A0 "++(show const)++" "
 --Load the y register from memory 
 ldyM :: Hex -> String
 ldyM hex = "AC "++(lEndian hex)
@@ -151,7 +151,10 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
     if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
         then ( ( rtrn++(ldaM (getLoc varlocs (i:is)))++(sta (getLoc varlocs lhs)) ), nol )
     --if an int literal
-    --else if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then cgInt
+    else if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then
+        if ((count == 0) && (i == '0' || i == '1' || i == '2' || i == '3' || i == '4' || i == '5' || i == '6' || i == '7' || i == '8' || i == '9'))
+            then cgAssign varlocs (nol+1) lhs is (rtrn++(ldaC (digitToInt i))++(sta (Hex nol))) (count+1) "int"
+        else error "not yet reached!!! (but reached int)"
 
 
     else error "not yet reached!!!"
@@ -191,3 +194,7 @@ getLoc varlocs var = snd $ head (filter ((==var).fst) varlocs)
 
 strToInt :: String -> Int
 strToInt str = read str :: Int
+
+charToInt :: Char -> Int
+charToInt chr = strToInt ("\""++[chr]++"\"")
+

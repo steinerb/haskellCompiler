@@ -152,8 +152,21 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
         then ( ( rtrn++(ldaM (getLoc varlocs (i:is)))++(sta (getLoc varlocs lhs)) ), nol )
     --if an int literal
     else if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then
+        --if first int (no adc)
         if ((count == 0) && (i == '0' || i == '1' || i == '2' || i == '3' || i == '4' || i == '5' || i == '6' || i == '7' || i == '8' || i == '9'))
-            then cgAssign varlocs (nol+1) lhs is (rtrn++(ldaC (digitToInt i))++(sta (Hex nol))) (count+1) "int"
+            then cgAssign varlocs nol lhs is 
+                (rtrn++(ldaC (digitToInt i))++
+                       (sta (getLoc varlocs lhs))) (count+1) "int"
+        --second or more int (need adc)
+        else if ((count > 0) && (i == '0' || i == '1' || i == '2' || i == '3' || i == '4' || i == '5' || i == '6' || i == '7' || i == '8' || i == '9'))
+            then cgAssign varlocs nol lhs is 
+                (rtrn++(ldaC (digitToInt i))++
+                       (adc (getLoc varlocs lhs))++
+                       (sta (getLoc varlocs lhs))) (count+1) "int"
+        else if (i == '+')
+            then cgAssign varlocs nol lhs is rtrn (count+1) "int"
+        else if (i == ',')
+            then cgAssign varlocs nol lhs is rtrn (count+1) dtype
         else error "not yet reached!!! (but reached int)"
 
 

@@ -96,7 +96,7 @@ inc :: Hex -> String
 inc hex = "EE "++(lEndian hex)
 --System Call
 sys :: String
-sys = "FF"
+sys = "FF "
 --Constant #$01 in X reg = print integer in Y reg
 --Constant #$02 in X reg = print the 00-terminated string stored at address in Y reg.
 
@@ -108,9 +108,9 @@ type Var = String
 type Loc = Hex
 
 
---Start
 
 
+-----------------------------CODE GEN-----------------------------
 
 generateCode :: Tree String -> String
 generateCode tree@(Node val kids) = genCode (State kids (drop 1 $ flatten tree) [] 0 [])
@@ -118,7 +118,9 @@ generateCode tree@(Node val kids) = genCode (State kids (drop 1 $ flatten tree) 
 genCode :: State -> String
 
 --BASE CASE: NO ELEMENTS LEFT IN FLATTENED TREE
-genCode state@(State _ [] _ _ toReturn) = toReturn++nop++brk
+genCode state@(State _ [] _ _ toReturn) =  if (((last $ words $ toReturn)) /= "FF") then (toReturn++sys++brk)
+                                           else (toReturn++brk)
+
 
 --VAR DECL
 genCode state@(State (kid@(Node val@("<Variable Declaration>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
@@ -139,15 +141,21 @@ genCode state@(State (kid@(Node val@("<Assign Statement>") subKids):kids) flatTr
             )
 
 --PRINT STATEMENT
-
+genCode state@(State (kid@(Node val@("<Print Statement>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
+    genCode (State (kids)
+                   (drop (length (flatten kid)) flatTree)
+                   (varlocs)
+                   (snd (cgPrint varlocs nextOpenLoc (flatTree!!1) [] 0 []))
+                   (toReturn++(fst (cgPrint varlocs nextOpenLoc (flatTree!!1) [] 0 [])))
+            )
 
 
 --ERROR: pattern not matched
 genCode state = error "Pattern not matched in genCode!!!"
 
---          varlocs         nol    lhs       input     rtrn      count  dtype
+--          varlocs         nol    lhs       input     rtrn      count  dtype     OUTPUT
 cgAssign :: [(Var, Loc)] -> Int -> String -> String -> String -> Int -> String -> (String, Int)
-cgAssign varlocs nol lhs []    rtrn count dtype = (rtrn, nol)
+cgAssign varlocs nol lhs []     rtrn count dtype = (rtrn, nol)
 cgAssign varlocs nol lhs (i:is) rtrn count dtype =
     --if an ID
     if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
@@ -171,19 +179,58 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
                 (rtrn++(ldaM (getLoc varlocs (i:[])))++
                        (adc (getLoc varlocs lhs))++
                        (sta (getLoc varlocs lhs))) (count+1) "int"
+        --other
         else if (i == '+')
             then cgAssign varlocs nol lhs is rtrn (count+1) "int"
         else if (i == ',')
             then cgAssign varlocs nol lhs is rtrn (count+1) dtype
-        else error "not yet reached!!! (but reached int)"
+        else error "not yet reached!!! (but reached int in assign)"
+
     --if string literal
-    --else if ( (dtype == "int") || ((decideType (i:is)) == "int") )
+    --else if ( (dtype == "string") || ((decideType (i:is)) == "string") )
+
 
     else error "not yet reached!!!"
     --where
 
+--         varlocs         nol    input     rtrn      count  dtype     OUTPUT
+cgPrint :: [(Var, Loc)] -> Int -> String -> String -> Int -> String -> (String, Int)
+cgPrint varlocs nol [] rtrn count dtype = ( (rtrn++
+                                            (sta (Hex nol))++
+                                            (ldyM (Hex nol))++
+                                            (ldxC 1)++
+                                            sys), (nol+1) ) 
+cgPrint varlocs nol (i:is) rtrn count dtype =
+    --i is an ID and i is first
+    --if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
+    --    then ( rtrn++(ldaM (getLoc varlocs (i:is))) )
 
+    --i is an int literal 
+    if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then 
+        --i is a first int
+        if ((count == 0) && (iIsInt i))
+            then cgPrint varlocs nol is
+                            (rtrn++(ldaC (digitToInt i)))       (count+1) "int"
+        --i is a second or more int
+        else if ((count > 0) && (iIsInt i)) 
+            then cgPrint varlocs nol is
+                            (rtrn++(ldaC (digitToInt i)))       (count+1) "int"
+        --i is a second or more var
+        else if ((count > 0) && (isValidId (i:[])))
+            then cgPrint varlocs nol is
+                            (rtrn++(ldaM (getLoc varlocs (i:[])))++
+                                    (adc (getLoc varlocs (i:[]))))      (count+1) "int"
 
+        --other
+        else if (i == '+')
+            then cgPrint varlocs nol is rtrn (count+1) "int"
+        else if (i == ',')
+            then cgPrint varlocs nol is rtrn (count+1) dtype
+        else error "not yet reached!!! (but reached int in assign)"
+
+    else error "not yet reached!!!"
+    where
+        iIsInt i = if (i == '0' || i == '1' || i == '2' || i == '3' || i == '4' || i == '5' || i == '6' || i == '7' || i == '8' || i == '9') then True else False
 
 
 

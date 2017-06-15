@@ -1,15 +1,17 @@
 module CodeGen where
 
-import AST
+import AST hiding (State)
+import LanguageData
+import Grammar
 import Data.List
-import Data.Hex (hex, unhex)
 import Numeric (showHex, showIntAtBase)
 import Data.Char (intToDigit)
 import Data.Maybe
+import Data.Tree
+import Data.Text (splitOn, pack, unpack)
 
 
-testMemory :: Memory
-testMemory = (Memory [(Adr "12" "1"), (Adr "12" "ZZ")] (Reg "ZZ") (Reg "ZZ") (Reg "ZZ"))
+type Hex = String
 
 --Conversion helper functions
 hexToDec :: Hex -> Int
@@ -21,13 +23,19 @@ hexChar ch = fromMaybe (error $ "illegal char " ++ [ch]) $
 decToHex :: Int -> Hex
 decToHex dec = showIntAtBase 16 intToDigit dec ""
 
-type Hex = String
+
+--Types
+data State = State (Tree String) [(Var, Loc)] Int String deriving (Eq, Show)
+type Var = Char
+type Loc = String
+
+
+--Start
 
 
 
-
-
-
+generateCode :: State -> String
+generateCode tr = undefined
 
 
 

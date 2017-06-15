@@ -50,8 +50,8 @@ data State = State Input [Token] [STMTlist] (Tree String)
 --------------------------------AST CREATION FUNCTION AND HELPERS----------------------------------
 
 
-makeAST :: PROGRAM -> [Token] -> Tree String
-makeAST p@(Program b@(Block ((n@(STMTlistNode stmt)):stmtLst))) ts = 
+makeAST :: (PROGRAM, [Token]) -> Tree String
+makeAST (p@(Program b@(Block ((n@(STMTlistNode stmt)):stmtLst))),ts) = 
     astLoop (State (Is stmt) ((drop 1) $ init $ init ts) (stmtLst) (Node "<BLOCK>" []))
 
 --Initial Input in State is a STMT, BLOCK #0 disected in makeAST

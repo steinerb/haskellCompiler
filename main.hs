@@ -36,18 +36,43 @@ main = do
 
     putStrLn("AST-------------------------------------------------------------------\n")
 
-    treeExample <- return (removeLB $ removeRB $ removeQuotes (makeAST (head treeDataForPrograms) (head tokensForPrograms)))
-    symbolTableExample <- return (makeTable treeExample)
+    --treeExample <- return (removeLB $ removeRB $ removeQuotes (makeAST (head treeDataForPrograms) (head tokensForPrograms)))
+
+    trees <- return ( map (removeLB.removeRB.removeQuotes) (map (makeAST) (specialZip treeDataForPrograms tokensForPrograms)) )
+
+    tables <- return (map (makeTable) trees)
+
+    treesWithTables <- return (zip trees tables)
+
+    printTreesWithTables treesWithTables
+
+    --symbolTableExample <- return (makeTable treeExample)
     
+    --putStrLn "\nTree:\n"
+    --putStrLn $ drawTree treeExample
+    --putStrLn "Symbol Table:\n"
+    --print symbolTableExample
+    
+printTreesWithTables :: [(Tree String, SymbolTable)] -> IO ()
+printTreesWithTables [] = putStrLn "\nStarting Code Generation..."
+printTreesWithTables (x@(tr, st):xs) = do
     putStrLn "\nTree:\n"
-    putStrLn $ drawTree treeExample
+    putStrLn $ drawTree tr
     putStrLn "Symbol Table:\n"
-    print symbolTableExample
-    
+    print st
+    putStrLn "\n"
+    printTreesWithTables xs
+
+
+
 
  
-    
-    
+specialZip :: [PROGRAM] -> [[Token]] -> [(PROGRAM, [Token])]
+specialZip ps tss = spzHelp ps tss [] where
+    spzHelp [] [] rtrn = rtrn
+    spzHelp (p:ps) (ts:tss) rtrn = spzHelp ps tss ((p,ts):rtrn)
+
+
 
 
 --first printed text

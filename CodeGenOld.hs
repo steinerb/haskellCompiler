@@ -1,3 +1,13 @@
+import AST
+import Data.List
+import Data.Hex (hex, unhex)
+import Numeric (showHex, showIntAtBase)
+import Data.Char (intToDigit)
+import Data.Maybe
+
+testMemory :: Memory
+testMemory = (Memory [(Adr "12" "1"), (Adr "12" "ZZ")] (Reg "ZZ") (Reg "ZZ") (Reg "ZZ"))
+
 --Types
 
 

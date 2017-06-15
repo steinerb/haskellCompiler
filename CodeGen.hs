@@ -122,6 +122,7 @@ genCode state@(State _ [] _ _ toReturn) =  if (((last $ words $ toReturn)) /= "F
                                            else (toReturn++brk)
 
 
+
 --VAR DECL
 genCode state@(State (kid@(Node val@("<Variable Declaration>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
     genCode (State (kids) 
@@ -202,11 +203,11 @@ cgPrint varlocs nol [] rtrn count dtype = ( (rtrn++
                                             sys), (nol+1) ) 
 cgPrint varlocs nol (i:is) rtrn count dtype =
     --i is an ID and i is first
-    --if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
-    --    then ( rtrn++(ldaM (getLoc varlocs (i:is))) )
+    if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
+        then ( (rtrn++(ldaM (getLoc varlocs (i:is)))), nol )
 
     --i is an int literal 
-    if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then 
+    else if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then 
         --i is a first int
         if ((count == 0) && (iIsInt i))
             then cgPrint varlocs nol is
@@ -214,12 +215,13 @@ cgPrint varlocs nol (i:is) rtrn count dtype =
         --i is a second or more int
         else if ((count > 0) && (iIsInt i)) 
             then cgPrint varlocs nol is
-                            (rtrn++(ldaC (digitToInt i)))       (count+1) "int"
+                            (rtrn++(adc $ Hex $ digitToInt i))       (count+1) "int"
         --i is a second or more var
         else if ((count > 0) && (isValidId (i:[])))
-            then cgPrint varlocs nol is
-                            (rtrn++(ldaM (getLoc varlocs (i:[])))++
-                                    (adc (getLoc varlocs (i:[]))))      (count+1) "int"
+            then cgPrint varlocs (nol+1) is
+                             (rtrn++(sta (Hex nol))++
+                                    (ldaM (getLoc varlocs (i:[])))++
+                                    (adc (Hex nol)))      (count+1) "int"
 
         --other
         else if (i == '+')

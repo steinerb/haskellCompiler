@@ -20,6 +20,8 @@ instance Show Hex where
          (replicate (4 - (length (decToHexStr $ strToInt $ (strInt)))) '0')++(decToHexStr $ strToInt $ (strInt))
         where strInt = show innerInt
 
+--instance Read Hex where
+--    read hex = 
 
 --Conversion helper functions
 hexStrToDec :: String -> Int
@@ -32,7 +34,7 @@ decToHexStr :: Int -> String
 decToHexStr dec = map (toUpper) (showIntAtBase 16 intToDigit dec "")
 
 decToHex :: Int -> Hex
-decToHex dec = (Hex (strToInt (showIntAtBase 16 intToDigit dec "")) )
+decToHex dec = Hex dec
 
 
 

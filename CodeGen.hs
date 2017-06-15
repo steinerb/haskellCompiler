@@ -55,13 +55,31 @@ toInt int = read (show int) :: Int
 lEndian :: Hex -> String
 lEndian hex = (drop 2 $ show hex)++" "++(take 2 $ show hex)
 
-
 --Load the accumulator with a constant
 ldaC :: Int -> String
 ldaC const = if (const < 10) then "A9 0"++(show const) else "A9 "++(show const)
-
+--Load the accumulator from memory 
 ldaM :: Hex -> String
-ldaM hex = "A9 "++(lEndian hex)
+ldaM hex = "AD "++(lEndian hex)
+--Store the accumulator in memory
+sta :: Hex -> String
+sta hex = "8D "++(lEndian hex)
+--Add with carry ( Adds contents of an address to the contents of the accumulator and keeps the result in the accumulator)
+adc :: Hex -> String
+adc hex = "6D "++(lEndian hex)
+--Load the x register with a constant
+ldxC :: Int -> String
+ldaC const = if (const < 10) then "A2 0"++(show const) else "A2 "++(show const)
+--Load the x register from memory 
+ldxM :: Hex -> String
+ldaM hex = "AE "++(lEndian hex)
+--Load the y register with a constant
+ldyC :: Int -> String
+ldaC const = if (const < 10) then "A0 0"++(show const) else "A0 "++(show const)
+--Load the y register from memory 
+ldyM :: Hex -> String
+ldaM hex = "AC "++(lEndian hex)
+
 
 
 --Types

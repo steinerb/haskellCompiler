@@ -53,7 +53,7 @@ toInt int = read (show int) :: Int
 --Hex Formatting helper functions
 --little-endian
 lEndian :: Hex -> String
-lEndian hex = (drop 2 $ show hex)++" "++(take 2 $ show hex)
+lEndian hex = (drop 2 $ show hex)++" "++(take 2 $ show hex)++" "
 
 --Load the accumulator with a constant
 ldaC :: Int -> String
@@ -97,13 +97,15 @@ inc hex = "EE "++(lEndian hex)
 --System Call
 sys :: String
 sys = "FF"
+--Constant #$01 in X reg = print integer in Y reg
+--Constant #$02 in X reg = print the 00-terminated string stored at address in Y reg.
 
 
 
 --Types
 data State = State (Forest String) [String] [(Var, Loc)] Int String deriving (Eq, Show)
 type Var = String
-type Loc = Int
+type Loc = Hex
 
 
 --Start
@@ -122,7 +124,7 @@ genCode state@(State _ [] _ _ toReturn) = toReturn
 genCode state@(State (kid@(Node val@("<Variable Declaration>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
     genCode (State (kids) 
                    (drop (length (flatten kid)) flatTree) 
-                   (varlocs++[((getVal (subKids!!1)), nextOpenLoc)]) 
+                   (varlocs++[((getVal (subKids!!1)), (decToHex nextOpenLoc))]) 
                    (nextOpenLoc+1) 
                    toReturn
             )
@@ -132,23 +134,23 @@ genCode state@(State (kid@(Node val@("<Assign Statement>") subKids):kids) flatTr
     genCode (State (kids)
                    (drop (length (flatten kid)) flatTree)
                    (varlocs)
-                   (snd (cgAssign varlocs nextOpenLoc (flatTree!!2) [] 0))
-                   (toReturn++(fst (cgAssign varlocs nextOpenLoc (flatTree!!2) [] 0)))
+                   (snd (cgAssign varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0))
+                   (toReturn++(fst (cgAssign varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0)))
             )
 
 
 
 --ERROR: pattern not matched
-
 genCode state = error "Pattern not matched in genCode!!!"
 
 
-cgAssign :: [(Var, Loc)] -> Int -> String -> String -> Int -> (String, Int)
-cgAssign varlocs nol [] rtrn count = (rtrn, nol)
-cgAssign varlocs nol input rtrn count = undefined
-    --if only been through the loop once and length = 1
---    if ( (count == 0) && ((length input == 1) && (isValidId input)) ) 
---        then (rtrn++()      ,...)
+cgAssign :: [(Var, Loc)] -> Int -> String -> String -> String -> Int -> (String, Int)
+cgAssign varlocs nol lhs []    rtrn count = (rtrn, nol)
+cgAssign varlocs nol lhs input rtrn count =
+    --if an ID
+    if ( (count == 0) && ((length input == 1) && (isValidId input)) ) 
+        then ( ( rtrn++(ldaM (getLoc varlocs input))++(sta (getLoc varlocs lhs)) ), nol )
+    else error "not yet reached!!!"
 
     --if only been through the loop multiple times and length = 1
 

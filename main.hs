@@ -39,12 +39,16 @@ main = do
     --treeExample <- return (removeLB $ removeRB $ removeQuotes (makeAST (head treeDataForPrograms) (head tokensForPrograms)))
 
     trees <- return ( map (removeLB.removeRB.removeQuotes) (map (makeAST) (specialZip treeDataForPrograms tokensForPrograms)) )
-
     tables <- return (map (makeTable) trees)
 
     treesWithTables <- return (zip trees tables)
 
     printTreesWithTables treesWithTables
+
+    outputCode <- return  (map (generateCode) trees)
+
+    putStrLn (head outputCode)
+
 
     --symbolTableExample <- return (makeTable treeExample)
     
@@ -53,24 +57,7 @@ main = do
     --putStrLn "Symbol Table:\n"
     --print symbolTableExample
     
-printTreesWithTables :: [(Tree String, SymbolTable)] -> IO ()
-printTreesWithTables [] = putStrLn "\nStarting Code Generation..."
-printTreesWithTables (x@(tr, st):xs) = do
-    putStrLn "\nTree:\n"
-    putStrLn $ drawTree tr
-    putStrLn "Symbol Table:\n"
-    print st
-    putStrLn "\n"
-    printTreesWithTables xs
 
-
-
-
- 
-specialZip :: [PROGRAM] -> [[Token]] -> [(PROGRAM, [Token])]
-specialZip ps tss = spzHelp ps tss [] where
-    spzHelp [] [] rtrn = rtrn
-    spzHelp (p:ps) (ts:tss) rtrn = spzHelp ps tss ((p,ts):rtrn)
 
 
 
@@ -143,8 +130,23 @@ lexProgramOUT (t:ts) n = do
     (lexProgramOUT ts (n+1))
 
 
+specialZip :: [PROGRAM] -> [[Token]] -> [(PROGRAM, [Token])]
+specialZip ps tss = spzHelp ps tss [] where
+    spzHelp [] [] rtrn = rtrn
+    spzHelp (p:ps) (ts:tss) rtrn = spzHelp ps tss ((p,ts):rtrn)
 
 
+printTreesWithTables :: [(Tree String, SymbolTable)] -> IO ()
+printTreesWithTables [] = putStrLn "Starting Code Generation...\n"
+printTreesWithTables (x@(tr, st):xs) = do
+    putStrLn "\nTree:\n"
+    putStrLn $ drawTree tr
+    putStrLn "Symbol Table:\n"
+    print st
+    putStrLn "\n"
+    printTreesWithTables xs
+
+ 
 
 
 --alternative test function ran through gchi. (lexer only)

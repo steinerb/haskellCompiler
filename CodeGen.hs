@@ -69,16 +69,34 @@ adc :: Hex -> String
 adc hex = "6D "++(lEndian hex)
 --Load the x register with a constant
 ldxC :: Int -> String
-ldaC const = if (const < 10) then "A2 0"++(show const) else "A2 "++(show const)
+ldxC const = if (const < 10) then "A2 0"++(show const) else "A2 "++(show const)
 --Load the x register from memory 
 ldxM :: Hex -> String
-ldaM hex = "AE "++(lEndian hex)
+ldxM hex = "AE "++(lEndian hex)
 --Load the y register with a constant
 ldyC :: Int -> String
-ldaC const = if (const < 10) then "A0 0"++(show const) else "A0 "++(show const)
+ldyC const = if (const < 10) then "A0 0"++(show const) else "A0 "++(show const)
 --Load the y register from memory 
 ldyM :: Hex -> String
-ldaM hex = "AC "++(lEndian hex)
+ldyM hex = "AC "++(lEndian hex)
+--No Operation
+nop :: String
+nop = "EA "
+--Break (which is really a system call)
+brk :: String
+brk = "00 "
+--Compare a byte in memory to the X reg. Set the Z (zero) flag if equal
+cpx :: Hex -> String
+cpx hex = "EC "++(lEndian hex)
+--Branch nbytes if Z flag = 0
+bne :: Hex -> String
+bne hex = "D0 "++(take 2 (lEndian hex))
+--Increment the value of a byte    
+inc :: Hex -> String
+inc hex = "EE "++(lEndian hex)
+--System Call
+sys :: String
+sys = "FF"
 
 
 

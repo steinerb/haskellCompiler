@@ -215,22 +215,11 @@ cgAssign st varlocs nol lhs (i:is) rtrn count dtype =
         else if (i == ',')
             then cgAssign st varlocs nol lhs is rtrn (count+1) dtype
         else error "not yet reached!!! (but reached int in assign)"
-
     --if string literal
     else if ( (dtype == "string") || ((decideType (i:is)) == "string") ) then
-        if (count == 0) then
-            cgAssign st varlocs (nol+1) lhs is
-                    (rtrn++
-                    (ldaC (Hex nol))++
-                    (sta (getLoc varlocs lhs))++
-                    (ldaC (charToHex i))++
-                    (sta (Hex nol)))          (count+1) "string"
-
-        else
-            cgAssign st varlocs (nol+1) lhs is 
-                    (rtrn++
-                    (ldaC (charToHex i))++
-                    (sta (Hex nol)))          (count+1) "string"
+        ((rtrn++(storeWordAt (i:is) (Hex nol) [])++
+                (ldaC (Hex nol))++
+                (sta (getLoc varlocs lhs))), (nol+(length (i:is))))
     --if boolean literal
     else if ( (dtype == "boolean") || ((decideType (i:is)) == "boolean") ) then
         --if (i:is) true
@@ -246,7 +235,6 @@ cgAssign st varlocs nol lhs (i:is) rtrn count dtype =
         --condition for booleanExpr Mults HERE!!!
         --else if
         else error "not yet reached!!! (but reached boolean in assign)"
-
     else error "not yet reached!!!"
     --where
 
@@ -276,11 +264,12 @@ cgPrint st varlocs nol (i:is) rtrn count dtype =
         if((getType (i:is) st) == "int")  
             then cgPrint st varlocs nol is (rtrn++(ldaM (getLoc varlocs (i:is)))) (count+1) "int"
         --id is string
-        --else if ((getType (i:is) st) == "string")
-        --    then cgPrint st varlocs (nol) [] (rtrn++
-        --                                     (ldyM (getLoc varlocs (i:is)))++
-        --                                     (ldxC (Hex 2))++
-        --                                     sys) (count+1) "string"
+        else if ((getType (i:is) st) == "string")
+            then cgPrint st varlocs (nol) [] (rtrn++
+                                             (ldyM (getLoc varlocs (i:is)))++
+                                             (ldxC (Hex 2))++
+                                             sys) (count+1) "string"
+
         --id is boolean (check if 0 or 1 using op codes) (always nol+6 incase false)
         else if ((getType (i:is) st) == "boolean") 
             then cgPrint st varlocs (nol) [] (rtrn++

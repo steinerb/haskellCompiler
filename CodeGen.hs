@@ -57,7 +57,9 @@ lEndian hex = (drop 2 $ show hex)++" "++(take 2 $ show hex)++" "
 
 --Load the accumulator with a constant
 ldaC :: Hex -> String
-ldaC hex@(Hex x) = if (x < 10) then "A9 0"++(dropWhile (=='0') (show hex))++" " else "A9 "++(dropWhile (=='0') (show hex))++" "
+ldaC hex@(Hex x) = if (x==0) then "A9 00 "
+                   else if (x < 10) then "A9 0"++(dropWhile (=='0') (show hex))++" "
+                   else "A9 "++(dropWhile (=='0') (show hex))++" "
 --Load the accumulator from memory 
 ldaM :: Hex -> String
 ldaM hex = "AD "++(lEndian hex)
@@ -69,13 +71,17 @@ adc :: Hex -> String
 adc hex = "6D "++(lEndian hex)
 --Load the x register with a constant
 ldxC :: Hex -> String
-ldxC hex@(Hex x) = if (x < 10) then "A2 0"++(dropWhile (=='0') (show hex))++" " else "A2 "++(dropWhile (=='0') (show hex))++" "
+ldxC hex@(Hex x) = if (x==0) then "A2 00 "  
+                   else if (x < 10) then "A2 0"++(dropWhile (=='0') (show hex))++" "
+                   else "A2 "++(dropWhile (=='0') (show hex))++" "
 --Load the x register from memory 
 ldxM :: Hex -> String
 ldxM hex = "AE "++(lEndian hex)
 --Load the y register with a constant
 ldyC :: Hex -> String
-ldyC hex@(Hex x) = if (x < 10) then "A0 0"++(dropWhile (=='0') (show hex))++" " else "A0 "++(dropWhile (=='0') (show hex))++" "
+ldyC hex@(Hex x) = if (x==0) then "A0 00 "
+                   else if (x < 10) then "A0 0"++(dropWhile (=='0') (show hex))++" " 
+                   else "A0 "++(dropWhile (=='0') (show hex))++" "
 --Load the y register from memory 
 ldyM :: Hex -> String
 ldyM hex = "AC "++(lEndian hex)
@@ -102,19 +108,19 @@ sys = "FF "
 
 --uses 5 addresses => (nol+5)
 storeTrueAt :: Hex -> String
-storeTrueAt start = ((ldaC 60)++(sta start)++
-                     (ldaC 58)++(sta (start+1))++
-                     (ldaC 61)++(sta (start+2))++
-                     (ldaC 45)++(sta (start+3))++
-                     (ldaC 00)++(sta (start+4)))
+storeTrueAt start = ((ldaC (Hex 84))++(sta start)++
+                     (ldaC (Hex 82))++(sta (start+1))++
+                     (ldaC (Hex 85))++(sta (start+2))++
+                     (ldaC (Hex 69))++(sta (start+3))++
+                     (ldaC (Hex 00))++(sta (start+4)))
 --uses 6 addresses => (nol+6)
 storeFalseAt :: Hex -> String
-storeFalseAt start = ((ldaC 46)++(sta start)++
-                      (ldaC 41)++(sta (start+1))++
-                      (ldaC 52)++(sta (start+2))++
-                      (ldaC 59)++(sta (start+3))++
-                      (ldaC 45)++(sta (start+4))++
-                      (ldaC 00)++(sta (start+5)))
+storeFalseAt start = ((ldaC (Hex 46))++(sta start)++
+                      (ldaC (Hex 41))++(sta (start+1))++
+                      (ldaC (Hex 52))++(sta (start+2))++
+                      (ldaC (Hex 59))++(sta (start+3))++
+                      (ldaC (Hex 45))++(sta (start+4))++
+                      (ldaC (Hex 00))++(sta (start+5)))
 
 
 --Types
@@ -244,14 +250,16 @@ cgPrint st varlocs nol [] rtrn count dtype =
 
 cgPrint st varlocs nol (i:is) rtrn count dtype =
     --i is an ID and i is first
-    --if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) then 
-        --id is Int
-        --if  
-        
-        --then cgPrint varlocs nol is (rtrn++(ldaM (getLoc varlocs (i:is)))) (count+1) []
-
+    if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) then 
+        --id is int
+        if((getType (i:is) st) == "int")  
+            then cgPrint st varlocs nol is (rtrn++(ldaM (getLoc varlocs (i:is)))) (count+1) "int"
+        --id is boolean
+        --else if ((getType (i:is) st) == "boolean")
+            --then cgPrint st varlocs nol 
+        else error "not yet reached!!! (but reached id in assign)"
     --i is an int literal 
-    if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then 
+    else if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then 
         --i is a first int
         if ((count == 0) && (iIsInt i))
             then cgPrint st varlocs nol is
@@ -280,7 +288,7 @@ cgPrint st varlocs nol (i:is) rtrn count dtype =
         --(i:is) is true
         if ((i:is) == "true")
             then cgPrint st varlocs (nol+5) [] 
-                            (rtrn++(storeTrueAt (Hex nol))++(ldyM (Hex nol))++(ldxC (Hex 2))++sys) (count+1) "boolean"
+                            (rtrn++(storeTrueAt (Hex nol))++(ldyC (Hex nol))++(ldxC (Hex 2))++sys) (count+1) "boolean"
         --(i:is) is false
         else error "not yet reached!!! (but reached boolean in assign)"
 

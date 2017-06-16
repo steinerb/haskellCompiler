@@ -56,8 +56,8 @@ lEndian :: Hex -> String
 lEndian hex = (drop 2 $ show hex)++" "++(take 2 $ show hex)++" "
 
 --Load the accumulator with a constant
-ldaC :: Int -> String
-ldaC const = if (const < 10) then "A9 0"++(show const)++" " else "A9 "++(show const)++" "
+ldaC :: Hex -> String
+ldaC hex@(Hex x) = if (x < 10) then "A9 0"++(dropWhile (=='0') (show hex))++" " else "A9 "++(dropWhile (=='0') (show hex))++" "
 --Load the accumulator from memory 
 ldaM :: Hex -> String
 ldaM hex = "AD "++(lEndian hex)
@@ -68,14 +68,14 @@ sta hex = "8D "++(lEndian hex)
 adc :: Hex -> String
 adc hex = "6D "++(lEndian hex)
 --Load the x register with a constant
-ldxC :: Int -> String
-ldxC const = if (const < 10) then "A2 0"++(show const)++" " else "A2 "++(show const)++" "
+ldxC :: Hex -> String
+ldxC hex@(Hex x) = if (x < 10) then "A2 0"++(dropWhile (=='0') (show hex))++" " else "A2 "++(dropWhile (=='0') (show hex))++" "
 --Load the x register from memory 
 ldxM :: Hex -> String
 ldxM hex = "AE "++(lEndian hex)
 --Load the y register with a constant
-ldyC :: Int -> String
-ldyC const = if (const < 10) then "A0 0"++(show const)++" " else "A0 "++(show const)++" "
+ldyC :: Hex -> String
+ldyC hex@(Hex x) = if (x < 10) then "A0 0"++(dropWhile (=='0') (show hex))++" " else "A0 "++(dropWhile (=='0') (show hex))++" "
 --Load the y register from memory 
 ldyM :: Hex -> String
 ldyM hex = "AC "++(lEndian hex)
@@ -118,7 +118,7 @@ storeFalseAt start = ((ldaC 46)++(sta start)++
 
 
 --Types
-data State = State (Forest String) [String] [(Var, Loc)] Int String deriving (Eq, Show)
+data State = State SymbolTable (Forest String) [String] [(Var, Loc)] Int String deriving (Eq, Show)
 type Var = String
 type Loc = Hex
 
@@ -127,20 +127,21 @@ type Loc = Hex
 
 -----------------------------CODE GEN-----------------------------
 
-generateCode :: Tree String -> String
-generateCode tree@(Node val kids) = genCode (State kids (drop 1 $ flatten tree) [] 0 [])
+generateCode :: (SymbolTable, Tree String) -> String
+generateCode (st, tree@(Node val kids)) = genCode (State st kids (drop 1 $ flatten tree) [] 0 [])
 
 genCode :: State -> String
 
 --BASE CASE: NO ELEMENTS LEFT IN FLATTENED TREE
-genCode state@(State _ [] _ _ toReturn) =  if (((last $ words $ toReturn)) /= "FF") then (toReturn++sys++brk)
+genCode state@(State _ _ [] _ _ toReturn) =  if (((last $ words $ toReturn)) /= "FF") then (toReturn++sys++brk)
                                            else (toReturn++brk)
 
 
 
 --VAR DECL
-genCode state@(State (kid@(Node val@("<Variable Declaration>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
-    genCode (State (kids) 
+genCode state@(State st (kid@(Node val@("<Variable Declaration>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
+    genCode (State st
+                   (kids) 
                    (drop (length (flatten kid)) flatTree) 
                    (varlocs++[((getVal (subKids!!1)), (decToHex nextOpenLoc))]) 
                    (nextOpenLoc+1) 
@@ -148,31 +149,33 @@ genCode state@(State (kid@(Node val@("<Variable Declaration>") subKids):kids) fl
             )
 
 --ASSIGN STATEMENT
-genCode state@(State (kid@(Node val@("<Assign Statement>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
-    genCode (State (kids)
+genCode state@(State st (kid@(Node val@("<Assign Statement>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
+    genCode (State st
+                   (kids)
                    (drop (length (flatten kid)) flatTree)
                    (varlocs)
-                   (snd (cgAssign varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0 []))
-                   (toReturn++(fst (cgAssign varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0 [])))
+                   (snd (cgAssign st varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0 []))
+                   (toReturn++(fst (cgAssign st varlocs nextOpenLoc (flatTree!!1) (flatTree!!2) [] 0 [])))
             )
 
 --PRINT STATEMENT
-genCode state@(State (kid@(Node val@("<Print Statement>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
-    genCode (State (kids)
+genCode state@(State st (kid@(Node val@("<Print Statement>") subKids):kids) flatTree varlocs nextOpenLoc toReturn) = 
+    genCode (State st
+                   (kids)
                    (drop (length (flatten kid)) flatTree)
                    (varlocs)
-                   (snd (cgPrint varlocs nextOpenLoc (flatTree!!1) [] 0 []))
-                   (toReturn++(fst (cgPrint varlocs nextOpenLoc (flatTree!!1) [] 0 [])))
+                   (snd (cgPrint st varlocs nextOpenLoc (flatTree!!1) [] 0 []))
+                   (toReturn++(fst (cgPrint st varlocs nextOpenLoc (flatTree!!1) [] 0 [])))
             )
 
 
 --ERROR: pattern not matched
 genCode state = error "Pattern not matched in genCode!!!"
 
---          varlocs         nol    lhs       input     rtrn      count  dtype     OUTPUT
-cgAssign :: [(Var, Loc)] -> Int -> String -> String -> String -> Int -> String -> (String, Int)
-cgAssign varlocs nol lhs []     rtrn count dtype = (rtrn, nol)
-cgAssign varlocs nol lhs (i:is) rtrn count dtype =
+--          st             varlocs         nol    lhs       input     rtrn      count  dtype     OUTPUT
+cgAssign :: SymbolTable -> [(Var, Loc)] -> Int -> String -> String -> String -> Int -> String -> (String, Int)
+cgAssign st varlocs nol lhs []     rtrn count dtype = (rtrn, nol)
+cgAssign st varlocs nol lhs (i:is) rtrn count dtype =
     --if an ID
     if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
         then ( ( rtrn++(ldaM (getLoc varlocs (i:is)))++(sta (getLoc varlocs lhs)) ), nol )
@@ -180,26 +183,26 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
     else if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then
         --if first int (no adc)
         if ((count == 0) && (i == '0' || i == '1' || i == '2' || i == '3' || i == '4' || i == '5' || i == '6' || i == '7' || i == '8' || i == '9'))
-            then cgAssign varlocs nol lhs is 
-                (rtrn++(ldaC (digitToInt i))++
+            then cgAssign st varlocs nol lhs is 
+                (rtrn++(ldaC (Hex (digitToInt i)))++
                        (sta (getLoc varlocs lhs))) (count+1) "int"
         --if second or more int (need adc)
         else if ((count > 0) && (i == '0' || i == '1' || i == '2' || i == '3' || i == '4' || i == '5' || i == '6' || i == '7' || i == '8' || i == '9'))
-            then cgAssign varlocs nol lhs is 
-                (rtrn++(ldaC (digitToInt i))++
+            then cgAssign st varlocs nol lhs is 
+                (rtrn++(ldaC (Hex (digitToInt i)))++
                        (adc (getLoc varlocs lhs))++
                        (sta (getLoc varlocs lhs))) (count+1) "int"
         --if second or more var (need adc, can't have a first var)
         else if ((count > 0) && (isValidId (i:[])))
-            then cgAssign varlocs nol lhs is 
+            then cgAssign st varlocs nol lhs is 
                 (rtrn++(ldaM (getLoc varlocs (i:[])))++
                        (adc (getLoc varlocs lhs))++
                        (sta (getLoc varlocs lhs))) (count+1) "int"
         --other
         else if (i == '+')
-            then cgAssign varlocs nol lhs is rtrn (count+1) "int"
+            then cgAssign st varlocs nol lhs is rtrn (count+1) "int"
         else if (i == ',')
-            then cgAssign varlocs nol lhs is rtrn (count+1) dtype
+            then cgAssign st varlocs nol lhs is rtrn (count+1) dtype
         else error "not yet reached!!! (but reached int in assign)"
 
     --if string literal
@@ -209,10 +212,10 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
     else if ( (dtype == "boolean") || ((decideType (i:is)) == "boolean") ) then
         --if (i:is) true
         if ((i:is) == "true") 
-            then ((rtrn++(ldaC 1)++(sta (getLoc varlocs lhs))), nol)
+            then ((rtrn++(ldaC (Hex 1))++(sta (getLoc varlocs lhs))), nol)
         --if (i:is) false
         else if ((i:is) == "false") 
-            then ((rtrn++(ldaC 0)++(sta (getLoc varlocs lhs))), nol)
+            then ((rtrn++(ldaC (Hex 0))++(sta (getLoc varlocs lhs))), nol)
         --condition for booleanExpr Mults HERE!!!
         --else if
         else error "not yet reached!!! (but reached boolean in assign)"
@@ -220,16 +223,16 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
     else error "not yet reached!!!"
     --where
 
---         varlocs         nol    input     rtrn      count  dtype     OUTPUT
-cgPrint :: [(Var, Loc)] -> Int -> String -> String -> Int -> String -> (String, Int)
+--         st             varlocs         nol    input     rtrn      count  dtype     OUTPUT
+cgPrint :: SymbolTable -> [(Var, Loc)] -> Int -> String -> String -> Int -> String -> (String, Int)
 --BASE CASE: always reached, unlike cgAssign's ID condition
-cgPrint varlocs nol [] rtrn count dtype = 
+cgPrint st varlocs nol [] rtrn count dtype = 
     
     if (dtype == "int") then
         ( (rtrn++
         (sta (Hex nol))++
         (ldyM (Hex nol))++
-        (ldxC 1)++
+        (ldxC (Hex 1))++
         sys), (nol+1) )
     --else if (dtype == "string")
 
@@ -239,32 +242,35 @@ cgPrint varlocs nol [] rtrn count dtype =
 
     --else error "cgPrint pattern not reached!!!"
 
-cgPrint varlocs nol (i:is) rtrn count dtype =
+cgPrint st varlocs nol (i:is) rtrn count dtype =
     --i is an ID and i is first
-    if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
-        then cgPrint varlocs nol is (rtrn++(ldaM (getLoc varlocs (i:is)))) (count+1) []
+    --if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) then 
+        --id is Int
+        --if  
+        
+        --then cgPrint varlocs nol is (rtrn++(ldaM (getLoc varlocs (i:is)))) (count+1) []
 
     --i is an int literal 
-    else if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then 
+    if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then 
         --i is a first int
         if ((count == 0) && (iIsInt i))
-            then cgPrint varlocs nol is
-                            (rtrn++(ldaC (digitToInt i)))       (count+1) "int"
+            then cgPrint st varlocs nol is
+                            (rtrn++(ldaC (Hex (digitToInt i))))       (count+1) "int"
         --i is a second or more int
         else if ((count > 0) && (iIsInt i)) 
-            then cgPrint varlocs nol is
+            then cgPrint st varlocs nol is
                             (rtrn++(adc $ Hex $ digitToInt i))       (count+1) "int"
         --i is a second or more var
         else if ((count > 0) && (isValidId (i:[])))
-            then cgPrint varlocs (nol+1) is
+            then cgPrint st varlocs (nol+1) is
                              (rtrn++(sta (Hex nol))++
                                     (ldaM (getLoc varlocs (i:[])))++
                                     (adc (Hex nol)))      (count+1) "int"
         --other
         else if (i == '+')
-            then cgPrint varlocs nol is rtrn (count+1) "int"
+            then cgPrint st varlocs nol is rtrn (count+1) "int"
         else if (i == ',')
-            then cgPrint varlocs nol is rtrn (count+1) dtype
+            then cgPrint st varlocs nol is rtrn (count+1) dtype
         else error "not yet reached!!! (but reached int in assign)"
     --i is a string literal
     --[string literal condition goes here!!!]
@@ -273,8 +279,8 @@ cgPrint varlocs nol (i:is) rtrn count dtype =
     else if ( (dtype == "boolean") || ((decideType (i:is)) == "boolean") ) then
         --(i:is) is true
         if ((i:is) == "true")
-            then cgPrint varlocs (nol+5) [] 
-                            (rtrn++(storeTrueAt (Hex nol))++(ldyM (Hex nol))++(ldxC 2)++sys) (count+1) "boolean"
+            then cgPrint st varlocs (nol+5) [] 
+                            (rtrn++(storeTrueAt (Hex nol))++(ldyM (Hex nol))++(ldxC (Hex 2))++sys) (count+1) "boolean"
         --(i:is) is false
         else error "not yet reached!!! (but reached boolean in assign)"
 

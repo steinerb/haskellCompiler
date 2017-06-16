@@ -45,7 +45,7 @@ main = do
 
     printTreesWithTables treesWithTables
 
-    outputCodes <- return  (map (generateCode) trees)
+    outputCodes <- return  (map (generateCode) (zip tables trees))
 
     printCodeForPrograms outputCodes
 

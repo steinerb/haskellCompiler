@@ -100,6 +100,21 @@ sys = "FF "
 --Constant #$01 in X reg = print integer in Y reg
 --Constant #$02 in X reg = print the 00-terminated string stored at address in Y reg.
 
+--uses 5 addresses => (nol+5)
+storeTrueAt :: Hex -> String
+storeTrueAt start = ((ldaC 60)++(sta start)++
+                     (ldaC 58)++(sta (start+1))++
+                     (ldaC 61)++(sta (start+2))++
+                     (ldaC 45)++(sta (start+3))++
+                     (ldaC 00)++(sta (start+4)))
+--uses 6 addresses => (nol+6)
+storeFalseAt :: Hex -> String
+storeFalseAt start = ((ldaC 46)++(sta start)++
+                      (ldaC 41)++(sta (start+1))++
+                      (ldaC 52)++(sta (start+2))++
+                      (ldaC 59)++(sta (start+3))++
+                      (ldaC 45)++(sta (start+4))++
+                      (ldaC 00)++(sta (start+5)))
 
 
 --Types
@@ -188,14 +203,26 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
         else error "not yet reached!!! (but reached int in assign)"
 
     --if string literal
-    --else if ( (dtype == "string") || ((decideType (i:is)) == "string") )
+    --else if ( (dtype == "string") || ((decideType (i:is)) == "string") ) then
 
+    --if boolean literal
+    else if ( (dtype == "boolean") || ((decideType (i:is)) == "boolean") ) then
+         --if true
+        if ((i:is) == "true") 
+            then ((rtrn++(ldaC 1)++(sta (getLoc varlocs lhs))), nol)
+        --if false
+        else if ((i:is) == "false") 
+            then ((rtrn++(ldaC 0)++(sta (getLoc varlocs lhs))), nol)
+        --condition for booleanExpr Mults HERE!!!
+        --else if
+        else error "not yet reached!!! (but reached boolean in assign)"
 
     else error "not yet reached!!!"
     --where
 
 --         varlocs         nol    input     rtrn      count  dtype     OUTPUT
 cgPrint :: [(Var, Loc)] -> Int -> String -> String -> Int -> String -> (String, Int)
+--BASE CASE: always reached, unlike cgAssign's ID condition
 cgPrint varlocs nol [] rtrn count dtype = ( (rtrn++
                                             (sta (Hex nol))++
                                             (ldyM (Hex nol))++

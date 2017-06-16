@@ -115,11 +115,11 @@ storeTrueAt start = ((ldaC (Hex 84))++(sta start)++
                      (ldaC (Hex 00))++(sta (start+4)))
 --uses 6 addresses => (nol+6)
 storeFalseAt :: Hex -> String
-storeFalseAt start = ((ldaC (Hex 46))++(sta start)++
-                      (ldaC (Hex 41))++(sta (start+1))++
-                      (ldaC (Hex 52))++(sta (start+2))++
-                      (ldaC (Hex 59))++(sta (start+3))++
-                      (ldaC (Hex 45))++(sta (start+4))++
+storeFalseAt start = ((ldaC (Hex 70))++(sta start)++
+                      (ldaC (Hex 65))++(sta (start+1))++
+                      (ldaC (Hex 76))++(sta (start+2))++
+                      (ldaC (Hex 83))++(sta (start+3))++
+                      (ldaC (Hex 69))++(sta (start+4))++
                       (ldaC (Hex 00))++(sta (start+5)))
 
 
@@ -290,6 +290,11 @@ cgPrint st varlocs nol (i:is) rtrn count dtype =
             then cgPrint st varlocs (nol+5) [] 
                             (rtrn++(storeTrueAt (Hex nol))++(ldyC (Hex nol))++(ldxC (Hex 2))++sys) (count+1) "boolean"
         --(i:is) is false
+        else if ((i:is) == "false")
+            then cgPrint st varlocs (nol+6) [] 
+                            (rtrn++(storeFalseAt (Hex nol))++(ldyC (Hex nol))++(ldxC (Hex 2))++sys) (count+1) "boolean"
+        --(i:is) is boolExp Mult [CONDITION GOES HERE]
+        --
         else error "not yet reached!!! (but reached boolean in assign)"
 
     else error "not yet reached!!!"

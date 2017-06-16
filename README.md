@@ -13,6 +13,3 @@ TO COMPILE:
   
 TO RUN THE MAIN PROGRAM:
   $ ./main
-
-TO RUN THE TEST OR MAIN PROGRAM:
-  new tests will be added soon!

@@ -22,21 +22,14 @@ main = do
     putStrLn "\nLEXER: BEGIN\n" 
     lexProgramsOUT tokensForPrograms
     
-    --print (parsablePrograms)
     putStrLn "\nPARSER: BEGIN\n" 
     parseProgramsOUT parsablePrograms
     --remove space tokens
     tokensForPrograms <- return$map (filter (/=T_space)) tokensForPrograms
     
-    --treeDataForPrograms <- return (map (getProgram) parsablePrograms)
     treeDataForPrograms <- (getTreeData parsablePrograms [])
-    print treeDataForPrograms
 
-    putStrLn("\nSEMANTIC ANALYSIS: REACHED!\n\n")
-
-    putStrLn("AST-------------------------------------------------------------------\n")
-
-    --treeExample <- return (removeLB $ removeRB $ removeQuotes (makeAST (head treeDataForPrograms) (head tokensForPrograms)))
+    putStrLn("\nSEMANTIC ANALYSIS: REACHED!")
 
     trees <- return ( map (removeLB.removeRB.removeQuotes) (map (makeAST) (specialZip treeDataForPrograms tokensForPrograms)) )
     tables <- return (map (makeTable) trees)
@@ -149,7 +142,7 @@ specialZip ps tss = spzHelp ps tss [] where
 printTreesWithTables :: [(Tree String, SymbolTable)] -> IO ()
 printTreesWithTables [] = putStrLn "Starting Code Generation...\n"
 printTreesWithTables (x@(tr, st):xs) = do
-    putStrLn "\nTree:\n"
+    putStrLn "\nAST:\n"
     putStrLn $ drawTree tr
     putStrLn "Symbol Table:\n"
     print st

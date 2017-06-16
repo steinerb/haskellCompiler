@@ -179,8 +179,14 @@ genCode state@(State st (kid@(Node val@("<Print Statement>") subKids):kids) flat
             )
 
 
+
 --ERROR: pattern not matched
 genCode state = error "Pattern not matched in genCode!!!"
+
+--      st             varlocs         nol    cond        block       rtrn      count  dtype     OUTPUT
+--cgIf :: SymbolTable -> [(Var, Loc)] -> Int -> [String] -> [String] -> String -> Int -> String -> (String, Int)
+
+
 
 --          st             varlocs         nol    lhs       input     rtrn      count  dtype     OUTPUT
 cgAssign :: SymbolTable -> [(Var, Loc)] -> Int -> String -> String -> String -> Int -> String -> (String, Int)

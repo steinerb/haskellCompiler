@@ -218,10 +218,14 @@ cgAssign st varlocs nol lhs (i:is) rtrn count dtype =
     else if ( (dtype == "boolean") || ((decideType (i:is)) == "boolean") ) then
         --if (i:is) true
         if ((i:is) == "true") 
-            then ((rtrn++(ldaC (Hex 1))++(sta (getLoc varlocs lhs))), nol)
+            then ((rtrn++(storeTrueAt (Hex nol))++
+                         (ldaC (Hex nol))++
+                         (sta (getLoc varlocs lhs))), (nol+5))
         --if (i:is) false
         else if ((i:is) == "false") 
-            then ((rtrn++(ldaC (Hex 0))++(sta (getLoc varlocs lhs))), nol)
+            then ((rtrn++(storeFalseAt (Hex nol))++
+                         (ldaC (Hex nol))++
+                         (sta (getLoc varlocs lhs))), (nol+6))
         --condition for booleanExpr Mults HERE!!!
         --else if
         else error "not yet reached!!! (but reached boolean in assign)"
@@ -254,9 +258,14 @@ cgPrint st varlocs nol (i:is) rtrn count dtype =
         --id is int
         if((getType (i:is) st) == "int")  
             then cgPrint st varlocs nol is (rtrn++(ldaM (getLoc varlocs (i:is)))) (count+1) "int"
-        --id is boolean
-        --else if ((getType (i:is) st) == "boolean")
-            --then cgPrint st varlocs nol 
+        --id is boolean (check if 0 or 1 using op codes) (always nol+6 incase false)
+        else if ((getType (i:is) st) == "boolean") 
+            then cgPrint st varlocs (nol) [] (rtrn++
+                                             (ldyM (getLoc varlocs (i:is)))++
+                                             (ldxC (Hex 2))++
+                                             sys) (count+1) "boolean"
+            
+
         else error "not yet reached!!! (but reached id in assign)"
     --i is an int literal 
     else if ( (dtype == "int") || ((decideType (i:is)) == "int") ) then 
@@ -288,7 +297,7 @@ cgPrint st varlocs nol (i:is) rtrn count dtype =
         --(i:is) is true
         if ((i:is) == "true")
             then cgPrint st varlocs (nol+5) [] 
-                            (rtrn++(storeTrueAt (Hex nol))++(ldyC (Hex nol))++(ldxC (Hex 2))++sys) (count+1) "boolean"
+                            (rtrn++(storeTrueAt  (Hex nol))++(ldyC (Hex nol))++(ldxC (Hex 2))++sys) (count+1) "boolean"
         --(i:is) is false
         else if ((i:is) == "false")
             then cgPrint st varlocs (nol+6) [] 

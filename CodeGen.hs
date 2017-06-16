@@ -249,9 +249,6 @@ cgPrint st varlocs nol [] rtrn count dtype =
         (ldyM (Hex nol))++
         (ldxC (Hex 1))++
         sys), (nol+1) )
-    --else if (dtype == "string")
-
-    --if (dtype == "boolean") then
     else 
         (rtrn, nol)
 

@@ -207,10 +207,10 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
 
     --if boolean literal
     else if ( (dtype == "boolean") || ((decideType (i:is)) == "boolean") ) then
-         --if true
+        --if (i:is) true
         if ((i:is) == "true") 
             then ((rtrn++(ldaC 1)++(sta (getLoc varlocs lhs))), nol)
-        --if false
+        --if (i:is) false
         else if ((i:is) == "false") 
             then ((rtrn++(ldaC 0)++(sta (getLoc varlocs lhs))), nol)
         --condition for booleanExpr Mults HERE!!!
@@ -223,11 +223,22 @@ cgAssign varlocs nol lhs (i:is) rtrn count dtype =
 --         varlocs         nol    input     rtrn      count  dtype     OUTPUT
 cgPrint :: [(Var, Loc)] -> Int -> String -> String -> Int -> String -> (String, Int)
 --BASE CASE: always reached, unlike cgAssign's ID condition
-cgPrint varlocs nol [] rtrn count dtype = ( (rtrn++
-                                            (sta (Hex nol))++
-                                            (ldyM (Hex nol))++
-                                            (ldxC 1)++
-                                            sys), (nol+1) ) 
+cgPrint varlocs nol [] rtrn count dtype = 
+    
+    if (dtype == "int") then
+        ( (rtrn++
+        (sta (Hex nol))++
+        (ldyM (Hex nol))++
+        (ldxC 1)++
+        sys), (nol+1) )
+    --else if (dtype == "string")
+
+    --if (dtype == "boolean") then
+    else 
+        (rtrn, nol)
+
+    --else error "cgPrint pattern not reached!!!"
+
 cgPrint varlocs nol (i:is) rtrn count dtype =
     --i is an ID and i is first
     if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
@@ -249,13 +260,23 @@ cgPrint varlocs nol (i:is) rtrn count dtype =
                              (rtrn++(sta (Hex nol))++
                                     (ldaM (getLoc varlocs (i:[])))++
                                     (adc (Hex nol)))      (count+1) "int"
-
         --other
         else if (i == '+')
             then cgPrint varlocs nol is rtrn (count+1) "int"
         else if (i == ',')
             then cgPrint varlocs nol is rtrn (count+1) dtype
         else error "not yet reached!!! (but reached int in assign)"
+    --i is a string literal
+    --[string literal condition goes here!!!]
+
+    --i is a boolean literal
+    else if ( (dtype == "boolean") || ((decideType (i:is)) == "boolean") ) then
+        --(i:is) is true
+        if ((i:is) == "true")
+            then cgPrint varlocs (nol+5) [] 
+                            (rtrn++(storeTrueAt (Hex nol))++(ldyM (Hex nol))++(ldxC 2)++sys) (count+1) "boolean"
+        --(i:is) is false
+        else error "not yet reached!!! (but reached boolean in assign)"
 
     else error "not yet reached!!!"
     where

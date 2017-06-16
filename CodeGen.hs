@@ -122,6 +122,10 @@ storeFalseAt start = ((ldaC (Hex 70))++(sta start)++
                       (ldaC (Hex 69))++(sta (start+4))++
                       (ldaC (Hex 00))++(sta (start+5)))
 
+storeWordAt :: String -> Hex -> String -> String
+storeWordAt [] _ rtrn = rtrn
+storeWordAt (s:ss) start rtrn = storeWordAt ss (start+1) (rtrn++(ldaC (charToHex s))++(sta start))
+
 
 --Types
 data State = State SymbolTable (Forest String) [String] [(Var, Loc)] Int String deriving (Eq, Show)
@@ -180,7 +184,8 @@ genCode state = error "Pattern not matched in genCode!!!"
 
 --          st             varlocs         nol    lhs       input     rtrn      count  dtype     OUTPUT
 cgAssign :: SymbolTable -> [(Var, Loc)] -> Int -> String -> String -> String -> Int -> String -> (String, Int)
-cgAssign st varlocs nol lhs []     rtrn count dtype = (rtrn, nol)
+cgAssign st varlocs nol lhs []     rtrn count dtype = if (dtype /= "string") then (rtrn, nol)
+                                                    else ((rtrn++"00 "), nol)
 cgAssign st varlocs nol lhs (i:is) rtrn count dtype =
     --if an ID
     if ( (count == 0) && ((length (i:is) == 1) && (isValidId (i:is))) ) 
@@ -212,8 +217,20 @@ cgAssign st varlocs nol lhs (i:is) rtrn count dtype =
         else error "not yet reached!!! (but reached int in assign)"
 
     --if string literal
-    --else if ( (dtype == "string") || ((decideType (i:is)) == "string") ) then
+    else if ( (dtype == "string") || ((decideType (i:is)) == "string") ) then
+        if (count == 0) then
+            cgAssign st varlocs (nol+1) lhs is
+                    (rtrn++
+                    (ldaC (Hex nol))++
+                    (sta (getLoc varlocs lhs))++
+                    (ldaC (charToHex i))++
+                    (sta (Hex nol)))          (count+1) "string"
 
+        else
+            cgAssign st varlocs (nol+1) lhs is 
+                    (rtrn++
+                    (ldaC (charToHex i))++
+                    (sta (Hex nol)))          (count+1) "string"
     --if boolean literal
     else if ( (dtype == "boolean") || ((decideType (i:is)) == "boolean") ) then
         --if (i:is) true
@@ -258,6 +275,12 @@ cgPrint st varlocs nol (i:is) rtrn count dtype =
         --id is int
         if((getType (i:is) st) == "int")  
             then cgPrint st varlocs nol is (rtrn++(ldaM (getLoc varlocs (i:is)))) (count+1) "int"
+        --id is string
+        --else if ((getType (i:is) st) == "string")
+        --    then cgPrint st varlocs (nol) [] (rtrn++
+        --                                     (ldyM (getLoc varlocs (i:is)))++
+        --                                     (ldxC (Hex 2))++
+        --                                     sys) (count+1) "string"
         --id is boolean (check if 0 or 1 using op codes) (always nol+6 incase false)
         else if ((getType (i:is) st) == "boolean") 
             then cgPrint st varlocs (nol) [] (rtrn++
@@ -290,8 +313,9 @@ cgPrint st varlocs nol (i:is) rtrn count dtype =
             then cgPrint st varlocs nol is rtrn (count+1) dtype
         else error "not yet reached!!! (but reached int in assign)"
     --i is a string literal
-    --[string literal condition goes here!!!]
-
+    else if ( (dtype == "string") || ((decideType (i:is)) == "string") ) then
+        cgPrint st varlocs (nol+(length (i:is))) [] 
+            (rtrn++(storeWordAt (i:is) (Hex nol) [])++(ldyC (Hex nol))++(ldxC (Hex 2))++sys) (count+1) "string"
     --i is a boolean literal
     else if ( (dtype == "boolean") || ((decideType (i:is)) == "boolean") ) then
         --(i:is) is true
@@ -344,4 +368,33 @@ strToInt str = read str :: Int
 
 charToInt :: Char -> Int
 charToInt chr = strToInt ("\""++[chr]++"\"")
+
+charToHex :: Char -> Hex
+charToHex chr@('a') = Hex 65
+charToHex chr@('b') = Hex 66
+charToHex chr@('c') = Hex 67
+charToHex chr@('d') = Hex 68
+charToHex chr@('e') = Hex 69
+charToHex chr@('f') = Hex 70
+charToHex chr@('g') = Hex 71
+charToHex chr@('h') = Hex 72
+charToHex chr@('i') = Hex 73
+charToHex chr@('j') = Hex 74
+charToHex chr@('k') = Hex 75
+charToHex chr@('l') = Hex 76
+charToHex chr@('m') = Hex 77
+charToHex chr@('n') = Hex 78
+charToHex chr@('o') = Hex 79
+charToHex chr@('p') = Hex 80
+charToHex chr@('q') = Hex 81
+charToHex chr@('r') = Hex 82
+charToHex chr@('s') = Hex 83
+charToHex chr@('t') = Hex 84
+charToHex chr@('u') = Hex 85
+charToHex chr@('v') = Hex 86
+charToHex chr@('w') = Hex 87
+charToHex chr@('x') = Hex 88
+charToHex chr@('y') = Hex 89
+charToHex chr@('z') = Hex 90
+charToHex chr@(' ') = Hex 32
 

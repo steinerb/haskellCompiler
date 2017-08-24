@@ -193,7 +193,8 @@ intOpP :: Parser INTOP
 intOpP = ((string (show INTOP)) *> skipSpaces *> pure INTOP) <* skipSpaces
 --
 
-skipSpaces = (skipMany (string " "))
+skipSpaces = ( skipMany ((string " ")<|>(string "\n")<|>(string "\t")) )
+--skipSpaces = (skipMany (string " "))
 --
 
 -------PARSER STOP-------

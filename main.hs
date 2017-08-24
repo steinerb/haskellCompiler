@@ -16,6 +16,7 @@ import Data.Tree
 main :: IO ()
 main = do 
     introMessage
+    --"getLine" NOT ALLOWING FOR NEW LINE CHARACTERS!!
     userInput <- getLine
     parsablePrograms <- return (map (++"$") (splitByEOP userInput []))
     tokensForPrograms <- return $ appendEOPs (map (tokenize) (splitByEOP userInput []))

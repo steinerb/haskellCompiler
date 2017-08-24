@@ -65,12 +65,12 @@ processState s@(State i b t n l c) =
     --buffer is a VALID id [a-z] with whitespace in lookahead
     else if ( ((lookAhead s == (Just ' ') || (lookAhead s == (Just '\t')) || (lookAhead s == (Nothing)))) && (b `elem` validCharsS) )
         then (State i "" (t++[(makeToken s)]) (makePath (makeToken s) s) l (c+(length$makeTerminal$(makeToken s))))
-    --buffer is a space or tab
-    else if ((b == " ")||(b == "\t"))
+    --buffer is a space or tab or new line
+    else if ((b == " ")||(b == "\t")||(b == "\n"))
         then (State i "" (t++[T_space]) n (l+1) (c+1))
     --buffer is a new line
-    else if (b == "\n")
-        then (State i "" t n (l+1) 0)
+    --else if (b == "\n")
+    --    then (State i "" t n (l+1) 0)
     --nothing to be processed
     else if ((True) `elem` (map (==(last b)) (map (getPair) progressions)))
         then s

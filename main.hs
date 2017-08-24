@@ -17,7 +17,7 @@ main :: IO ()
 main = do 
     introMessage
     --"getLine" NOT ALLOWING FOR NEW LINE CHARACTERS!!
-    userInput <- getLine
+    userInput <- readFile "input.txt"
     parsablePrograms <- return (map (++"$") (splitByEOP userInput []))
     tokensForPrograms <- return $ appendEOPs (map (tokenize) (splitByEOP userInput []))
     putStrLn "\nLEXER: BEGIN\n" 
@@ -68,7 +68,8 @@ printCodeForPrograms cs = printCFPHelp cs 0 where
 
 --first printed text
 introMessage :: IO ()
-introMessage = do putStrLn ("Enter a String to be tokenized!\nWorking Tokens Include: \n\t"++workingTokens)
+introMessage = do putStrLn ("Reading from file: input.txt")
+--introMessage = do putStrLn ("Enter a String to be tokenized!\nWorking Tokens Include: \n\t"++workingTokens)
 
 workingTokens :: String
 workingTokens = "{, }, (, ), +, =, ==, !=, true, false, while, if, print, int, string, boolean, single character variables, or a string literal: \"...\""
